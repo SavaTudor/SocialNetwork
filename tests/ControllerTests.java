@@ -3,11 +3,24 @@ import business.Controller;
 import exception.EntityException;
 import exception.RepositoryException;
 import exception.ValidatorException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ControllerTests {
+    @BeforeEach
+    void setUp() throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("tests/testData/usersTest.csv"));
+        bufferedWriter.write("");
+        BufferedWriter bufferedWriter1 = new BufferedWriter(new FileWriter("tests/testData/friendshipTest.csv"));
+        bufferedWriter1.write("");
+
+    }
     @Test
     void testCreate() throws ValidatorException, RepositoryException, EntityException {
         Controller service = new Controller("tests/testData/usersTest.csv", "tests/testData/friendshipTest.csv");
@@ -28,11 +41,13 @@ public class ControllerTests {
         service.add("Suteu", "Sebi");
         service.addFriend(service.allUsers().get(0).getId(), service.allUsers().get(1).getId());
         assertEquals(service.largestCommunity().size(), 2);
-        assertEquals(service.communitiesNumber(), 1);
+        assertEquals(service.communitiesNumber(), 2);
         service.removeFriends(service.allUsers().get(0).getId(), service.allUsers().get(1).getId());
         service.addFriend(service.allUsers().get(0).getId(), service.allUsers().get(2).getId());
         service.removeUser(service.allUsers().get(2).getId());
         assertEquals(service.largestCommunity().size(), 1);
         assertEquals(service.communitiesNumber(), 2);
+        service.updateUser(1, "Sava", "Vlad");
+        service.getFriends(1);
     }
 }

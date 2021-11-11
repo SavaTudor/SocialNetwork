@@ -1,23 +1,35 @@
 import com.domain.User;
 import business.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
+    @BeforeEach
+    void setUp() throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("tests/testData/usersTest.csv"));
+        bufferedWriter.write("");
+        BufferedWriter bufferedWriter1 = new BufferedWriter(new FileWriter("tests/testData/friendshipTest.csv"));
+        bufferedWriter1.write("");
+
+    }
 
     @Test
     void testCreate() {
-        UserService service = new UserService();
+        UserService service = new UserService("tests/testData/usersTest.csv");
         assertEquals(service.size(), 0);
         assertTrue(service.isEmpty());
     }
 
     @Test
     void testAdd() {
-        UserService service = new UserService();
+        UserService service = new UserService("tests/testData/usersTest.csv");
         String name1 = "Sava", name2 = "Bogdi";
         String surname1 = "Tudor", surname2 = "Bogdi";
         assertEquals(service.size(), 0);
@@ -45,7 +57,7 @@ public class UserServiceTests {
 
     @Test
     void testFind() {
-        UserService service = new UserService();
+        UserService service = new UserService("tests/testData/usersTest.csv");
         String username1 = "savatudor31", username2 = "bogdanH";
         String name1 = "Sava", name2 = "Bogdi";
         String surname1 = "Tudor", surname2 = "Bogdi";
@@ -71,7 +83,7 @@ public class UserServiceTests {
 
     @Test
     void testRemove() {
-        UserService service = new UserService();
+        UserService service = new UserService("tests/testData/usersTest.csv");
         String name1 = "Sava", name2 = "Bogdi";
         String surname1 = "Tudor", surname2 = "Bogdi";
         try {
@@ -93,76 +105,11 @@ public class UserServiceTests {
         } catch (Exception e) {
             assertEquals(e.getMessage(), "Entity does not exist!\n");
         }
-        try{
+        try {
             service.add("ceva", "nou");
-        }catch (Exception e){
+        } catch (Exception e) {
             fail();
         }
     }
-
-
-    /*
-    @Test
-    void testAddFriend() {
-        UserService service = new UserService();
-        String username1 = "savatudor31", username2 = "bogdanH";
-        String name1 = "Sava", name2 = "Bogdi";
-        String surname1 = "Tudor", surname2 = "Bogdi";
-        try {
-            service.add(username1, name1, surname1);
-            service.add(username2, name2, surname2);
-            assertEquals(service.getFriends("savatudor31").size(), 0);
-            assertEquals(service.getFriends("bogdanH").size(), 0);
-        } catch (Exception e) {
-            fail();
-        }
-        try {
-            service.addFriend("savatudor31", "bogdanH");
-            assertEquals(service.getFriends("savatudor31").size(), 1);
-            assertEquals(service.getFriends("savatudor31").get(0).hashCode(), "bogdanH".hashCode());
-        } catch (Exception e) {
-            fail();
-        }
-        try {
-            service.addFriend("nuExista", "doesntExist");
-            fail();
-        } catch (Exception e) {
-            assertEquals(e.getMessage(), "Entity does not exist!\n");
-        }
-        try {
-            service.addFriend("savatudor31", "bogdanH");
-            fail();
-        } catch (Exception e) {
-            assertEquals(e.getMessage(), "Users are already friends!\n");
-        }
-    }
-
-    @Test
-    void testRemoveFriend() {
-        UserService service = new UserService();
-        String username1 = "savatudor31", username2 = "bogdanH";
-        String name1 = "Sava", name2 = "Bogdi";
-        String surname1 = "Tudor", surname2 = "Bogdi";
-        try {
-            service.add(username1, name1, surname1);
-            service.add(username2, name2, surname2);
-            service.addFriend("savatudor31", "bogdanH");
-        } catch (Exception e) {
-            fail();
-        }
-        try {
-            service.removeFriends("savatudor31", "bogdanH");
-        } catch (Exception e) {
-            fail();
-        }
-        try {
-            service.removeFriends("savatudor31", "bogdanH");
-            fail();
-        } catch (Exception e) {
-            assertEquals(e.getMessage(), "Users are not friends!\n");
-        }
-
-    }
-     */
 
 }

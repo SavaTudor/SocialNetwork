@@ -1,12 +1,25 @@
 import com.domain.Friendship;
 import com.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import repository.Repository;
 import repository.file.FileFrienshipRepository;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FileFriendshipTests {
+    @BeforeEach
+    void setUp() throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("tests/testData/usersTest.csv"));
+        bufferedWriter.write("");
+        BufferedWriter bufferedWriter1 = new BufferedWriter(new FileWriter("tests/testData/friendshipTest.csv"));
+        bufferedWriter1.write("");
+
+    }
     @Test
     void testExtractAndCreateString() {
         Repository<Integer, Friendship> repo = new FileFrienshipRepository("tests/testData/friendshipTest.csv");

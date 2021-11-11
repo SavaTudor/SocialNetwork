@@ -58,8 +58,10 @@ public class Controller {
      * @throws ValidatorException  if the given strings are not valid
      *                             The function adds a new user to the User repository
      */
-    public void add(String name, String surname) throws RepositoryException, ValidatorException {
-        network.addVertex(serviceUsers.add(name, surname).getId());
+    public User add(String name, String surname) throws RepositoryException, ValidatorException {
+        User user = serviceUsers.add(name, surname);
+        network.addVertex(user.getId());
+        return user;
     }
 
     /**

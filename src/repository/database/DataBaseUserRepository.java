@@ -128,7 +128,6 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
     public void update(Integer integer, User user) throws RepositoryException {
         String sql = "UPDATE users SET \"firstName\"='" + user.getFirstName() + "', \"lastName\"='" + user.getLastName() +
                 "' WHERE id=" + integer.toString();
-        System.out.println(sql);
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {

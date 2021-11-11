@@ -32,7 +32,7 @@ public class UI {
         firstName = input.nextLine();
         System.out.println("Enter your desired lastName!");
         lastName = input.nextLine();
-        service.add(firstName, lastName);
+        System.out.println("Added the new user with the id: " + service.add(firstName, lastName).getId());
     }
 
     /**

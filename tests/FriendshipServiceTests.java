@@ -1,14 +1,27 @@
 import com.domain.Friendship;
 import com.domain.User;
 import business.FriendshipService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FriendshipServiceTests {
+    @BeforeEach
+    void setUp() throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("tests/testData/usersTest.csv"));
+        bufferedWriter.write("");
+        BufferedWriter bufferedWriter1 = new BufferedWriter(new FileWriter("tests/testData/friendshipTest.csv"));
+        bufferedWriter1.write("");
+
+    }
     @Test
     void testCreate(){
-        FriendshipService service = new FriendshipService();
+        FriendshipService service = new FriendshipService("tests/testData/friendshipTest.csv");
         assertTrue(service.isEmpty());
     }
 
@@ -18,10 +31,17 @@ public class FriendshipServiceTests {
         user1.setId(1);
         User user2 = new User("Suteu", "Sebi");
         user2.setId(2);
-        FriendshipService service = new FriendshipService();
+        User user3 = new User("aaa", "bbb");
+        user3.setId(3);
+        FriendshipService service = new FriendshipService("tests/testData/friendshipTest.csv");
         try {
-            service.add(user1.getId(), user2.getId());
+            service.add(user1.getId(), user3.getId());
         }catch (Exception e){
+            fail();
+        }
+        try {
+            service.update(0,1,2);
+        }catch (Exception e) {
             fail();
         }
         Friendship fr = new Friendship(user1.getId(),user2.getId());
@@ -59,5 +79,6 @@ public class FriendshipServiceTests {
         }catch (Exception e){
             assertEquals(e.getMessage(), "Entity does not exist!\n");
         }
+
     }
 }
