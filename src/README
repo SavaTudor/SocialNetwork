@@ -1,0 +1,1 @@
+Connection to a database is made with the credentials held in a Build class with the public final static String parameters url, user, password.
