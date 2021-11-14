@@ -21,7 +21,7 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
      * @throws SQLException if it failed to connect to the database
      */
     public DataBaseUserRepository() throws SQLException {
-        connection = DriverManager.getConnection(dataBase, user, password);
+        connection = DriverManager.getConnection(database_url, database_user, database_password);
         statement = connection.createStatement();
     }
 

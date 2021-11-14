@@ -16,7 +16,7 @@ public class DataBaseFriendshipRepository implements Repository<Integer, Friends
     private Statement statement;
 
     public DataBaseFriendshipRepository() throws SQLException {
-        connection = DriverManager.getConnection(dataBase, user, password);
+        connection = DriverManager.getConnection(database_url, database_user, database_password);
         statement = connection.createStatement();
 
     }
