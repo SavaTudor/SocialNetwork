@@ -8,10 +8,10 @@ public class App {
 
 
 //        repository in fisier
-        Controller cont = new Controller("date/users.csv", "date/friendships.csv");
+//        Controller cont = new Controller("date/users.csv", "date/friendships.csv");
 
 //        repository in baza de date
-//        Controller cont = new Controller();
+        Controller cont = new Controller();
         UI ui = new UI(cont);
         ui.run();
     }

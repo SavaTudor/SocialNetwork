@@ -20,8 +20,8 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
      * creates the connection to the database and creates the statement
      * @throws SQLException if it failed to connect to the database
      */
-    public DataBaseUserRepository() throws SQLException {
-        connection = DriverManager.getConnection(database_url, database_user, database_password);
+    public DataBaseUserRepository(String url, String user, String pass) throws SQLException {
+        connection = DriverManager.getConnection(url, user, pass);
         statement = connection.createStatement();
     }
 
@@ -57,7 +57,7 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             throw new RepositoryException("Entity already exists!\n");
         }
     }
@@ -76,7 +76,9 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 found.setId(integer);
             }
             statement.executeUpdate(sql2);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
+        }
+        if(found==null){
             throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
@@ -129,9 +131,10 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
         String sql = "UPDATE users SET \"firstName\"='" + user.getFirstName() + "', \"lastName\"='" + user.getLastName() +
                 "' WHERE id=" + integer.toString();
         try {
+            find(integer);
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             throw new RepositoryException("Entity does not exist!\n");
         }
 

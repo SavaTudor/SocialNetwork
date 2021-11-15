@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static build.Build.*;
+
 public class FriendshipService {
     Repository<Integer, Friendship> repository;
     ValidatorFriendship validatorFriendship;
@@ -35,7 +37,7 @@ public class FriendshipService {
      */
     public FriendshipService() {
         try {
-            repository = new DataBaseFriendshipRepository();
+            repository = new DataBaseFriendshipRepository(database_url, database_user, database_password);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

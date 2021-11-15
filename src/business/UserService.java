@@ -12,6 +12,8 @@ import repository.memory.InMemoryRepository;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import static build.Build.*;
+
 
 public class UserService {
     Repository<Integer, User> repository;
@@ -22,7 +24,7 @@ public class UserService {
      */
     public UserService() {
         try {
-            this.repository = new DataBaseUserRepository();
+            this.repository = new DataBaseUserRepository(database_url, database_user, database_password);
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();

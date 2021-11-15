@@ -15,8 +15,8 @@ public class DataBaseFriendshipRepository implements Repository<Integer, Friends
     private Connection connection;
     private Statement statement;
 
-    public DataBaseFriendshipRepository() throws SQLException {
-        connection = DriverManager.getConnection(database_url, database_user, database_password);
+    public DataBaseFriendshipRepository(String url, String user, String pass) throws SQLException {
+        connection = DriverManager.getConnection(url, user, pass);
         statement = connection.createStatement();
 
     }
@@ -52,7 +52,7 @@ public class DataBaseFriendshipRepository implements Repository<Integer, Friends
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             throw new RepositoryException("Entity already exists!\n");
         }
     }
@@ -71,7 +71,9 @@ public class DataBaseFriendshipRepository implements Repository<Integer, Friends
                 found.setId(integer);
             }
             statement.executeUpdate(sql2);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
+        }
+        if (found == null) {
             throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
@@ -125,9 +127,9 @@ public class DataBaseFriendshipRepository implements Repository<Integer, Friends
         String sql = "UPDATE friendships SET \"usera\"=" + friendship.getUserA() + ", \"userb\"=" + friendship.getUserB() +
                 " WHERE fr_id=" + integer.toString();
         try {
+            find(integer);
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RepositoryException("Entity does not exist!\n");
         }
     }
