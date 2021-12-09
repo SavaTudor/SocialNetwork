@@ -1,24 +1,24 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.domain.User;
+import com.example.exception.RepositoryException;
+import com.example.exception.ValidatorException;
 import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.stage.Stage;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.example.build.Build.*;
 
-public class LoginController {
+public class SignUpController {
+
     private static DataBaseMessageRepository repo;
     private static DataBaseUserRepository repoUser;
     private static Controller service;
@@ -30,39 +30,34 @@ public class LoginController {
     }
 
     @FXML
-    private TextField usernameField;
+    private TextField firstNameField;
+
+    @FXML
+    private TextField lastNameField;
 
     @FXML
     private PasswordField passwordField;
 
     @FXML
-    private Button signInButton;
+    private Button newAccountButton;
 
-    @FXML
-    public void signInClicked() throws SQLException, IOException {
-        ArrayList<User> users = service.allUsers();
+    public void loginButtonClicked(ActionEvent actionEvent) throws IOException {
+        SceneController controller = new SceneController();
+        controller.switchScene("login.fxml", "LogIn", actionEvent);
+    }
+
+    public void newAccountClicked(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        boolean find = false;
-        for(User user : users)
-            if(usernameField.getText().equals(user.getId().toString()))
-            {
-                find = true;
-                break;
-
-            }
-        if(!find)
-        {
+        String firstName = firstNameField.getText();
+        String lastName = lastNameField.getText();
+        try {
+            service.add(firstName, lastName);
+        } catch (RepositoryException | ValidatorException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect user");
-            alert.setContentText("Try again");
+            alert.setContentText(e.getMessage());
             alert.setTitle("Warning");
             alert.show();
         }
-    }
-
-    @FXML
-    public void signUpClicked(ActionEvent event) throws IOException {
-        SceneController controller = new SceneController();
-        controller.switchScene("signUp.fxml", "SingUp", event);
     }
 }
