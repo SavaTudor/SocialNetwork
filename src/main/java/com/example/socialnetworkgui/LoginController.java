@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.example.build.Build.*;
@@ -22,6 +23,9 @@ public class LoginController {
     private static DataBaseMessageRepository repo;
     private static DataBaseUserRepository repoUser;
     private static Controller service;
+    private static int id;
+    @FXML
+    private TextField usernameField;
 
     public void initialize() throws SQLException {
         repo = new DataBaseMessageRepository(database_url, database_user, database_password);
@@ -30,16 +34,16 @@ public class LoginController {
     }
 
     @FXML
-    private TextField usernameField;
-
-    @FXML
     private PasswordField passwordField;
 
-    @FXML
-    private Button signInButton;
+
+    public int getId(){
+        return this.id;
+    }
 
     @FXML
-    public void signInClicked() throws SQLException, IOException {
+    public void signInClicked(ActionEvent event) throws SQLException, IOException {
+        this.id = Integer.parseInt(usernameField.getText());
         ArrayList<User> users = service.allUsers();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         boolean find = false;
@@ -57,6 +61,10 @@ public class LoginController {
             alert.setContentText("Try again");
             alert.setTitle("Warning");
             alert.show();
+        }
+        else {
+            SceneController controller = new SceneController();
+            controller.switchScene("principalScene.fxml", "Principal page", event);
         }
     }
 

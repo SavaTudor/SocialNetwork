@@ -445,4 +445,5 @@ public class Controller {
     public List<Message> allMessageByUser(int user){
         return messageService.allMessageByUser(user);
     }
+
 }
