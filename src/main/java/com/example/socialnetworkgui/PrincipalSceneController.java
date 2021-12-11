@@ -3,16 +3,19 @@ package com.example.socialnetworkgui;
 import com.example.business.Controller;
 import com.example.domain.Friendship;
 import com.example.domain.User;
+import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -28,6 +31,7 @@ public class PrincipalSceneController implements Initializable {
     public TableView<UserModel> friendshipTable;
     public TableColumn<UserModel, String> firstName;
     public TableColumn<UserModel, String> lastName;
+    public TableColumn<UserModel, String> id;
     public TableColumn data;
     private static DataBaseMessageRepository repo;
     private static DataBaseUserRepository repoUser;
@@ -46,17 +50,14 @@ public class PrincipalSceneController implements Initializable {
             e.printStackTrace();
         }
         service = new Controller(database_url, database_user, database_password);
+        id.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstName.setCellValueFactory(new PropertyValueFactory<>("FirstName"));
         lastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
         data.setCellValueFactory(new PropertyValueFactory<>("data"));
-        friendshipTable.setItems(insertInTable());
+        id.setVisible(false);
+        friendshipTable.setItems(loadTable());
     }
-
-    private ObservableList<UserModel> userModels = FXCollections.observableArrayList(
-            new UserModel("Amos", "Chepchieng", "11"),
-            new UserModel("Keep", "Too", "22")
-            );
-    private ObservableList<UserModel> insertInTable(){
+    private ObservableList<UserModel> loadTable(){
         LoginController loginController = new LoginController();
         int id = loginController.getId();
         LinkedList<UserModel> friends = new LinkedList<>();
@@ -71,7 +72,7 @@ public class PrincipalSceneController implements Initializable {
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
                             LocalDateTime data = x.getDate();
-                            UserModel userModel = new UserModel(firstName, lastName, data.toString());
+                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.toString());
                             friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -84,7 +85,7 @@ public class PrincipalSceneController implements Initializable {
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
                             LocalDateTime data = x.getDate();
-                            UserModel userModel = new UserModel(firstName, lastName, data.toString());
+                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.toString());
                             friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -94,4 +95,17 @@ public class PrincipalSceneController implements Initializable {
         return FXCollections.observableArrayList(friends);
     }
 
+    public void deleteButtonClicked(ActionEvent actionEvent) throws EntityException, RepositoryException {
+        ObservableList<UserModel> users = friendshipTable.getSelectionModel().getSelectedItems();
+        int id = Integer.parseInt(users.get(0).getId());
+        LoginController loginController = new LoginController();
+        int userId = loginController.getId();
+        service.removeFriends(userId, id);
+        friendshipTable.setItems(loadTable());
+    }
+
+    public void addFriendClicked(ActionEvent actionEvent) throws IOException {
+        SceneController controller = new SceneController();
+        controller.switchScene("addNewFriend.fxml", "Add new friend", actionEvent);
+    }
 }

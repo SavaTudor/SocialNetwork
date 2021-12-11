@@ -446,4 +446,15 @@ public class Controller {
         return messageService.allMessageByUser(user);
     }
 
+    public List<User> getNoFriend(int id){
+        List<User> users = new ArrayList<>();
+        List<User> userList = serviceUsers.all();
+        List<Integer> users1 = network.getEdges(id);
+        userList.
+                forEach(x->{
+                    if(!users1.contains(x.getId()))
+                        users.add(x);
+                });
+        return users;
+    }
 }
