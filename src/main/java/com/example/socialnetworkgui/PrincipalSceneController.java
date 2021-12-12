@@ -109,4 +109,9 @@ public class PrincipalSceneController implements Initializable {
         SceneController controller = new SceneController();
         controller.switchScene("addNewFriend.fxml", "LogIn", actionEvent);
     }
+
+    public void friendRequestsClicked(ActionEvent actionEvent) throws IOException {
+        SceneController controller = new SceneController();
+        controller.switchScene("friendRequests.fxml", "Friend Requests", actionEvent);
+    }
 }

@@ -17,5 +17,6 @@
       </TableView>
       <Button fx:id="deleteButton" layoutX="501.0" layoutY="267.0" mnemonicParsing="false" onAction="#deleteButtonClicked" text="Delete" />
       <Button fx:id="addFriend" layoutX="267.0" layoutY="267.0" mnemonicParsing="false" onAction="#addFriendClicked" text="Add new friend" />
+       <Button fx:id="friendRequests" layoutX="133.0" layoutY="267.0" mnemonicParsing="false" onAction="#friendRequestsClicked" text="Friend Requests" />
    </children>
 </AnchorPane>

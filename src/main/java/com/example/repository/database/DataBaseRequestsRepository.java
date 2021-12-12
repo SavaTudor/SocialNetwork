@@ -1,5 +1,6 @@
 package com.example.repository.database;
 
+import com.example.build.Build;
 import com.example.domain.FriendRequest;
 import com.example.domain.Status;
 import com.example.exception.RepositoryException;
@@ -42,9 +43,9 @@ public class DataBaseRequestsRepository implements Repository<Integer, FriendReq
 
     @Override
     public void add(Integer integer, FriendRequest friendRequest) throws RepositoryException {
-        String sql = "INSERT INTO friendship_invites(id,usera,userb,status) VALUES (" +
+        String sql = "INSERT INTO friendship_invites(id,usera,userb,status,datesend) VALUES (" +
                 integer.toString() + ",'" + friendRequest.getFrom() + "','" + friendRequest.getTo() +
-                "','" + friendRequest.getStatus().toString() + "');";
+                "','" + friendRequest.getStatus().toString() + "','" + friendRequest.getDate().format(Build.formatter) + "');";
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {

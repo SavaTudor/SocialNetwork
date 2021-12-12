@@ -14,7 +14,7 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: orange;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.LoginController">
    <children>
       <VBox layoutX="280.0" layoutY="182.0" />
-      <Button fx:id="signInButton" layoutX="505.0" layoutY="323.0" mnemonicParsing="false" onAction="#signInClicked" style="-fx-background-color: red; -fx-background-radius: 8;" text="Sing In" />
+      <Button fx:id="signInButton" layoutX="505.0" layoutY="323.0" mnemonicParsing="false" onAction="#signInClicked" style="-fx-background-color: red; -fx-background-radius: 8;" text="Sign In" />
       <Button fx:id="signUpButton" contentDisplay="BOTTOM" layoutX="379.0" layoutY="323.0" mnemonicParsing="false" onAction="#signUpClicked" style="-fx-background-color: red; -fx-background-radius: 8;" text="Sign Up" textAlignment="CENTER" textFill="#0d0d0d" textOverrun="CENTER_WORD_ELLIPSIS" wrapText="true" />
       <VBox prefHeight="400.0" prefWidth="269.0">
          <children>
