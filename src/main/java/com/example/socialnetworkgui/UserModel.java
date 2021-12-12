@@ -1,14 +1,10 @@
 package com.example.socialnetworkgui;
 
-import com.example.business.Controller;
-import com.example.repository.database.DataBaseMessageRepository;
-import com.example.repository.database.DataBaseUserRepository;
 import javafx.beans.property.SimpleStringProperty;
-
-import static com.example.build.Build.*;
 
 public class UserModel {
 
+    private SimpleStringProperty id;
     private SimpleStringProperty firstName;
     private SimpleStringProperty lastName;
     private SimpleStringProperty data;
@@ -21,10 +17,19 @@ public class UserModel {
         this.data.set(data);
     }
 
-    public UserModel(String firstName, String lastName, String data) {
+    public UserModel(String id, String firstName, String lastName, String data) {
+        this.id = new SimpleStringProperty(id);
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
         this.data = new SimpleStringProperty(data);
+    }
+
+    public String getId() {
+        return id.get();
+    }
+
+    public void setId(String id) {
+        this.id.set(id);
     }
 
     public String getFirstName() {
