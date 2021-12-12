@@ -30,6 +30,7 @@ public class AddNewFriendController implements Initializable {
     private static DataBaseMessageRepository repo;
     private static DataBaseUserRepository repoUser;
     private static Controller service;
+    private int userId;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -48,16 +49,17 @@ public class AddNewFriendController implements Initializable {
         name.setCellValueFactory(new PropertyValueFactory<>("name"));
         id.setVisible(false);
         userTable.setVisible(false);
+
+        LoginController loginController = new LoginController();
+        this.userId = loginController.getId();
     }
 
     private ObservableList<FindUserModel> loadTable(String name){
-        LoginController loginController = new LoginController();
-        int id = loginController.getId();
         LinkedList<FindUserModel> friends = new LinkedList<>();
-        List<User> users = service.getNoFriend(id);
+        List<User> users = service.getNoFriend(this.userId);
         users.stream().
                 filter(x->(x.getFirstName().equals(name) || x.getLastName().equals(name)) &&
-                        x.getId() != id).
+                        x.getId() != this.userId).
                 forEach(x->{
                     String id1 = x.getId().toString();
                     String userName = x.getFirstName() + " " + x.getLastName();
@@ -74,12 +76,10 @@ public class AddNewFriendController implements Initializable {
     }
 
     public void addClicked(ActionEvent actionEvent){
-        LoginController loginController = new LoginController();
-        int id = loginController.getId();
         ObservableList<FindUserModel> users = userTable.getSelectionModel().getSelectedItems();
         int id1 = Integer.parseInt(users.get(0).getId());
         try {
-            service.addFriendRequest(id, id1);
+            service.addFriendRequest(this.userId, id1);
         } catch (ValidatorException | RepositoryException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText(e.getMessage());

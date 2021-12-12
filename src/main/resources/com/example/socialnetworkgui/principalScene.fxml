@@ -7,12 +7,12 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.PrincipalSceneController">
    <children>
-      <TableView fx:id="friendshipTable" layoutX="228.0" layoutY="36.0" prefHeight="200.0" prefWidth="311.0">
+      <TableView fx:id="friendshipTable" layoutX="228.0" layoutY="36.0" prefHeight="200.0" prefWidth="354.0">
         <columns>
             <TableColumn fx:id="id" prefWidth="75.0" text="id" />
           <TableColumn fx:id="firstName" prefWidth="75.0" text="FirstName" />
             <TableColumn fx:id="lastName" prefWidth="75.0" text="LastName" />
-          <TableColumn fx:id="data" prefWidth="75.0" text="Data" />
+          <TableColumn fx:id="data" prefWidth="121.59991455078125" text="Data" />
         </columns>
       </TableView>
       <Button fx:id="deleteButton" layoutX="501.0" layoutY="267.0" mnemonicParsing="false" onAction="#deleteButtonClicked" text="Delete" />

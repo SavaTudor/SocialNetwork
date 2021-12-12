@@ -7,6 +7,8 @@ import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
@@ -38,26 +40,26 @@ public class SignUpController {
     @FXML
     private PasswordField passwordField;
 
-    @FXML
-    private Button newAccountButton;
-
     public void loginButtonClicked(ActionEvent actionEvent) throws IOException {
         SceneController controller = new SceneController();
         controller.switchScene("login.fxml", "LogIn", actionEvent);
     }
 
     public void newAccountClicked(ActionEvent actionEvent) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         String firstName = firstNameField.getText();
         String lastName = lastNameField.getText();
         try {
             service.add(firstName, lastName);
-        } catch (RepositoryException | ValidatorException e) {
+            SceneController controller = new SceneController();
+            controller.switchScene("login.fxml", "Add new friend", actionEvent);
+        } catch (RepositoryException | ValidatorException | IOException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect user");
             alert.setContentText(e.getMessage());
             alert.setTitle("Warning");
             alert.show();
         }
+
     }
 }

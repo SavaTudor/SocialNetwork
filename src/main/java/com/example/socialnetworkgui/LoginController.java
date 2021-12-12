@@ -2,6 +2,9 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.User;
+import com.example.exception.EntityException;
+import com.example.exception.RepositoryException;
+import com.example.exception.ValidatorException;
 import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
 import javafx.event.ActionEvent;

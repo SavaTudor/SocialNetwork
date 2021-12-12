@@ -27,7 +27,6 @@ import static com.example.build.Build.*;
 
 public class PrincipalSceneController implements Initializable {
 
-
     public TableView<UserModel> friendshipTable;
     public TableColumn<UserModel, String> firstName;
     public TableColumn<UserModel, String> lastName;
@@ -36,6 +35,7 @@ public class PrincipalSceneController implements Initializable {
     private static DataBaseMessageRepository repo;
     private static DataBaseUserRepository repoUser;
     private static Controller service;
+    private int userId;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -50,6 +50,10 @@ public class PrincipalSceneController implements Initializable {
             e.printStackTrace();
         }
         service = new Controller(database_url, database_user, database_password);
+
+        LoginController loginController = new LoginController();
+        this.userId = loginController.getId();
+
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstName.setCellValueFactory(new PropertyValueFactory<>("FirstName"));
         lastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
@@ -58,14 +62,13 @@ public class PrincipalSceneController implements Initializable {
         friendshipTable.setItems(loadTable());
     }
     private ObservableList<UserModel> loadTable(){
-        LoginController loginController = new LoginController();
-        int id = loginController.getId();
         LinkedList<UserModel> friends = new LinkedList<>();
         List<Friendship> friendships = service.allFriendships();
+        System.out.println(userId);
         friendships.stream().
-                filter(x->x.getUserA() == id || x.getUserB() == id ).
+                filter(x->x.getUserA() == this.userId || x.getUserB() == this.userId ).
                 forEach(x->{
-                    if(x.getUserA() == id)
+                    if(x.getUserA() == this.userId)
                     {
                         try {
                             User user = service.findUser(x.getUserB());
@@ -78,7 +81,7 @@ public class PrincipalSceneController implements Initializable {
                             e.printStackTrace();
                         }
                     }
-                    if(x.getUserB() == id)
+                    if(x.getUserB() == this.userId)
                     {
                         try {
                             User user = service.findUser(x.getUserA());
@@ -98,14 +101,12 @@ public class PrincipalSceneController implements Initializable {
     public void deleteButtonClicked(ActionEvent actionEvent) throws EntityException, RepositoryException {
         ObservableList<UserModel> users = friendshipTable.getSelectionModel().getSelectedItems();
         int id = Integer.parseInt(users.get(0).getId());
-        LoginController loginController = new LoginController();
-        int userId = loginController.getId();
-        service.removeFriends(userId, id);
+        service.removeFriends(this.userId, id);
         friendshipTable.setItems(loadTable());
     }
 
     public void addFriendClicked(ActionEvent actionEvent) throws IOException {
         SceneController controller = new SceneController();
-        controller.switchScene("addNewFriend.fxml", "Add new friend", actionEvent);
+        controller.switchScene("addNewFriend.fxml", "LogIn", actionEvent);
     }
 }
