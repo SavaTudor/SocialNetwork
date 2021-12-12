@@ -16,7 +16,7 @@ public class SceneController {
 
     public void switchScene(String nameScena, String title, ActionEvent event) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(nameScena));
-        Scene scene = new Scene(fxmlLoader.load(), 650, 380);
+        Scene scene = new Scene(fxmlLoader.load(), 800, 400);
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         stage.setTitle(title);
         stage.setScene(scene);

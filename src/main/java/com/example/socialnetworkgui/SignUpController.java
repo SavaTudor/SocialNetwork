@@ -13,6 +13,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -24,11 +26,14 @@ public class SignUpController {
     private static DataBaseMessageRepository repo;
     private static DataBaseUserRepository repoUser;
     private static Controller service;
+    public ImageView beeImage;
 
     public void initialize() throws SQLException {
         repo = new DataBaseMessageRepository(database_url, database_user, database_password);
         repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
         service = new Controller(database_url, database_user, database_password);
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/loginImage.png");
+        beeImage.setImage(image);
     }
 
     @FXML

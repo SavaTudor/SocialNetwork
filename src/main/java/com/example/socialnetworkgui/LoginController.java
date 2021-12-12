@@ -30,6 +30,7 @@ public class LoginController {
     private static Controller service;
     private static int id;
     public ImageView beeImage;
+
     @FXML
     private TextField usernameField;
 
@@ -37,7 +38,7 @@ public class LoginController {
         repo = new DataBaseMessageRepository(database_url, database_user, database_password);
         repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
         service = new Controller(database_url, database_user, database_password);
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\src/icon.jfif");
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/loginImage.png");
         beeImage.setImage(image);
     }
 
