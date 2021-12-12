@@ -16,5 +16,6 @@
           <TableColumn fx:id="name" prefWidth="121.5999755859375" text="name" />
         </columns>
       </TableView>
+      <Button fx:id="addButton" layoutX="432.0" layoutY="335.0" mnemonicParsing="false" onAction="#addClicked" text="Add friend" />
    </children>
 </AnchorPane>

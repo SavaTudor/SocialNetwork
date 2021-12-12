@@ -45,7 +45,7 @@ public class LoginController {
     public void signInClicked(ActionEvent event) throws SQLException, IOException {
         this.id = Integer.parseInt(usernameField.getText());
         ArrayList<User> users = service.allUsers();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         boolean find = false;
         for(User user : users)
             if(usernameField.getText().equals(user.getId().toString()))
@@ -56,9 +56,7 @@ public class LoginController {
             }
         if(!find)
         {
-            alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect user");
-            alert.setContentText("Try again");
             alert.setTitle("Warning");
             alert.show();
         }

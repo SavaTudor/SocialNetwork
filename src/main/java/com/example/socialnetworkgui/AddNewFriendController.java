@@ -2,6 +2,8 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.User;
+import com.example.exception.RepositoryException;
+import com.example.exception.ValidatorException;
 import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
 import javafx.collections.FXCollections;
@@ -69,5 +71,21 @@ public class AddNewFriendController implements Initializable {
         String userName = findUser.getText();
         userTable.setItems(loadTable(userName));
         userTable.setVisible(true);
+    }
+
+    public void addClicked(ActionEvent actionEvent){
+        LoginController loginController = new LoginController();
+        int id = loginController.getId();
+        ObservableList<FindUserModel> users = userTable.getSelectionModel().getSelectedItems();
+        int id1 = Integer.parseInt(users.get(0).getId());
+        try {
+            service.addFriendRequest(id, id1);
+        } catch (ValidatorException | RepositoryException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(e.getMessage());
+            alert.setContentText("Try again");
+            alert.setTitle("Warning");
+            alert.show();
+        }
     }
 }
