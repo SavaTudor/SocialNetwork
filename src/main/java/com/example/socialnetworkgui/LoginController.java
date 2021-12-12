@@ -12,6 +12,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ public class LoginController {
     private static DataBaseUserRepository repoUser;
     private static Controller service;
     private static int id;
+    public ImageView beeImage;
     @FXML
     private TextField usernameField;
 
@@ -34,6 +37,8 @@ public class LoginController {
         repo = new DataBaseMessageRepository(database_url, database_user, database_password);
         repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
         service = new Controller(database_url, database_user, database_password);
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\src/icon.jfif");
+        beeImage.setImage(image);
     }
 
     @FXML
