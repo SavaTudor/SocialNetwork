@@ -10,10 +10,15 @@ import com.example.repository.database.DataBaseUserRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static com.example.build.Build.*;
 
 public class PrincipalSceneController implements Initializable {
 
@@ -31,26 +35,12 @@ public class PrincipalSceneController implements Initializable {
     public TableColumn<UserModel, String> firstName;
     public TableColumn<UserModel, String> lastName;
     public TableColumn<UserModel, String> id;
+    private Controller service;
     public TableColumn data;
-    private static DataBaseMessageRepository repo;
-    private static DataBaseUserRepository repoUser;
-    private static Controller service;
     private int userId;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        try {
-            repo = new DataBaseMessageRepository(database_url, database_user, database_password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        service = new Controller(database_url, database_user, database_password);
-
         LoginController loginController = new LoginController();
         this.userId = loginController.getId();
 
@@ -59,8 +49,14 @@ public class PrincipalSceneController implements Initializable {
         lastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
         data.setCellValueFactory(new PropertyValueFactory<>("data"));
         id.setVisible(false);
+        //friendshipTable.setItems(loadTable());
+    }
+
+    public void setService(Controller service){
+        this.service = service;
         friendshipTable.setItems(loadTable());
     }
+
     private ObservableList<UserModel> loadTable(){
         LinkedList<UserModel> friends = new LinkedList<>();
         List<Friendship> friendships = service.allFriendships();
@@ -105,8 +101,17 @@ public class PrincipalSceneController implements Initializable {
         friendshipTable.setItems(loadTable());
     }
 
-    public void addFriendClicked(ActionEvent actionEvent) throws IOException {
-        SceneController controller = new SceneController();
-        controller.switchScene("addNewFriend.fxml", "LogIn", actionEvent);
+    public void addFriendClicked(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("addNewFriend.fxml"));
+        AnchorPane root = loader.load();
+        AddNewFriendController addNewFriendController = loader.getController();
+        addNewFriendController.setService(service);
+        Scene scene = new Scene(root, 800, 400);
+        Stage stage;
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage.setTitle("Add new friend");
+        stage.setScene(scene);
+        stage.show();
     }
 }

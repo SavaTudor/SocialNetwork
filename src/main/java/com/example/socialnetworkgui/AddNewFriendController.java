@@ -4,8 +4,6 @@ import com.example.business.Controller;
 import com.example.domain.User;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
-import com.example.repository.database.DataBaseMessageRepository;
-import com.example.repository.database.DataBaseUserRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,12 +12,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static com.example.build.Build.*;
 
 public class AddNewFriendController implements Initializable {
     public Button find;
@@ -27,24 +23,11 @@ public class AddNewFriendController implements Initializable {
     public TableView<FindUserModel> userTable;
     public TableColumn<UserModel, String> name;
     public TableColumn<UserModel, String> id;
-    private static DataBaseMessageRepository repo;
-    private static DataBaseUserRepository repoUser;
     private static Controller service;
     private int userId;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        try {
-            repo = new DataBaseMessageRepository(database_url, database_user, database_password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        service = new Controller(database_url, database_user, database_password);
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         name.setCellValueFactory(new PropertyValueFactory<>("name"));
         id.setVisible(false);
@@ -52,6 +35,10 @@ public class AddNewFriendController implements Initializable {
 
         LoginController loginController = new LoginController();
         this.userId = loginController.getId();
+    }
+
+    public void setService(Controller service){
+        this.service = service;
     }
 
     private ObservableList<FindUserModel> loadTable(String name){

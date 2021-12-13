@@ -4,23 +4,27 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="676.0" style="-fx-background-color: orange;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.LoginController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="676.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.LoginController">
    <children>
       <VBox prefHeight="400.0" prefWidth="269.0">
          <children>
             <ImageView fx:id="beeImage" fitHeight="400.0" fitWidth="300.0">
-            </ImageView>
+               <image>
+                  <Image url="@../../../../../../images/loginImage.png" />
+               </image></ImageView>
          </children>
       </VBox>
-      <GridPane gridLinesVisible="true" layoutX="354.0" layoutY="171.0" prefHeight="103.0" prefWidth="286.0" style="-fx-background-color: orange; -fx-background-radius: 3; -fx-grid-lines-visible: false;">
+      <GridPane gridLinesVisible="true" layoutX="354.0" layoutY="171.0" prefHeight="103.0" prefWidth="286.0" style="-fx-background-color: black; -fx-background-radius: 3; -fx-grid-lines-visible: false;">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="137.4000244140625" minWidth="10.0" prefWidth="88.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="203.19996337890623" minWidth="10.0" prefWidth="199.2" />
@@ -31,31 +35,37 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <PasswordField fx:id="passwordField" prefHeight="29.0" prefWidth="203.0" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label prefHeight="18.0" prefWidth="78.0" text="User Login">
+            <PasswordField fx:id="passwordField" prefHeight="30.0" prefWidth="199.0" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label prefHeight="18.0" prefWidth="78.0" text="User Login" textFill="#fad907">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font></Label>
-            <Label text="  Password:" GridPane.rowIndex="2">
+            <Label text="  Password:" textFill="#fad907" GridPane.rowIndex="2">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font></Label>
-            <Label text="User Name:" GridPane.rowIndex="1">
+            <Label text="User Name:" textFill="#fad907" GridPane.rowIndex="1">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font></Label>
-            <TextField fx:id="usernameField" prefHeight="29.0" prefWidth="203.0" promptText="User Name" style="-fx-background-radius: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="usernameField" prefHeight="30.0" prefWidth="199.0" promptText="User Name" style="-fx-background-radius: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
-      <Button fx:id="signInButton" layoutX="529.0" layoutY="317.0" mnemonicParsing="false" onAction="#signInClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8;" text="Sing In" textFill="#080808">
+      <Button fx:id="signInButton" layoutX="529.0" layoutY="317.0" mnemonicParsing="false" onAction="#signInClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8; -fx-background-color: #fad907;" text="Sing In" textFill="#080808">
          <font>
             <Font size="15.0" />
          </font>
       </Button>
-      <Button fx:id="signUpButton" contentDisplay="BOTTOM" layoutX="408.0" layoutY="316.0" mnemonicParsing="false" onAction="#signUpClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8;" text="Sign Up" textAlignment="CENTER" textFill="#0d0d0d" textOverrun="CENTER_WORD_ELLIPSIS" wrapText="true">
+      <Button fx:id="signUpButton" contentDisplay="BOTTOM" layoutX="408.0" layoutY="316.0" mnemonicParsing="false" onAction="#signUpClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8; -fx-background-color: #fad907;" text="Sign Up" textAlignment="CENTER" textFill="#0d0d0d" textOverrun="CENTER_WORD_ELLIPSIS" wrapText="true">
          <font>
             <Font size="15.0" />
          </font>
       </Button>
+      <HBox layoutX="478.0" layoutY="65.0" prefHeight="65.0" prefWidth="68.0">
+         <children>
+            <ImageView fx:id="lockImage" fitHeight="65.0" fitWidth="66.0">
+            </ImageView>
+         </children>
+      </HBox>
    </children>
 </AnchorPane>
