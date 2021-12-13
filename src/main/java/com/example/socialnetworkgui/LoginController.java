@@ -37,7 +37,7 @@ public class LoginController {
         repo = new DataBaseMessageRepository(database_url, database_user, database_password);
         repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
         service = new Controller(database_url, database_user, database_password);
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\src/icon.jfif");
+        Image image = new Image("file:icon.jfif");
         beeImage.setImage(image);
     }
 

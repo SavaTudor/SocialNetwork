@@ -10,10 +10,14 @@ import com.example.repository.database.DataBaseUserRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -61,34 +65,33 @@ public class PrincipalSceneController implements Initializable {
         id.setVisible(false);
         friendshipTable.setItems(loadTable());
     }
-    private ObservableList<UserModel> loadTable(){
+
+    private ObservableList<UserModel> loadTable() {
         LinkedList<UserModel> friends = new LinkedList<>();
         List<Friendship> friendships = service.allFriendships();
         System.out.println(userId);
         friendships.stream().
-                filter(x->x.getUserA() == this.userId || x.getUserB() == this.userId ).
-                forEach(x->{
-                    if(x.getUserA() == this.userId)
-                    {
+                filter(x -> x.getUserA() == this.userId || x.getUserB() == this.userId).
+                forEach(x -> {
+                    if (x.getUserA() == this.userId) {
                         try {
                             User user = service.findUser(x.getUserB());
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
                             LocalDateTime data = x.getDate();
-                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.toString());
+                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.format(formatter));
                             friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
                         }
                     }
-                    if(x.getUserB() == this.userId)
-                    {
+                    if (x.getUserB() == this.userId) {
                         try {
                             User user = service.findUser(x.getUserA());
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
                             LocalDateTime data = x.getDate();
-                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.toString());
+                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.format(formatter));
                             friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -108,5 +111,27 @@ public class PrincipalSceneController implements Initializable {
     public void addFriendClicked(ActionEvent actionEvent) throws IOException {
         SceneController controller = new SceneController();
         controller.switchScene("addNewFriend.fxml", "LogIn", actionEvent);
+    }
+
+    public void friendRequestsClicked(ActionEvent actionEvent) throws IOException {
+//        SceneController controller = new SceneController();
+//        controller.switchScene("friendRequests.fxml", "Friend Requests", actionEvent);
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("friendRequests.fxml"));
+            Stage stage = new Stage();
+            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+            stage.setTitle("Friend Requests");
+            stage.setScene(scene);
+            stage.show();
+            friendshipTable.setItems(loadTable());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refresh(ActionEvent actionEvent) {
+        friendshipTable.setItems(loadTable());
     }
 }

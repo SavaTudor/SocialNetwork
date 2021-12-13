@@ -1,15 +1,29 @@
 package com.example.domain;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class FriendRequest extends Entity<Integer> {
     int from, to;
     Status status;
+    LocalDateTime date;
 
-    public FriendRequest(int usera, int userb, Status status) {
+    public FriendRequest(int usera, int userb, Status status, LocalDateTime date) {
         this.from = usera;
         this.to = userb;
         this.status = status;
+        this.date = date;
+    }
+
+    public FriendRequest(int from, int to, Status status) {
+        this.from = from;
+        this.to = to;
+        this.status = status;
+        this.date = LocalDateTime.now();
+    }
+
+    public LocalDateTime getDate() {
+        return date;
     }
 
     public int getFrom() {
