@@ -22,7 +22,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -44,6 +46,9 @@ public class FriendRequestsController implements Initializable {
     private static DataBaseUserRepository repoUser;
     private static Controller service;
     private int userId;
+
+    @FXML
+    public Button closeButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -85,7 +90,7 @@ public class FriendRequestsController implements Initializable {
                         String lastName = user.getLastName();
                         LocalDateTime data = x.getDate();
                         Status status = x.getStatus();
-                        RequestModel requestModel = new RequestModel(user.getId().toString(), firstName, lastName, data.toString(), status
+                        RequestModel requestModel = new RequestModel(user.getId().toString(), firstName, lastName, data.format(formatter), status
                                 .toString());
                         requests.add(requestModel);
                     }
@@ -103,7 +108,7 @@ public class FriendRequestsController implements Initializable {
         }else{
             int from = Integer.parseInt(requestModels.get(0).getId());
             service.respondFriendRequest(from, userId, "APPROVE");
-            loadTable();
+            requestsTable.setItems(loadTable());
         }
     }
 
@@ -117,7 +122,17 @@ public class FriendRequestsController implements Initializable {
         }else{
             int from = Integer.parseInt(requestModels.get(0).getId());
             service.respondFriendRequest(from, userId, "DECLINE");
-            loadTable();
+            requestsTable.setItems(loadTable());
         }
+    }
+
+    public void returnB(ActionEvent actionEvent) throws IOException {
+        Stage stage = (Stage) closeButton.getScene().getWindow();
+        stage.close();
+    }
+
+    public void acceptAll(ActionEvent actionEvent){
+        service.respondToAllRequests(userId, "APPROVE");
+        requestsTable.setItems(loadTable());
     }
 }

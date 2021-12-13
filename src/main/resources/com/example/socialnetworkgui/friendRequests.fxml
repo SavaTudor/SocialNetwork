@@ -6,13 +6,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.control.cell.CheckBoxTableCell?>
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.socialnetworkgui.FriendRequestsController"
             prefHeight="400.0" prefWidth="600.0">
 
     <children>
-        <TableView fx:id="requestsTable" layoutX="228.0" layoutY="36.0" prefHeight="200.0" prefWidth="450.0"
+        <TableView fx:id="requestsTable" layoutX="100.0" layoutY="36.0" prefHeight="200.0" prefWidth="450.0"
                    HBox.hgrow="NEVER">
             <columns>
                 <TableColumn fx:id="id" prefWidth="75.0" text="id"/>
@@ -22,9 +23,13 @@
                 <TableColumn fx:id="status" prefWidth="75.0" text="Status"/>
             </columns>
         </TableView>
-        <HBox layoutX="320.0" layoutY="267.0" spacing="50">
-            <Button fx:id="acceptButton" mnemonicParsing="false" onAction="#acceptRequest" text="Accept" style="-fx-background-color: #00ff00"/>
-            <Button fx:id="declineButton" mnemonicParsing="false" onAction="#declineRequest" text="Decline" style="-fx-background-color: #ff0000"/>
+        <HBox layoutX="120.0" layoutY="267.0" spacing="50">
+            <Button fx:id="acceptButton" mnemonicParsing="false" onAction="#acceptRequest" text="Accept"
+                    style="-fx-background-color: #00ff00"/>
+            <Button fx:id="declineButton" mnemonicParsing="false" onAction="#declineRequest" text="Decline"
+                    style="-fx-background-color: #ff0000"/>
+            <Button fx:id="acceptAllButton" mnemonicParsing="false" onAction="#acceptAll" text="Accept All"/>
+            <Button fx:id="closeButton" mnemonicParsing="false" onAction="#returnB" text="Close" cancelButton="true"/>
         </HBox>
     </children>
 
