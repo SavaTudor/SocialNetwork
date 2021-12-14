@@ -16,14 +16,6 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="676.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.LoginController">
    <children>
-      <VBox prefHeight="400.0" prefWidth="269.0">
-         <children>
-            <ImageView fx:id="beeImage" fitHeight="400.0" fitWidth="300.0">
-               <image>
-                  <Image url="@../../../../../../images/loginImage.png" />
-               </image></ImageView>
-         </children>
-      </VBox>
       <GridPane gridLinesVisible="true" layoutX="354.0" layoutY="171.0" prefHeight="103.0" prefWidth="286.0" style="-fx-background-color: black; -fx-background-radius: 3; -fx-grid-lines-visible: false;">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="137.4000244140625" minWidth="10.0" prefWidth="88.0" />
@@ -67,5 +59,8 @@
             </ImageView>
          </children>
       </HBox>
+      <VBox prefHeight="400.0" prefWidth="26.0" style="-fx-background-color: #fad907;" />
+      <ImageView fx:id="beeImage" fitHeight="262.0" fitWidth="305.0" layoutX="33.0" layoutY="14.0">
+      </ImageView>
    </children>
 </AnchorPane>

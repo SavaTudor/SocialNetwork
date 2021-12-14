@@ -5,23 +5,12 @@ import javafx.beans.property.SimpleStringProperty;
 public class UserModel {
 
     private SimpleStringProperty id;
-    private SimpleStringProperty firstName;
-    private SimpleStringProperty lastName;
-    private SimpleStringProperty data;
+    private SimpleStringProperty username;
 
-    public String getData() {
-        return data.get();
-    }
 
-    public void setData(String data) {
-        this.data.set(data);
-    }
-
-    public UserModel(String id, String firstName, String lastName, String data) {
+    public UserModel(String id, String username) {
         this.id = new SimpleStringProperty(id);
-        this.firstName = new SimpleStringProperty(firstName);
-        this.lastName = new SimpleStringProperty(lastName);
-        this.data = new SimpleStringProperty(data);
+        this.username = new SimpleStringProperty(username);
     }
 
     public String getId() {
@@ -32,19 +21,15 @@ public class UserModel {
         this.id.set(id);
     }
 
-    public String getFirstName() {
-        return firstName.get();
+    public String getUsername() {
+        return username.get();
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = new SimpleStringProperty(firstName);
+    public SimpleStringProperty usernameProperty() {
+        return username;
     }
 
-    public String getLastName() {
-        return lastName.get();
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = new SimpleStringProperty(lastName);
+    public void setUsername(String username) {
+        this.username.set(username);
     }
 }

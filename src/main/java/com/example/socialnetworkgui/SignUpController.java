@@ -20,12 +20,15 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class SignUpController {
+    public ImageView signUpImage;
     private Controller service;
     public ImageView beeImage;
 
     public void initialize() throws SQLException {
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/loginImage.png");
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/beeLogInImage3.jpg");
         beeImage.setImage(image);
+        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\signInImage.png");
+        signUpImage.setImage(image1);
     }
 
     @FXML
@@ -47,7 +50,7 @@ public class SignUpController {
         AnchorPane root = loader.load();
         LoginController loginController = loader.getController();
         loginController.setService(service);
-        Scene scene = new Scene(root, 800, 400);
+        Scene scene = new Scene(root, 750, 400);
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         stage.setTitle("LogIn");

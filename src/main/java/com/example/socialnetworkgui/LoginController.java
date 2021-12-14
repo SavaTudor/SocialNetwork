@@ -26,7 +26,7 @@ public class LoginController {
     private TextField usernameField;
 
     public void initialize() throws SQLException {
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/loginImage.png");
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/beeLogInImage3.jpg");
         beeImage.setImage(image);
         Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\lockImage.jpg");
         lockImage.setImage(image1);
@@ -83,7 +83,7 @@ public class LoginController {
         loader.setLocation(getClass().getResource("signUp.fxml"));        AnchorPane root = loader.load();
         SignUpController signUpController = loader.getController();
         signUpController.setService(service);
-        Scene scene = new Scene(root, 800, 400);
+        Scene scene = new Scene(root, 750, 400);
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         stage.setTitle("Sign up");

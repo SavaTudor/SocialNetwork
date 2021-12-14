@@ -9,11 +9,12 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="676.0" style="-fx-background-color: orange;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.SignUpController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="676.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.SignUpController">
    <children>
       <GridPane layoutX="393.0" layoutY="187.0" prefHeight="102.0" prefWidth="242.0">
         <columnConstraints>
@@ -30,40 +31,40 @@
             <TextField fx:id="firstNameField" promptText="First name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="lastNameField" promptText="Last name" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <PasswordField fx:id="passwordField" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label text="Sign Up">
+            <Label text="Sign Up" textFill="#fad907">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font></Label>
-            <Label text="First name" GridPane.rowIndex="1">
+            <Label text="First name" textFill="#fad907" GridPane.rowIndex="1">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font></Label>
-            <Label text="Last name" GridPane.rowIndex="2">
+            <Label text="Last name" textFill="#fad907" GridPane.rowIndex="2">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font></Label>
-            <Label text="Password" GridPane.rowIndex="3">
+            <Label text="Password" textFill="#fad907" GridPane.rowIndex="3">
                <font>
                   <Font name="System Bold" size="15.0" />
                </font></Label>
          </children>
       </GridPane>
-      <Button fx:id="loginButton" layoutX="358.0" layoutY="330.0" mnemonicParsing="false" onAction="#loginButtonClicked" text="Back to LogIn">
+      <Button fx:id="loginButton" layoutX="358.0" layoutY="330.0" mnemonicParsing="false" onAction="#loginButtonClicked" style="-fx-background-color: #fad907; -fx-background-radius: 8;" text="Back to LogIn">
          <font>
             <Font size="15.0" />
          </font></Button>
-      <Button fx:id="newAccountButton" layoutX="505.0" layoutY="330.0" mnemonicParsing="false" onAction="#newAccountClicked" text="Create new account">
+      <Button fx:id="newAccountButton" layoutX="505.0" layoutY="330.0" mnemonicParsing="false" onAction="#newAccountClicked" style="-fx-background-color: #fad907; -fx-background-radius: 8;" text="Create new account">
          <font>
             <Font size="15.0" />
          </font></Button>
-      <VBox prefHeight="400.0" prefWidth="269.0">
+       <VBox prefHeight="400.0" prefWidth="26.0" style="-fx-background-color: #fad907;" />
+       <ImageView fx:id="beeImage" fitHeight="262.0" fitWidth="305.0" layoutX="33.0" layoutY="14.0">
+       </ImageView>
+      <HBox layoutX="458.0" layoutY="64.0" prefHeight="78.0" prefWidth="93.0">
          <children>
-            <ImageView fx:id="beeImage" fitHeight="400.0" fitWidth="300.0">
-               <image>
-                  <Image url="@../../../../../../images/loginImage.png" />
-               </image>
+            <ImageView fx:id="signUpImage" fitHeight="78.0" fitWidth="88.0">
             </ImageView>
          </children>
-      </VBox>
+      </HBox>
    </children>
 </AnchorPane>

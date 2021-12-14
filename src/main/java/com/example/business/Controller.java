@@ -457,4 +457,13 @@ public class Controller {
                 });
         return users;
     }
+
+    public Friendship getFriendship(int id1, int id2){
+        List<Friendship> friendships = serviceFriendships.all();
+        for(Friendship friendship : friendships)
+            if((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
+                return friendship;
+
+        return null;
+    }
 }

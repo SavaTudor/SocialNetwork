@@ -1,21 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.PrincipalSceneController">
    <children>
-      <TableView fx:id="friendshipTable" layoutX="228.0" layoutY="36.0" prefHeight="200.0" prefWidth="354.0">
+      <AnchorPane prefHeight="414.0" prefWidth="138.0" style="-fx-background-color: #fad907;">
+         <children>
+            <Button fx:id="homeButton" layoutX="32.0" layoutY="77.0" mnemonicParsing="false" onAction="#homeClicked" prefHeight="46.0" prefWidth="58.0" style="-fx-background-color: white; -fx-background-radius: 500;">
+               <graphic>
+                  <ImageView fx:id="homeImage" fitHeight="37.0" fitWidth="42.0">
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="addFriendButton" layoutX="32.0" layoutY="197.0" mnemonicParsing="false" onAction="#addFriendClicked" prefHeight="46.0" prefWidth="58.0" style="-fx-background-color: white; -fx-background-radius: 500;">
+               <graphic>
+                  <ImageView fx:id="addFriendImage" fitHeight="34.0" fitWidth="41.0">
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="friendButton" layoutX="32.0" layoutY="138.0" mnemonicParsing="false" onAction="#friendClicked" prefHeight="46.0" prefWidth="58.0" style="-fx-background-color: white; -fx-background-radius: 500;">
+               <graphic>
+                  <ImageView fx:id="friendImage" fitHeight="34.0" fitWidth="41.0">
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button layoutX="33.0" layoutY="14.0" mnemonicParsing="false" style="-fx-background-color: white; -fx-background-radius: 500;">
+               <graphic>
+                  <ImageView fx:id="logoButton" fitHeight="34.0" fitWidth="41.0">
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="logOutButton" layoutX="34.0" layoutY="350.0" minWidth="42.0" mnemonicParsing="false" onAction="#logOutClicked" prefHeight="31.0" prefWidth="42.0" style="-fx-background-color: white; -fx-background-radius: 500;">
+               <graphic>
+                  <ImageView fx:id="logOutImage" fitHeight="26.0" fitWidth="22.0">
+                  </ImageView>
+               </graphic>
+            </Button>
+         </children>
+      </AnchorPane>
+      <TableView fx:id="friendshipTable" layoutX="394.0" layoutY="20.0" prefHeight="327.0" prefWidth="165.0" style="-fx-background-color: #fad907; -fx-background-radius: 10;">
         <columns>
-            <TableColumn fx:id="id" prefWidth="75.0" text="id" />
-          <TableColumn fx:id="firstName" prefWidth="75.0" text="FirstName" />
-            <TableColumn fx:id="lastName" prefWidth="75.0" text="LastName" />
-          <TableColumn fx:id="data" prefWidth="121.59991455078125" text="Data" />
+          <TableColumn fx:id="id" minWidth="0.0" prefWidth="0.0" text="id" />
+            <TableColumn fx:id="username" prefWidth="169.60003662109375" style="-fx-background-color: #fad907;" text="username" />
         </columns>
       </TableView>
-      <Button fx:id="deleteButton" layoutX="501.0" layoutY="267.0" mnemonicParsing="false" onAction="#deleteButtonClicked" text="Delete" />
-      <Button fx:id="addFriend" layoutX="267.0" layoutY="267.0" mnemonicParsing="false" onAction="#addFriendClicked" text="Add new friend" />
+      <Button fx:id="deleteButton" layoutX="496.0" layoutY="356.0" mnemonicParsing="false" onAction="#deleteClicked" prefHeight="38.0" prefWidth="56.0" style="-fx-background-color: white; -fx-background-radius: 500;">
+         <graphic>
+            <ImageView fx:id="deleteImage" fitHeight="28.0" fitWidth="31.0">
+            </ImageView>
+         </graphic>
+      </Button>
+      <Label fx:id="userAccount" layoutX="138.0" layoutY="20.0" prefHeight="23.0" prefWidth="194.0" style="-fx-background-color: lightgray;">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

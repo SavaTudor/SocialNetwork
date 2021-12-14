@@ -14,15 +14,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,29 +33,53 @@ import java.util.ResourceBundle;
 public class PrincipalSceneController implements Initializable {
 
     public TableView<UserModel> friendshipTable;
-    public TableColumn<UserModel, String> firstName;
-    public TableColumn<UserModel, String> lastName;
     public TableColumn<UserModel, String> id;
+    public TableColumn<UserModel, String> username;
+    public ImageView homeImage;
+    public ImageView addFriendImage;
+    public ImageView logoButton;
+    public ImageView friendImage;
+    public ImageView deleteImage;
+    public Button deleteButton;
+    public Button logOutButton;
+    public ImageView logOutImage;
+    public Label userAccount;
     private Controller service;
-    public TableColumn data;
     private int userId;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        LoginController loginController = new LoginController();
-        this.userId = loginController.getId();
-
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
-        firstName.setCellValueFactory(new PropertyValueFactory<>("FirstName"));
-        lastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
-        data.setCellValueFactory(new PropertyValueFactory<>("data"));
+        username.setCellValueFactory(new PropertyValueFactory<>("username"));
+        friendshipTable.setVisible(false);
         id.setVisible(false);
-        //friendshipTable.setItems(loadTable());
+        deleteImage.setVisible(false);
+
+
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logo1.jpg");
+        logoButton.setImage(image);
+        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\homeButtonImage.jpg");
+        homeImage.setImage(image1);
+        Image image2 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\friendImage.png");
+        friendImage.setImage(image2);
+        Image image3 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\addNewFriendImage.jpg");
+        addFriendImage.setImage(image3);
+        Image image4 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\deleteButton.png");
+        deleteImage.setImage(image4);
+        Image image5 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logoutButton.png");
+        logOutImage.setImage(image5);
+
     }
 
     public void setService(Controller service){
+        LoginController loginController = new LoginController();
+        this.userId = loginController.getId();
         this.service = service;
-        friendshipTable.setItems(loadTable());
+        try {
+            userAccount.setText("  User:" + service.findUser(userId).getFirstName() + " " + service.findUser(userId).getLastName());
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
     }
 
     private ObservableList<UserModel> loadTable(){
@@ -70,8 +95,7 @@ public class PrincipalSceneController implements Initializable {
                             User user = service.findUser(x.getUserB());
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
-                            LocalDateTime data = x.getDate();
-                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.toString());
+                            UserModel userModel = new UserModel(user.getId().toString(), firstName + " " + lastName);
                             friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -83,8 +107,7 @@ public class PrincipalSceneController implements Initializable {
                             User user = service.findUser(x.getUserA());
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
-                            LocalDateTime data = x.getDate();
-                            UserModel userModel = new UserModel(user.getId().toString(), firstName, lastName, data.toString());
+                            UserModel userModel = new UserModel(user.getId().toString(), firstName + " " + lastName);
                             friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -92,13 +115,6 @@ public class PrincipalSceneController implements Initializable {
                     }
                 });
         return FXCollections.observableArrayList(friends);
-    }
-
-    public void deleteButtonClicked(ActionEvent actionEvent) throws EntityException, RepositoryException {
-        ObservableList<UserModel> users = friendshipTable.getSelectionModel().getSelectedItems();
-        int id = Integer.parseInt(users.get(0).getId());
-        service.removeFriends(this.userId, id);
-        friendshipTable.setItems(loadTable());
     }
 
     public void addFriendClicked(ActionEvent event) throws IOException {
@@ -111,6 +127,40 @@ public class PrincipalSceneController implements Initializable {
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         stage.setTitle("Add new friend");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void homeClicked(ActionEvent actionEvent) {
+        friendshipTable.setVisible(false);
+        deleteImage.setVisible(false);
+
+    }
+
+    public void friendClicked(ActionEvent mouseEvent) {
+        friendshipTable.setVisible(true);
+        deleteImage.setVisible(true);
+        id.setVisible(false);
+        friendshipTable.setItems(loadTable());
+    }
+
+    public void deleteClicked(ActionEvent actionEvent) throws EntityException, RepositoryException {
+        ObservableList<UserModel> users = friendshipTable.getSelectionModel().getSelectedItems();
+        int id = Integer.parseInt(users.get(0).getId());
+        service.removeFriends(this.userId, id);
+        friendshipTable.setItems(loadTable());
+    }
+
+    public void logOutClicked(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("login.fxml"));
+        AnchorPane root = loader.load();
+        LoginController loginController = loader.getController();
+        loginController.setService(service);
+        Scene scene = new Scene(root, 750, 400);
+        Stage stage;
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage.setTitle("LogIn");
         stage.setScene(scene);
         stage.show();
     }
