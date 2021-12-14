@@ -8,6 +8,7 @@ import utils.Graph;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -417,6 +418,17 @@ public class Controller {
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         messageService.replyMessage(from, to, mess, message);
+    }
+
+    public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
+        List<Message> messages = messageService.all();
+        for(Message message : messages){
+            if(message.getTo().contains(from)) {
+                List<Integer> to = new ArrayList<>();
+                to.add(message.getFrom().getId());
+                messageService.replyMessage(from, to, mess, message.getId());
+            }
+        }
     }
 
     /**
