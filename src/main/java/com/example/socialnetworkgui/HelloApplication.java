@@ -16,14 +16,14 @@ import static com.example.build.Build.*;
 
 public class HelloApplication extends Application {
     @Override
-    public void start(Stage stage) throws IOException{
+    public void start(Stage stage) throws IOException {
         Controller service;
         service = new Controller(database_url, database_user, database_password);
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("login.fxml"));
 
 
-        AnchorPane root=loader.load();
+        AnchorPane root = loader.load();
         LoginController loginController = loader.getController();
         loginController.setService(service);
         stage.setScene(new Scene(root, 750, 400));
@@ -31,7 +31,6 @@ public class HelloApplication extends Application {
         stage.setTitle("Log in");
         stage.show();
     }
-
     public static void main(String[] args) {
         launch();
     }

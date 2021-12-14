@@ -18,7 +18,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -82,32 +81,32 @@ public class PrincipalSceneController implements Initializable {
         }
     }
 
-    private ObservableList<UserModel> loadTable(){
+
+    private ObservableList<UserModel> loadTable() {
         LinkedList<UserModel> friends = new LinkedList<>();
         List<Friendship> friendships = service.allFriendships();
         System.out.println(userId);
         friendships.stream().
-                filter(x->x.getUserA() == this.userId || x.getUserB() == this.userId ).
-                forEach(x->{
-                    if(x.getUserA() == this.userId)
-                    {
+                filter(x -> x.getUserA() == this.userId || x.getUserB() == this.userId).
+                forEach(x -> {
+                    if (x.getUserA() == this.userId) {
                         try {
                             User user = service.findUser(x.getUserB());
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
                             UserModel userModel = new UserModel(user.getId().toString(), firstName + " " + lastName);
-                            friends.add(userModel);
+         friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
                         }
                     }
-                    if(x.getUserB() == this.userId)
-                    {
+                    if (x.getUserB() == this.userId) {
                         try {
                             User user = service.findUser(x.getUserA());
                             String firstName = user.getFirstName();
                             String lastName = user.getLastName();
                             UserModel userModel = new UserModel(user.getId().toString(), firstName + " " + lastName);
+                            LocalDateTime data = x.getDate();
                             friends.add(userModel);
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -163,5 +162,27 @@ public class PrincipalSceneController implements Initializable {
         stage.setTitle("LogIn");
         stage.setScene(scene);
         stage.show();
+    }
+
+    public void friendRequestsClicked(ActionEvent actionEvent) throws IOException {
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("friendRequests.fxml"));
+            Stage stage = new Stage();
+            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+            FriendRequestsController friendRequestsController = fxmlLoader.getController();
+            friendRequestsController.setService(service);
+            stage.setTitle("Friend Requests");
+            stage.setScene(scene);
+            stage.show();
+            friendshipTable.setItems(loadTable());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void refresh(ActionEvent actionEvent) {
+        friendshipTable.setItems(loadTable());
     }
 }
