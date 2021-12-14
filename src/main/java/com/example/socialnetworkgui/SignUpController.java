@@ -3,32 +3,32 @@ package com.example.socialnetworkgui;
 import com.example.business.Controller;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
-import com.example.repository.database.DataBaseMessageRepository;
-import com.example.repository.database.DataBaseUserRepository;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
-import static com.example.build.Build.*;
-
 public class SignUpController {
-
-    private static DataBaseMessageRepository repo;
-    private static DataBaseUserRepository repoUser;
-    private static Controller service;
+    public ImageView signUpImage;
+    private Controller service;
+    public ImageView beeImage;
 
     public void initialize() throws SQLException {
-        repo = new DataBaseMessageRepository(database_url, database_user, database_password);
-        repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
-        service = new Controller(database_url, database_user, database_password);
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/beeLogInImage3.jpg");
+        beeImage.setImage(image);
+        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\signInImage.png");
+        signUpImage.setImage(image1);
     }
 
     @FXML
@@ -40,9 +40,22 @@ public class SignUpController {
     @FXML
     private PasswordField passwordField;
 
-    public void loginButtonClicked(ActionEvent actionEvent) throws IOException {
-        SceneController controller = new SceneController();
-        controller.switchScene("login.fxml", "LogIn", actionEvent);
+    public void setService(Controller service){
+        this.service = service;
+    }
+
+    public void loginButtonClicked(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("login.fxml"));
+        AnchorPane root = loader.load();
+        LoginController loginController = loader.getController();
+        loginController.setService(service);
+        Scene scene = new Scene(root, 750, 400);
+        Stage stage;
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage.setTitle("LogIn");
+        stage.setScene(scene);
+        stage.show();
     }
 
     public void newAccountClicked(ActionEvent actionEvent) {
@@ -52,7 +65,7 @@ public class SignUpController {
         try {
             service.add(firstName, lastName);
             SceneController controller = new SceneController();
-            controller.switchScene("login.fxml", "Add new friend", actionEvent);
+            controller.switchScene(service, "login.fxml", "Add new friend", actionEvent);
         } catch (RepositoryException | ValidatorException | IOException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect user");

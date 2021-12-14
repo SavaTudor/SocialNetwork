@@ -2,43 +2,38 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.User;
-import com.example.exception.EntityException;
-import com.example.exception.RepositoryException;
-import com.example.exception.ValidatorException;
-import com.example.repository.database.DataBaseMessageRepository;
-import com.example.repository.database.DataBaseUserRepository;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.example.build.Build.*;
-
 public class LoginController {
-    private static DataBaseMessageRepository repo;
-    private static DataBaseUserRepository repoUser;
-    private static Controller service;
+    public ImageView lockImage;
+    private Controller service;
     private static int id;
     public ImageView beeImage;
+
     @FXML
     private TextField usernameField;
 
     public void initialize() throws SQLException {
-        repo = new DataBaseMessageRepository(database_url, database_user, database_password);
-        repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
-        service = new Controller(database_url, database_user, database_password);
-        Image image = new Image("file:icon.jfif");
+        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/beeLogInImage3.jpg");
         beeImage.setImage(image);
+        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\lockImage.jpg");
+        lockImage.setImage(image1);
+    }
+
+    public void setService(Controller service){
+        this.service = service;
     }
 
     @FXML
@@ -69,14 +64,31 @@ public class LoginController {
             alert.show();
         }
         else {
-            SceneController controller = new SceneController();
-            controller.switchScene("principalScene.fxml", "Principal page", event);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("principalScene.fxml"));        AnchorPane root = loader.load();
+            PrincipalSceneController principalSceneController = loader.getController();
+            principalSceneController.setService(service);
+            Scene scene = new Scene(root, 800, 400);
+            Stage stage;
+            stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+            stage.setTitle("Main scene");
+            stage.setScene(scene);
+            stage.show();
         }
     }
 
     @FXML
     public void signUpClicked(ActionEvent event) throws IOException {
-        SceneController controller = new SceneController();
-        controller.switchScene("signUp.fxml", "SingUp", event);
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("signUp.fxml"));        AnchorPane root = loader.load();
+        SignUpController signUpController = loader.getController();
+        signUpController.setService(service);
+        Scene scene = new Scene(root, 750, 400);
+        Stage stage;
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage.setTitle("Sign up");
+        stage.setScene(scene);
+        stage.show();
+
     }
 }

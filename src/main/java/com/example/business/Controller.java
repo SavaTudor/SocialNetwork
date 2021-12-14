@@ -8,6 +8,7 @@ import utils.Graph;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -419,6 +420,17 @@ public class Controller {
         messageService.replyMessage(from, to, mess, message);
     }
 
+    public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
+        List<Message> messages = messageService.all();
+        for(Message message : messages){
+            if(message.getTo().contains(from)) {
+                List<Integer> to = new ArrayList<>();
+                to.add(message.getFrom().getId());
+                messageService.replyMessage(from, to, mess, message.getId());
+            }
+        }
+    }
+
     /**
      * return a list of Message sent between tho users sorted by data
      * @param id1 Integer representing the id of the first User
@@ -456,5 +468,14 @@ public class Controller {
                         users.add(x);
                 });
         return users;
+    }
+
+    public Friendship getFriendship(int id1, int id2){
+        List<Friendship> friendships = serviceFriendships.all();
+        for(Friendship friendship : friendships)
+            if((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
+                return friendship;
+
+        return null;
     }
 }

@@ -42,9 +42,7 @@ public class FriendRequestsController implements Initializable {
     public TableColumn<RequestModel, String> id;
     public TableColumn data;
     public TableColumn status;
-    private static DataBaseRequestsRepository repo;
-    private static DataBaseUserRepository repoUser;
-    private static Controller service;
+    private Controller service;
     private int userId;
 
     @FXML
@@ -52,18 +50,6 @@ public class FriendRequestsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        try {
-            repo = new DataBaseRequestsRepository(database_url, database_user, database_password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            repoUser = new DataBaseUserRepository(database_url, database_user, database_password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        service = new Controller(database_url, database_user, database_password);
-
 
         LoginController loginController = new LoginController();
         this.userId = loginController.getId();
@@ -74,6 +60,11 @@ public class FriendRequestsController implements Initializable {
         data.setCellValueFactory(new PropertyValueFactory<>("data"));
         status.setCellValueFactory(new PropertyValueFactory<>("status"));
         id.setVisible(true);
+
+    }
+
+    public void setService(Controller service){
+        this.service = service;
         requestsTable.setItems(loadTable());
 
     }
