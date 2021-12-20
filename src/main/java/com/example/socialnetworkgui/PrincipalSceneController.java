@@ -55,17 +55,17 @@ public class PrincipalSceneController implements Initializable {
         deleteImage.setVisible(false);
 
 
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logo1.jpg");
+        Image image = new Image("file:images/logo1.jpg");
         logoButton.setImage(image);
-        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\homeButtonImage.jpg");
+        Image image1 = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image1);
-        Image image2 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\friendImage.png");
+        Image image2 = new Image("file:images/friendImage.png");
         friendImage.setImage(image2);
-        Image image3 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\addNewFriendImage.jpg");
+        Image image3 = new Image("file:images/addNewFriendImage.jpg");
         addFriendImage.setImage(image3);
-        Image image4 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\deleteButton.png");
+        Image image4 = new Image("file:images/deleteButton.png");
         deleteImage.setImage(image4);
-        Image image5 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logoutButton.png");
+        Image image5 = new Image("file:images/logoutButton.png");
         logOutImage.setImage(image5);
 
     }
