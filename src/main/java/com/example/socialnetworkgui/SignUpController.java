@@ -25,9 +25,9 @@ public class SignUpController {
     public ImageView beeImage;
 
     public void initialize() throws SQLException {
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/beeLogInImage3.jpg");
+        Image image = new Image("file:images/beeLogInImage3.jpg");
         beeImage.setImage(image);
-        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\signInImage.png");
+        Image image1 = new Image("file:images/signInImage.png");
         signUpImage.setImage(image1);
     }
 

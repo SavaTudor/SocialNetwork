@@ -14,6 +14,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import static com.example.build.Build.*;
 
+
+
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
@@ -27,7 +29,7 @@ public class HelloApplication extends Application {
         LoginController loginController = loader.getController();
         loginController.setService(service);
         stage.setScene(new Scene(root, 750, 400));
-        stage.getIcons().add(new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logo.jpg"));
+        stage.getIcons().add(new Image("file:images/logo.jpg"));
         stage.setTitle("Log in");
         stage.show();
     }
