@@ -421,14 +421,16 @@ public class Controller {
     }
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
-        List<Message> messages = messageService.all();
-        for(Message message : messages){
-            if(message.getTo().contains(from)) {
-                List<Integer> to = new ArrayList<>();
-                to.add(message.getFrom().getId());
-                messageService.replyMessage(from, to, mess, message.getId());
-            }
+        List<UsersFriendsDTO> users = this.getFriends(from);
+        List<Integer> to = new ArrayList<>();
+        for(UsersFriendsDTO user : users)
+        {if(user.getUsera().getId() != from)
+                to.add(user.getUsera().getId());
+            else
+                to.add(user.getUserb().getId());
         }
+        messageService.addNewMessage(from, to, mess);
+
     }
 
     /**
@@ -478,4 +480,5 @@ public class Controller {
 
         return null;
     }
+
 }
