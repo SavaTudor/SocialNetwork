@@ -63,7 +63,7 @@ public class Controller {
     /**
      * Deletes the current friendship network and updates it with new data from the friendship service
      */
-    public void refreshNetwork(){
+    public void refreshNetwork() {
         network.delete();
         serviceFriendships.all().forEach(fr -> {
             network.addEdge(fr.getUserA(), fr.getUserB());
@@ -228,6 +228,7 @@ public class Controller {
 
     /**
      * Get all the friendships from the friendship service
+     *
      * @return a List of friendships with all the friendships
      */
     public List<Friendship> allFriendships() {
@@ -283,8 +284,8 @@ public class Controller {
 
     /**
      * @param from integer representing the id of the user who is sending a friend request
-     * @param to integer representing the id of the user who is receiving the friend request
-     * @throws ValidatorException if the new request is not valid
+     * @param to   integer representing the id of the user who is receiving the friend request
+     * @throws ValidatorException  if the new request is not valid
      * @throws RepositoryException if between the two users already exists a friendship or a request
      */
     public void addFriendRequest(int from, int to) throws ValidatorException, RepositoryException {
@@ -293,10 +294,10 @@ public class Controller {
 
     /**
      * @param from integer representing the id of the user who sent the request
-     * @param to integer representing the id of the user who received the friend request
-     * @param st the response to the request
+     * @param to   integer representing the id of the user who received the friend request
+     * @param st   the response to the request
      * @throws RepositoryException if there is not a request between the two users
-     * @throws ValidatorException if the new status is not valid
+     * @throws ValidatorException  if the new status is not valid
      * @throws EntityException
      */
     public void respondFriendRequest(int from, int to, String st) throws RepositoryException, ValidatorException, EntityException {
@@ -304,27 +305,40 @@ public class Controller {
                 Status.REJECTED;
         FriendRequest fr = serviceRequests.findByUsers(from, to);
         serviceRequests.update(fr.getId(), from, to, status);
-        if(status==Status.APPROVED){
+        if (status == Status.APPROVED) {
             addFriend(from, to);
             serviceRequests.remove(fr.getId());
-        }else{
+        } else {
 //            daca la respingerea unei cereri de prietenie vrem sa o stergem din repository,
 //            pentru a putea permite o noua cerere intre cei doi useri
             serviceRequests.remove(fr.getId());
         }
     }
 
+
     /**
      *
+     * @param from integer representing the id of the user who sent the request
+     * @param to integer representing the id of the user who received the request
+     * @throws RepositoryException if a request between the two users does not exists
+     * the function deletes the request betweent the user with the id from and the
+     *      user with the id to
+     */
+    public void deleteFriendRequest(int from, int to) throws RepositoryException {
+        FriendRequest fr = serviceRequests.findByUsers(from, to);
+        serviceRequests.remove(fr.getId());
+    }
+
+    /**
      * @param id the id of the user of which we want to see the friend requests
      * @return a list of userRequestsDto which represents the users which have sent the user with the given id
-     *          a friend request
+     * a friend request
      */
-    public List<UsersRequestsDTO> getFriendRequests(int id){
-        return serviceRequests.all().stream().filter(fr->fr.isTo(id)).map(fr->{
+    public List<UsersRequestsDTO> getFriendRequests(int id) {
+        return serviceRequests.all().stream().filter(fr -> fr.isTo(id)).map(fr -> {
             UsersRequestsDTO dto = null;
             try {
-               dto =  new UsersRequestsDTO(serviceUsers.find(fr.getFrom()),serviceUsers.find(fr.getTo()),fr.getStatus());
+                dto = new UsersRequestsDTO(serviceUsers.find(fr.getFrom()), serviceUsers.find(fr.getTo()), fr.getStatus());
             } catch (RepositoryException e) {
                 e.printStackTrace();
             }
@@ -333,11 +347,31 @@ public class Controller {
     }
 
     /**
+     * @param id the id of the user who sent the friend requests
+     * @return a list of userRequestsDto which represents the users to which the users with the given id
+     * has sent a friend request
+     */
+    public List<UsersRequestsDTO> sentFriendRequests(int id) {
+        return serviceRequests.all().stream().
+                filter(fr -> fr.isFrom(id)).
+                map(fr -> {
+                    UsersRequestsDTO dto = null;
+                    try {
+                        dto = new UsersRequestsDTO(serviceUsers.find(fr.getFrom()), serviceUsers.find(fr.getTo()), fr.getStatus());
+                    } catch (RepositoryException e) {
+                        e.printStackTrace();
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
+    }
+
+
+    /**
      * @param id integer representing the id of the user who is responding to all his requests
      * @param st string representing the response
      */
-    public void respondToAllRequests(int id, String st){
-        getFriendRequests(id).forEach(fr-> {
+    public void respondToAllRequests(int id, String st) {
+        getFriendRequests(id).forEach(fr -> {
             try {
                 respondFriendRequest(fr.getFrom().getId(), fr.getTo().getId(), st);
             } catch (RepositoryException | EntityException | ValidatorException e) {
@@ -348,11 +382,12 @@ public class Controller {
 
     /**
      * Add a message in database
-     * @param from User representing the sender of the message
-     * @param to List of User representing the receiver of the message
+     *
+     * @param from    User representing the sender of the message
+     * @param to      List of User representing the receiver of the message
      * @param message String representing the message of the Message
      * @throws RepositoryException if there is another message with the same id in the database or if i want so send myself a message
-     * @throws ValidatorException if the new Message is not valid
+     * @throws ValidatorException  if the new Message is not valid
      */
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         messageService.addNewMessage(from, to, message);
@@ -368,6 +403,7 @@ public class Controller {
 
     /**
      * Remove a message from database
+     *
      * @param id Integer representing the id of message which we want to remove
      * @throws RepositoryException if there is no message with the id given in the database
      */
@@ -377,6 +413,7 @@ public class Controller {
 
     /**
      * Find a message in database
+     *
      * @param id Integer representing the id of the message which we are looking for
      * @return Message representing the message which we are looking for
      * @throws RepositoryException if there is no message with the id given in the database
@@ -387,6 +424,7 @@ public class Controller {
 
     /**
      * Find all messages for a user
+     *
      * @param idUser Integer representing the id of the user
      * @return List of Message representing all messages for a user
      * @throws RepositoryException if there are no messages with for this user in database
@@ -396,9 +434,9 @@ public class Controller {
     }
 
     /**
-     * @param id1 integer representing the id of the message
-     * @param from integer representing the user who sent the message
-     * @param to list of integers representing the users who received the message
+     * @param id1     integer representing the id of the message
+     * @param from    integer representing the user who sent the message
+     * @param to      list of integers representing the users who received the message
      * @param message string representing the message
      * @throws RepositoryException if any of the given ids does not exist
      */
@@ -408,13 +446,14 @@ public class Controller {
 
     /**
      * Reply message
-     * @param from User representing the sender of the message
-     * @param to List of User representing the receiver of the message
-     * @param mess String representing the message of the Message
+     *
+     * @param from    User representing the sender of the message
+     * @param to      List of User representing the receiver of the message
+     * @param mess    String representing the message of the Message
      * @param message Integer representing the id of the message which we want to reply
      * @throws RepositoryException if there is another message with the same id in the database or if i want so send myself a message or
-     * if the sender is invalid or if the receptor is iinvalid
-     * @throws ValidatorException if the new Message is not valid
+     *                             if the sender is invalid or if the receptor is iinvalid
+     * @throws ValidatorException  if the new Message is not valid
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         messageService.replyMessage(from, to, mess, message);
@@ -422,8 +461,8 @@ public class Controller {
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
         List<Message> messages = messageService.all();
-        for(Message message : messages){
-            if(message.getTo().contains(from)) {
+        for (Message message : messages) {
+            if (message.getTo().contains(from)) {
                 List<Integer> to = new ArrayList<>();
                 to.add(message.getFrom().getId());
                 messageService.replyMessage(from, to, mess, message.getId());
@@ -433,6 +472,7 @@ public class Controller {
 
     /**
      * return a list of Message sent between tho users sorted by data
+     *
      * @param id1 Integer representing the id of the first User
      * @param id2 Integer representing the id of the second User
      * @return List of Messages
@@ -443,37 +483,38 @@ public class Controller {
         User user2 = serviceUsers.find(id2);
         List<Message> messages = messageService.all();
         return messages.stream().
-                filter(x->((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2) && x.getTo().contains(user1)))
-        )
+                filter(x -> ((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2) && x.getTo().contains(user1)))
+                )
                 .sorted(Comparator.comparing(Message::getData))
                 .collect(Collectors.toList());
     }
 
     /**
      * Find all messages sent by a user
+     *
      * @param user Integer representing the id of the user
      * @return List of Message representing all messages sent by a user
      */
-    public List<Message> allMessageByUser(int user){
+    public List<Message> allMessageByUser(int user) {
         return messageService.allMessageByUser(user);
     }
 
-    public List<User> getNoFriend(int id){
+    public List<User> getNoFriend(int id) {
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
         userList.
-                forEach(x->{
-                    if(!users1.contains(x.getId()))
+                forEach(x -> {
+                    if (!users1.contains(x.getId()))
                         users.add(x);
                 });
         return users;
     }
 
-    public Friendship getFriendship(int id1, int id2){
+    public Friendship getFriendship(int id1, int id2) {
         List<Friendship> friendships = serviceFriendships.all();
-        for(Friendship friendship : friendships)
-            if((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
+        for (Friendship friendship : friendships)
+            if ((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
                 return friendship;
 
         return null;
