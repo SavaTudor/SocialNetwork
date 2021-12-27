@@ -176,10 +176,16 @@ public class FriendRequestsController implements Initializable {
         declineButton.setOnAction(event);
         EventHandler<ActionEvent> exit = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
-                requestsTable.setItems(loadTable());
-                acceptButton.setDisable(false);
-                acceptAllButton.setDisable(false);
-                myFriendRequests.setDisable(false);
+                if (myFriendRequests.isDisabled()) {
+                    requestsTable.setItems(loadTable());
+                    acceptButton.setDisable(false);
+                    acceptAllButton.setDisable(false);
+                    myFriendRequests.setDisable(false);
+                }else{
+                    Stage stage = (Stage) closeButton.getScene().getWindow();
+                    stage.close();
+                }
+
             }
         };
         closeButton.setOnAction(exit);
