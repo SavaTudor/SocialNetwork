@@ -14,9 +14,9 @@ public class ValidatorTests {
 
     @Test
     void testsUser() {
-        User userGood = new User("Sava", "Tudor");
+        User userGood = new User("a","Sava", "Tudor");
         userGood.setId(1);
-        User userBad = new User("", "");
+        User userBad = new User("b","", "");
         ValidatorUser validatorUser = new ValidatorUser();
         try {
             validatorUser.valideaza(userGood);
@@ -71,11 +71,11 @@ public class ValidatorTests {
 
     @Test
     void validatorMessageTest(){
-        User user1 = new User("Andrei", "Suciu");
+        User user1 = new User("a","Andrei", "Suciu");
         user1.setId(1);
-        User user2 = new User("Tudor", "Sava");
+        User user2 = new User("b","Tudor", "Sava");
         user2.setId(2);
-        User user3 = new User("Florin", "Bucur");
+        User user3 = new User("c","Florin", "Bucur");
         user3.setId(3);
         List<User> userList = Arrays.asList(user2, user3);
         Message message = new Message(user1, userList, "Salut");

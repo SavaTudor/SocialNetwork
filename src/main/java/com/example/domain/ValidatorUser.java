@@ -15,6 +15,8 @@ public class ValidatorUser implements Validator<User> {
         if (user.getLastName().isEmpty()) {
             err += "Invalid last name!\n";
         }
+        if(user.getUsername().equals(null))
+            err += "Invalid username!\n";
         if (!err.isEmpty()) {
             throw new ValidatorException(err);
         }

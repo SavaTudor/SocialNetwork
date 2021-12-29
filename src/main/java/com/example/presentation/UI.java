@@ -35,7 +35,7 @@ public class UI {
         firstName = input.nextLine();
         System.out.println("Enter your desired lastName!");
         lastName = input.nextLine();
-        System.out.println("Added the new user with the id: " + service.add(firstName, lastName).getId());
+        System.out.println("Added the new user with the id: " + service.add(null, firstName, lastName).getId());
     }
 
     /**
@@ -73,7 +73,7 @@ public class UI {
         firstName = input.nextLine();
         System.out.println("Enter the new lastName!");
         lastName = input.nextLine();
-        service.updateUser(id, firstName, lastName);
+        service.updateUser(id, null, firstName, lastName);
     }
 
     /**
