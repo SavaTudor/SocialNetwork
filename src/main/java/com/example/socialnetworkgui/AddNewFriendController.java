@@ -52,13 +52,13 @@ public class AddNewFriendController implements Initializable {
         LoginController loginController = new LoginController();
         this.userId = loginController.getId();
         addButton.setVisible(false);
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\searchImage.png");
+        Image image = new Image("file:images/searchImage.png");
         searchImage.setImage(image);
-        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\addNewFriendImage.jpg");
+        Image image1 = new Image("file:images/addNewFriendImage.jpg");
         addImage.setImage(image1);
-        Image image2 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logo1.jpg");
+        Image image2 = new Image("file:images/logo1.jpg");
         logoImage.setImage(image2);
-        Image image3 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\homeButtonImage.jpg");
+        Image image3 = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image3);
         invalidUser.setVisible(false);
     }

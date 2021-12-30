@@ -27,9 +27,9 @@ public class LoginController {
     private TextField usernameField;
 
     public void initialize() throws SQLException {
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images/beeLogInImage3.jpg");
+        Image image = new Image("file:images/beeLogInImage3.jpg");
         beeImage.setImage(image);
-        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\lockImage.jpg");
+        Image image1 = new Image("file:images/lockImage.jpg");
         lockImage.setImage(image1);
     }
 
