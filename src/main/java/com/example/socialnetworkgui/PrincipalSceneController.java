@@ -76,11 +76,7 @@ public class PrincipalSceneController implements Initializable {
         LoginController loginController = new LoginController();
         this.userId = loginController.getId();
         this.service = service;
-        try {
-            userAccount.setText("  User:" + service.findUser(userId).getFirstName() + " " + service.findUser(userId).getLastName());
-        } catch (RepositoryException e) {
-            e.printStackTrace();
-        }
+
     }
 
 
