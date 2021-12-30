@@ -77,8 +77,8 @@ public class Controller {
      * @throws ValidatorException  if the given strings are not valid
      *                             The function adds a new user to the User repository
      */
-    public User add(String username, String name, String surname) throws RepositoryException, ValidatorException {
-        User user = serviceUsers.add(username, name, surname);
+    public User add(String username, String name, String surname, String password) throws RepositoryException, ValidatorException {
+        User user = serviceUsers.add(username, name, surname, password);
         network.addVertex(user.getId());
         return user;
     }
@@ -92,8 +92,8 @@ public class Controller {
      * @throws RepositoryException if the user with the given id does not exist
      * @throws ValidatorException  if the new fields are not valid
      */
-    public void updateUser(int id, String username, String firstName, String lastName) throws RepositoryException, ValidatorException {
-        serviceUsers.update(id, username, firstName, lastName);
+    public void updateUser(int id, String username, String firstName, String lastName, String password) throws RepositoryException, ValidatorException {
+        serviceUsers.update(id, username, firstName, lastName, password);
     }
 
     /**

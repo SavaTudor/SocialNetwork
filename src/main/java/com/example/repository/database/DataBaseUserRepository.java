@@ -49,12 +49,11 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
 
     @Override
     public void add(Integer integer, User user) throws RepositoryException {
-        String sql = "INSERT INTO users(id,\"firstname\",\"lastname\",\"username\") VALUES (" + integer.toString() +
-                ",'" + user.getFirstName() + "','" + user.getLastName()+ "','" + user.getUsername()+ "');";
+        String sql = "INSERT INTO users(id,\"firstname\",\"lastname\",\"username\",\"password\") VALUES (" + integer.toString() +
+                ",'" + user.getFirstName() + "','" + user.getLastName()+ "','" + user.getUsername() + "','" + user.getPassword() + "');";
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-//            e.printStackTrace();
             throw new RepositoryException("Entity already exists!\n");
         }
     }
@@ -70,7 +69,8 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 String firstName = rs.getString("firstName");
                 String lastName = rs.getString("lastName");
                 String username = rs.getString("username");
-                found = new User(username, firstName, lastName);
+                String password = rs.getString("password");
+                found = new User(username, firstName, lastName,password);
                 found.setId(integer);
             }
             statement.executeUpdate(sql2);
@@ -93,7 +93,8 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 String firstName = rs.getString("firstName");
                 String lastName = rs.getString("lastName");
                 String username = rs.getString("username");
-                User user = new User(username, firstName, lastName);
+                String password = rs.getString("password");
+                User user = new User(username, firstName, lastName, password);
                 user.setId(id);
                 all.add(user);
             }
@@ -114,7 +115,8 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 String firstName = rs.getString("firstName");
                 String lastName = rs.getString("lastName");
                 String username = rs.getString("username");
-                found = new User(username, firstName, lastName);
+                String password = rs.getString("password");
+                found = new User(username, firstName, lastName,password);
                 found.setId(id);
             }
             if (found == null) {
@@ -128,7 +130,7 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
 
     @Override
     public void update(Integer integer, User user) throws RepositoryException {
-        String sql = "UPDATE users SET \"firstname\"='" + user.getFirstName() + "', \"lastname\"='" + user.getLastName() + "', \"username\"='" + user.getUsername() +
+        String sql = "UPDATE users SET \"firstname\"='" + user.getFirstName() + "', \"lastname\"='" + user.getLastName() + "', \"username\"='" + user.getUsername() + "', \"password\"='" + user.getPassword() +
                 "' WHERE id=" + integer.toString();
         try {
             find(integer);
@@ -151,7 +153,8 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 String firstName = rs.getString("firstname");
                 String lastName = rs.getString("lastname");
                 String username = rs.getString("username");
-                User user = new User(username,firstName, lastName);
+                String password = rs.getString("password");
+                User user = new User(username,firstName, lastName,password);
                 user.setId(id);
                 map.put(id, user);
             }

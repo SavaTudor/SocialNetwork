@@ -12,9 +12,9 @@ public class FriendshipTests {
 
     @Test
     public void testCreate(){
-        User userA = new User("Sava", "Tudor");
+        User userA = new User("Gfd","Sava", "Tudor","!qa");
         userA.setId(1);
-        User userB = new User("Sebi", "Sebi");
+        User userB = new User("Rds","Sebi", "Sebi","Wsed");
         userB.setId(2);
 
         Friendship fr = new Friendship(1,2,LocalDateTime.of(2021, 11,18, 15,30));
@@ -28,7 +28,7 @@ public class FriendshipTests {
         assertEquals(fr, fr_same);
         fr.isPart(1);
 
-        User user3 = new User("Suciu", "Andrei");
+        User user3 = new User("Fds","Suciu", "Andrei","was");
         user3.setId(3);
         Friendship fr1 = new Friendship(1,3, LocalDateTime.of(2021, 11,18, 15,30));
         assertEquals(fr1.getUserA(), 1);

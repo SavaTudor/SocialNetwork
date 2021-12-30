@@ -2,6 +2,7 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.User;
+import com.example.utils.Encryption;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 public class LoginController {
     public ImageView lockImage;
     private Controller service;
-    private static int id;
+    private int id;
     public ImageView beeImage;
 
     @FXML
@@ -46,20 +47,21 @@ public class LoginController {
 
     @FXML
     public void signInClicked(ActionEvent event) throws SQLException, IOException {
-        this.id = Integer.parseInt(usernameField.getText());
+        Encryption encryption = new Encryption();
         ArrayList<User> users = service.allUsers();
         Alert alert = new Alert(Alert.AlertType.ERROR);
         boolean find = false;
         for(User user : users)
-            if(usernameField.getText().equals(user.getId().toString()))
+            if(usernameField.getText().equals(user.getUsername()) && encryption.encrypt(passwordField.getText()).equals(user.getPassword()))
             {
+                this.id = user.getId();
                 find = true;
                 break;
 
             }
         if(!find)
         {
-            alert.setHeaderText("Incorrect user");
+            alert.setHeaderText("Incorrect username or password");
             alert.setTitle("Warning");
             alert.show();
         }

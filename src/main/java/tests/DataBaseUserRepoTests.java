@@ -51,9 +51,9 @@ public class DataBaseUserRepoTests {
 
     @Test
     void testAdd_All() {
-        User user1 = new User("Sava", "Tudor");
+        User user1 = new User("Sd","Sava", "Tudor","Ws");
         user1.setId(1);
-        User user2 = new User("Suteu", "Sebi");
+        User user2 = new User("ds","Suteu", "Sebi","sdx");
         user2.setId(2);
         assertTrue(repo.isEmpty());
         try {
@@ -81,9 +81,9 @@ public class DataBaseUserRepoTests {
 
     @Test
     void testRemove_Find(){
-        User user1 = new User("Sava", "Tudor");
+        User user1 = new User("ds","Sava", "Tudor","Eds");
         user1.setId(1);
-        User user2 = new User("Suteu", "Sebi");
+        User user2 = new User("s","Suteu", "Sebi","Fdx");
         user2.setId(2);
         assertTrue(repo.isEmpty());
         try {
@@ -126,9 +126,9 @@ public class DataBaseUserRepoTests {
 
     @Test
     void testUpdate_get(){
-        User user1 = new User("Sava", "Tudor");
+        User user1 = new User("Qwas","Sava", "Tudor","Fd");
         user1.setId(1);
-        User user2 = new User("Suteu", "Sebi");
+        User user2 = new User("FDs","Suteu", "Sebi","TRDes");
         user2.setId(2);
         assertTrue(repo.isEmpty());
         try {
@@ -144,7 +144,7 @@ public class DataBaseUserRepoTests {
         }
         assertEquals(repo.size(), 2);
         try{
-            repo.update(2, new User("Hasiu", "Bogdan"));
+            repo.update(2, new User("esc","Hasiu", "Bogdan","rdes"));
             User found = repo.find(2);
             assertEquals(found.getFirstName(), "Hasiu");
             assertEquals(found.getLastName(), "Bogdan");
@@ -152,7 +152,7 @@ public class DataBaseUserRepoTests {
             fail();
         }
         try{
-            repo.update(3, new User("asda", "dsad"));
+            repo.update(3, new User("Fds","asda", "dsad","Fdw"));
             fail();
         }catch (Exception e){
             assertEquals(e.getMessage(), "Entity does not exist!\n");

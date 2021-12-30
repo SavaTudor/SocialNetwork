@@ -33,7 +33,7 @@ public class CevaUI {
         firstName = input.nextLine();
         System.out.println("Enter your desired lastName!");
         lastName = input.nextLine();
-        System.out.println("Added the new user with the id: " + service.add(null, firstName, lastName).getId());
+        System.out.println("Added the new user with the id: " + service.add(null, firstName, lastName,"fds").getId());
     }
 
     /**
@@ -105,7 +105,7 @@ public class CevaUI {
         firstName = input.nextLine();
         System.out.println("Enter the new lastName!");
         lastName = input.nextLine();
-        service.updateUser(id, null, firstName, lastName);
+        service.updateUser(id, null, firstName, lastName, "iuhgf");
     }
 
 

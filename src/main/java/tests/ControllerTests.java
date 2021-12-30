@@ -86,20 +86,20 @@ public class ControllerTests {
         service.refreshNetwork();
         statement.executeUpdate("DELETE FROM users;");
         assertEquals(service.allUsers().size(), 0);
-        User user1 = new User("a","Sava", "Tudor");
+        User user1 = new User("a","Sava", "Tudor","fds");
         user1.setId(0);
-        User user2 = new User("b","Suteu", "Sebi");
+        User user2 = new User("b","Suteu", "Sebi","Fds");
         user2.setId(2);
-        service.add("c","Sava", "Tudor");
+        service.add("c","Sava", "Tudor","qws");
         assertEquals("Sava", service.allUsers().get(0).getFirstName());
         assertEquals("Tudor", service.allUsers().get(0).getLastName());
         assertEquals(user1, service.findUser(0));
-        service.add("d","Suteu", "Sebi");
+        service.add("d","Suteu", "Sebi","re");
         assertEquals(service.allUsers().size(), 2);
         service.removeUser(1);
         assertEquals(service.allUsers().size(), 1);
-        service.add("e","Hasiu", "Bogdan");
-        service.add("f","Suteu", "Sebi");
+        service.add("e","Hasiu", "Bogdan","Qws");
+        service.add("f","Suteu", "Sebi","qas");
         service.addFriend(service.allUsers().get(0).getId(), service.allUsers().get(1).getId());
         assertEquals(service.largestCommunity().size(), 2);
         assertEquals(service.communitiesNumber(), 2);
@@ -108,9 +108,9 @@ public class ControllerTests {
         service.removeUser(service.allUsers().get(2).getId());
         assertEquals(service.largestCommunity().size(), 1);
         assertEquals(service.communitiesNumber(), 2);
-        service.updateUser(1,"g", "Sava", "Vlad");
+        service.updateUser(1,"g", "Sava", "Vlad","qa");
         service.getFriends(1);
-        service.add("h","name", "surname");
+        service.add("h","name", "surname","qws");
         service.addFriend(0,1);
         service.updateFriend(0,2,1);
         assertEquals(1, service.getFriends(2).size());
@@ -123,19 +123,19 @@ public class ControllerTests {
         List<UsersFriendsDTO> usersFriendsDTOList = null;
 
         try {
-            service.add("i","Suciu", "Andrei");
+            service.add("i","Suciu", "Andrei","rdf");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("j","Sava", "Tudor");
+            service.add("j","Sava", "Tudor","fd");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("k","Stahie", "Dan");
+            service.add("k","Stahie", "Dan","Jhg");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
@@ -231,7 +231,7 @@ public class ControllerTests {
         service.refreshNetwork();
         int id = 0;
         try {
-            id = service.add("l","User3", "New3").getId();
+            id = service.add("l","User3", "New3","WED").getId();
             service.addFriendRequest(1, 3);
             service.addFriendRequest(1, id);
             service.addFriendRequest(2, 3);
@@ -254,19 +254,19 @@ public class ControllerTests {
     void addMessageTests() {
         Controller service = new Controller(test_database_url, database_user, database_password);
         try {
-            service.add("m","Suciu", "Andrei");
+            service.add("m","Suciu", "Andrei","Vc");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("n","Sava", "Tudor");
+            service.add("n","Sava", "Tudor","asx");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfds","Stahie", "Dan");
+            service.add("gfds","Stahie", "Dan","azs");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
@@ -295,19 +295,19 @@ public class ControllerTests {
     void removeMessageTests() {
         Controller service = new Controller(test_database_url, database_user, database_password);
         try {
-            service.add("gfd","Suciu", "Andrei");
+            service.add("gfd","Suciu", "Andrei","as");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfd","Sava", "Tudor");
+            service.add("gfd","Sava", "Tudor","w");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfd","Stahie", "Dan");
+            service.add("gfd","Stahie", "Dan","W");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
@@ -345,19 +345,19 @@ public class ControllerTests {
     void findMessageTest() {
         Controller service = new Controller(test_database_url, database_user, database_password);
         try {
-            service.add("Gfd","Suciu", "Andrei");
+            service.add("Gfd","Suciu", "Andrei","GFd");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfd","Sava", "Tudor");
+            service.add("gfd","Sava", "Tudor","Asx");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfd","Stahie", "Dan");
+            service.add("gfd","Stahie", "Dan","Ws");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
@@ -392,19 +392,19 @@ public class ControllerTests {
     void findMessagesTest() {
         Controller service = new Controller(test_database_url, database_user, database_password);
         try {
-            service.add("gfdw","Suciu", "Andrei");
+            service.add("gfdw","Suciu", "Andrei","WSd");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("wed","Sava", "Tudor");
+            service.add("wed","Sava", "Tudor","WEd");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("2wed","Stahie", "Dan");
+            service.add("2wed","Stahie", "Dan","S");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
@@ -440,19 +440,19 @@ public class ControllerTests {
     void updateMessageTest() {
         Controller service = new Controller(test_database_url, database_user, database_password);
         try {
-            service.add("23e","Suciu", "Andrei");
+            service.add("23e","Suciu", "Andrei","fd");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("2w3e","Sava", "Tudor");
+            service.add("2w3e","Sava", "Tudor","Fds");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("12w","Stahie", "Dan");
+            service.add("12w","Stahie", "Dan","DFv");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
@@ -511,25 +511,25 @@ public class ControllerTests {
     void replyMessageTest(){
         Controller service = new Controller(test_database_url, database_user, database_password);
         try {
-            service.add("1ws","Suciu", "Andrei");
+            service.add("1ws","Suciu", "Andrei","WSDc");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfd","Sava","Tudor");
+            service.add("gfd","Sava","Tudor","WDc");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("fds","Stahie","Dan");
+            service.add("fds","Stahie","Dan","Ws");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("frdes","Spiridon","Dragos");
+            service.add("frdes","Spiridon","Dragos","ws");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
@@ -581,19 +581,19 @@ public class ControllerTests {
     void getConversationTest(){
         Controller service = new Controller(test_database_url, database_user, database_password);
         try {
-            service.add("gfd","Suciu", "Andrei");
+            service.add("gfd","Suciu", "Andrei","@was");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfd","Sava","Tudor");
+            service.add("gfd","Sava","Tudor","wsd");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }
 
         try {
-            service.add("gfd","Stahie","Dan");
+            service.add("gfd","Stahie","Dan","dx");
         } catch (RepositoryException | ValidatorException e) {
             assertTrue(fail());
         }

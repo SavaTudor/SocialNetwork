@@ -6,6 +6,7 @@ public class User extends Entity<Integer> {
     private String firstName;
     private String lastName;
     private String username;
+    private String password;
 
     public String getUsername() {
         return username;
@@ -21,10 +22,19 @@ public class User extends Entity<Integer> {
      * @param lastName  string representing the surname of the user(0&lt;surname.length)
      //* @param username
      */
-    public User(String username, String firstName, String lastName) {
+    public User(String username, String firstName, String lastName,String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     /**
