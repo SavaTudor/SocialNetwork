@@ -158,9 +158,11 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
                 ResultSet rs2 = ps2.executeQuery();
                 rs2.next();
                 int idUser = rs2.getInt("id");
-                String firstname = rs2.getString("firstname");
-                String lastname = rs2.getString("lastname");
-                from = new User(firstname, lastname);
+                String firstName = rs2.getString("firstname");
+                String lastName = rs2.getString("lastname");
+                String username = rs2.getString("username");
+                String password = rs2.getString("password");
+                from = new User(username,firstName, lastName,password);
                 from.setId(idUser);
 
                 Integer to = rs1.getInt("to_user");
@@ -169,9 +171,11 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
                 ResultSet rs3 = ps3.executeQuery();
                 rs3.next();
                 int idUser1 = rs3.getInt("id");
-                String firstname1 = rs3.getString("firstname");
-                String lastname1 = rs3.getString("lastname");
-                User user = new User(firstname1, lastname1);
+                String firstName1 = rs3.getString("firstname");
+                String lastName1 = rs3.getString("lastname");
+                String username1 = rs3.getString("username");
+                String password1 = rs3.getString("password");
+                User user = new User(username1,firstName1, lastName1,password1);
                 user.setId(idUser1);
                 userList.add(user);
                 found = new Message(from, userList, mess);

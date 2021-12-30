@@ -63,11 +63,11 @@ public class FriendshipServiceTests {
 
     @Test
     void tests() {
-        User user1 = new User("Sava", "Tudor");
+        User user1 = new User("gfds","Sava", "Tudor","juhygtf");
         user1.setId(1);
-        User user2 = new User("Suteu", "Sebi");
+        User user2 = new User("fd","Suteu", "Sebi","Gv");
         user2.setId(2);
-        User user3 = new User("aaa", "bbb");
+        User user3 = new User("Fd","aaa", "bbb","Ws");
         user3.setId(3);
         FriendshipService service = new FriendshipService("tests/testData/friendshipTest.csv");
         try {

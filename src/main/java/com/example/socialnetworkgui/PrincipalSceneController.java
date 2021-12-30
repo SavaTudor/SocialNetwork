@@ -43,6 +43,8 @@ public class PrincipalSceneController implements Initializable {
     public Button logOutButton;
     public ImageView logOutImage;
     public Label userAccount;
+    public AnchorPane anchorPane;
+    public Button messageButton;
     private Controller service;
     private int userId;
 
@@ -74,11 +76,7 @@ public class PrincipalSceneController implements Initializable {
         LoginController loginController = new LoginController();
         this.userId = loginController.getId();
         this.service = service;
-        try {
-            userAccount.setText("  User:" + service.findUser(userId).getFirstName() + " " + service.findUser(userId).getLastName());
-        } catch (RepositoryException e) {
-            e.printStackTrace();
-        }
+
     }
 
 
@@ -184,5 +182,19 @@ public class PrincipalSceneController implements Initializable {
 
     public void refresh(ActionEvent actionEvent) {
         friendshipTable.setItems(loadTable());
+    }
+
+    public void messagesClicked(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("messages.fxml"));
+        AnchorPane root = loader.load();
+        MessageController messageController = loader.getController();
+        messageController.setService(service);
+        Scene scene = new Scene(root, 750, 400);
+        Stage stage;
+        stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+        stage.setTitle("Messages");
+        stage.setScene(scene);
+        stage.show();
     }
 }

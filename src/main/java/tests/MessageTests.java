@@ -14,11 +14,11 @@ public class MessageTests {
 
     @Test
     void testMessage(){
-        User user1 = new User("Andrei", "Suciu");
+        User user1 = new User("fd","Andrei", "Suciu","wed");
         user1.setId(1);
-        User user2 = new User("Tudor", "Sava");
+        User user2 = new User("ew","Tudor", "Sava","qws");
         user2.setId(2);
-        User user3 = new User("Florin", "Bucur");
+        User user3 = new User("fds","Florin", "Bucur","ws");
         user3.setId(3);
         List<User> userList = Arrays.asList(user2, user3);
         Message message = new Message(user1, userList, "Salut");

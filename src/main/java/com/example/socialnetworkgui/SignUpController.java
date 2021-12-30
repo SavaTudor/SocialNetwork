@@ -3,6 +3,7 @@ package com.example.socialnetworkgui;
 import com.example.business.Controller;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
+import com.example.utils.Encryption;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +22,7 @@ import java.sql.SQLException;
 
 public class SignUpController {
     public ImageView signUpImage;
+    public TextField usernameField;
     private Controller service;
     public ImageView beeImage;
 
@@ -59,11 +61,24 @@ public class SignUpController {
     }
 
     public void newAccountClicked(ActionEvent actionEvent) {
+        Encryption encryption = new Encryption();
         Alert alert = new Alert(Alert.AlertType.ERROR);
         String firstName = firstNameField.getText();
         String lastName = lastNameField.getText();
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+        System.out.println(firstName);
+        System.out.println(lastName);
+        System.out.println(username);
+        System.out.println(password);
         try {
-            service.add(firstName, lastName);
+            System.out.println(service.findUser(1).getUsername());
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
+        String pass = encryption.encrypt(password);
+        try {
+            service.add(username,firstName, lastName,pass);
             SceneController controller = new SceneController();
             controller.switchScene(service, "login.fxml", "Add new friend", actionEvent);
         } catch (RepositoryException | ValidatorException | IOException e) {

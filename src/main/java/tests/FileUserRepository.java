@@ -25,9 +25,9 @@ public class FileUserRepository {
     void testExtractAndCreateAsString() {
         Repository<Integer, User> repository = new com.example.repository.file.FileUserRepository("tests/testData/usersTest.csv");
         assertEquals(0, repository.size());
-        User user1 = new User("Sava", "Tudor");
+        User user1 = new User("Gtfd","Sava", "Tudor","ws");
         user1.setId(1);
-        User user2 = new User("Runcan", "Dan");
+        User user2 = new User("wed","Runcan", "Dan","fd");
         user2.setId(2);
         try {
             repository.add(1, user1);

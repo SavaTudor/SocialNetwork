@@ -26,11 +26,11 @@ public class FileFriendshipTests {
     void testExtractAndCreateString() {
         Repository<Integer, Friendship> repo = new FileFrienshipRepository("tests/testData/friendshipTest.csv");
         assertTrue(repo.isEmpty());
-        User user1 = new User("Sava", "Tudor");
+        User user1 = new User("Gfd","Sava", "Tudor","Wes");
         user1.setId(1);
-        User user2 = new User("Runcan", "Dan");
+        User user2 = new User("Fds","Runcan", "Dan","wsd");
         user2.setId(2);
-        User user3 = new User("Sebi", "Sebi");
+        User user3 = new User("gfd", "Sebi", "Sebi","Qws");
         user3.setId(3);
         Friendship fr1 = new Friendship(user1.getId(), user2.getId());
         fr1.setId(1);
