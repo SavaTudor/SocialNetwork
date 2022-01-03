@@ -43,6 +43,8 @@ public class PrincipalSceneController implements Initializable {
     public Button logOutButton;
     public ImageView logOutImage;
     public Label userAccount;
+    public AnchorPane anchorPane;
+    public Button messageButton;
     private Controller service;
     private int userId;
 
@@ -55,17 +57,17 @@ public class PrincipalSceneController implements Initializable {
         deleteImage.setVisible(false);
 
 
-        Image image = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logo1.jpg");
+        Image image = new Image("file:images/logo1.jpg");
         logoButton.setImage(image);
-        Image image1 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\homeButtonImage.jpg");
+        Image image1 = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image1);
-        Image image2 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\friendImage.png");
+        Image image2 = new Image("file:images/friendImage.png");
         friendImage.setImage(image2);
-        Image image3 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\addNewFriendImage.jpg");
+        Image image3 = new Image("file:images/addNewFriendImage.jpg");
         addFriendImage.setImage(image3);
-        Image image4 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\deleteButton.png");
+        Image image4 = new Image("file:images/deleteButton.png");
         deleteImage.setImage(image4);
-        Image image5 = new Image("C:\\Users\\andre\\Desktop\\Facultate\\Facultate-sem III\\MAP\\socialNetworkGUI\\images\\logoutButton.png");
+        Image image5 = new Image("file:images/logoutButton.png");
         logOutImage.setImage(image5);
 
     }
@@ -74,11 +76,7 @@ public class PrincipalSceneController implements Initializable {
         LoginController loginController = new LoginController();
         this.userId = loginController.getId();
         this.service = service;
-        try {
-            userAccount.setText("  User:" + service.findUser(userId).getFirstName() + " " + service.findUser(userId).getLastName());
-        } catch (RepositoryException e) {
-            e.printStackTrace();
-        }
+
     }
 
 
@@ -184,5 +182,19 @@ public class PrincipalSceneController implements Initializable {
 
     public void refresh(ActionEvent actionEvent) {
         friendshipTable.setItems(loadTable());
+    }
+
+    public void messagesClicked(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("messages.fxml"));
+        AnchorPane root = loader.load();
+        MessageController messageController = loader.getController();
+        messageController.setService(service);
+        Scene scene = new Scene(root, 750, 400);
+        Stage stage;
+        stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+        stage.setTitle("Messages");
+        stage.setScene(scene);
+        stage.show();
     }
 }

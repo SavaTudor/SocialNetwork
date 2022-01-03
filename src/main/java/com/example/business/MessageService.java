@@ -169,9 +169,7 @@ public class MessageService {
             User user1 = userRepository.find(user);
             toUser.add(user1);
         }
-        if(!message1.getTo().contains(fromUser))
-            throw new RepositoryException("sender invalid!");
-        if(toUser.size() != 1 || !(toUser.get(0).equals(message1.getFrom())))
+        if(toUser.size() != 1 )
             throw new RepositoryException("receptor invalid!");
         Message message2 = new Message(fromUser, toUser, mess);
         message2.setId(id);
@@ -192,5 +190,18 @@ public class MessageService {
                 .collect(Collectors.toList());
     }
 
+    public List<Message> allMessageBetween2Users(int id1, int id2) throws RepositoryException {
+        User user1 = userRepository.find(id1);
+        User user2 = userRepository.find(id2);
+        List<Message> list = repository.all();
+        List<Message> listMessages = new ArrayList<>();
+        list.forEach(x->{
+            if(x.getTo().contains(user1) && x.getFrom().equals(user2))
+                listMessages.add(x);
+            if(x.getTo().contains(user2) && x.getFrom().equals(user1))
+                listMessages.add(x);
+        });
+        return listMessages;
+    }
 
 }

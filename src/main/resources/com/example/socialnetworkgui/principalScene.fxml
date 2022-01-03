@@ -11,7 +11,7 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.PrincipalSceneController">
    <children>
-      <AnchorPane prefHeight="414.0" prefWidth="138.0" style="-fx-background-color: #fad907;">
+      <AnchorPane fx:id="anchorPane" prefHeight="414.0" prefWidth="138.0" style="-fx-background-color: #fad907;">
          <children>
             <Button fx:id="homeButton" layoutX="32.0" layoutY="77.0" mnemonicParsing="false" onAction="#homeClicked" prefHeight="46.0" prefWidth="58.0" style="-fx-background-color: white; -fx-background-radius: 500;">
                <graphic>
@@ -43,6 +43,7 @@
                   </ImageView>
                </graphic>
             </Button>
+            <Button fx:id="messageButton" layoutX="45.0" layoutY="269.0" mnemonicParsing="false" onAction="#messagesClicked" text="Message" />
          </children>
       </AnchorPane>
       <TableView fx:id="friendshipTable" layoutX="394.0" layoutY="20.0" prefHeight="327.0" prefWidth="165.0" style="-fx-background-color: #fad907; -fx-background-radius: 10;">
