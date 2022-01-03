@@ -48,9 +48,6 @@ public class AddNewFriendController implements Initializable {
         name.setCellValueFactory(new PropertyValueFactory<>("name"));
         id.setVisible(false);
         userTable.setVisible(false);
-
-        LoginController loginController = new LoginController();
-        this.userId = loginController.getId();
         addButton.setVisible(false);
         Image image = new Image("file:images/searchImage.png");
         searchImage.setImage(image);
@@ -63,8 +60,9 @@ public class AddNewFriendController implements Initializable {
         invalidUser.setVisible(false);
     }
 
-    public void setService(Controller service){
+    public void setService(Controller service, int id){
         this.service = service;
+        this.userId = id;
     }
 
     private ObservableList<FindUserModel> loadTable(String name){
@@ -101,7 +99,7 @@ public class AddNewFriendController implements Initializable {
         loader.setLocation(getClass().getResource("principalScene.fxml"));
         AnchorPane root = loader.load();
         PrincipalSceneController principalSceneController = loader.getController();
-        principalSceneController.setService(service);
+        principalSceneController.setService(service, userId);
         Scene scene = new Scene(root, 750, 400);
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();

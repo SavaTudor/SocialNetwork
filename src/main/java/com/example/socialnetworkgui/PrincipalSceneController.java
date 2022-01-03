@@ -72,9 +72,8 @@ public class PrincipalSceneController implements Initializable {
 
     }
 
-    public void setService(Controller service){
-        LoginController loginController = new LoginController();
-        this.userId = loginController.getId();
+    public void setService(Controller service, int id){
+        this.userId = id;
         this.service = service;
 
     }
@@ -119,7 +118,7 @@ public class PrincipalSceneController implements Initializable {
         loader.setLocation(getClass().getResource("addNewFriend.fxml"));
         AnchorPane root = loader.load();
         AddNewFriendController addNewFriendController = loader.getController();
-        addNewFriendController.setService(service);
+        addNewFriendController.setService(service, userId);
         Scene scene = new Scene(root, 800, 400);
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -170,7 +169,7 @@ public class PrincipalSceneController implements Initializable {
             Stage stage = new Stage();
             Scene scene = new Scene(fxmlLoader.load(), 600, 400);
             FriendRequestsController friendRequestsController = fxmlLoader.getController();
-            friendRequestsController.setService(service);
+            friendRequestsController.setService(service, userId);
             stage.setTitle("Friend Requests");
             stage.setScene(scene);
             stage.show();
@@ -189,10 +188,9 @@ public class PrincipalSceneController implements Initializable {
         loader.setLocation(getClass().getResource("messages.fxml"));
         AnchorPane root = loader.load();
         MessageController messageController = loader.getController();
-        messageController.setService(service);
+        messageController.setService(service, userId);
         Scene scene = new Scene(root, 750, 400);
-        Stage stage;
-        stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+        Stage stage = new Stage();
         stage.setTitle("Messages");
         stage.setScene(scene);
         stage.show();

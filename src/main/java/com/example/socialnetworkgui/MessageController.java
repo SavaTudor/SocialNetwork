@@ -45,12 +45,11 @@ public class MessageController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        LoginController loginController = new LoginController();
-        this.userId = loginController.getId();
         buttons = new HashMap<>();
     }
-    public void setService(Controller service){
+    public void setService(Controller service, int id){
         this.service = service;
+        this.userId = id;
         try {
             showFriend();
         } catch (RepositoryException e) {

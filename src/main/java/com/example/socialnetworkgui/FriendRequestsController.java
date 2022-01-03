@@ -52,10 +52,6 @@ public class FriendRequestsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        LoginController loginController = new LoginController();
-        this.userId = loginController.getId();
-
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstName.setCellValueFactory(new PropertyValueFactory<>("FirstName"));
         lastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
@@ -65,8 +61,9 @@ public class FriendRequestsController implements Initializable {
 
     }
 
-    public void setService(Controller service) {
+    public void setService(Controller service, int id) {
         this.service = service;
+        this.userId = userId;
         requestsTable.setItems(loadTable());
 
     }
