@@ -2,7 +2,9 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.Friendship;
+import com.example.domain.Message;
 import com.example.domain.User;
+import com.example.domain.UsersFriendsDTO;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.repository.database.DataBaseMessageRepository;
@@ -183,7 +185,9 @@ public class PrincipalSceneController implements Initializable {
         friendshipTable.setItems(loadTable());
     }
 
-    public void messagesClicked(ActionEvent actionEvent) throws IOException {
+    public void messagesClicked(ActionEvent actionEvent) throws IOException, RepositoryException {
+        ObservableList<Message> messages = FXCollections.observableArrayList(service.allMessage());
+        ObservableList<UsersFriendsDTO> friendships = FXCollections.observableArrayList(service.getFriends(this.userId));
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("messages.fxml"));
         AnchorPane root = loader.load();

@@ -63,7 +63,7 @@ public class FriendRequestsController implements Initializable {
 
     public void setService(Controller service, int id) {
         this.service = service;
-        this.userId = userId;
+        this.userId = id;
         requestsTable.setItems(loadTable());
 
     }

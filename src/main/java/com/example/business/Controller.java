@@ -5,15 +5,12 @@ import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
 import utils.Graph;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.Observable;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Controller {
+public class Controller extends Observable {
     private UserService serviceUsers;
     private FriendshipService serviceFriendships;
     private RequestService serviceRequests;
@@ -167,6 +164,8 @@ public class Controller {
     public void addFriend(int username1, int username2) throws RepositoryException, EntityException, ValidatorException {
         serviceFriendships.add(username1, username2, LocalDateTime.now());
         network.addEdge(username1, username2);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -188,6 +187,8 @@ public class Controller {
         User newUser1 = serviceUsers.find(newUserA), newUser2 = serviceUsers.find(newUserB);
 
         network.addEdge(newUserA, newUserB);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -201,6 +202,8 @@ public class Controller {
         Friendship friendship = serviceFriendships.findByUsers(username1, username2);
         serviceFriendships.remove(friendship.getId());
         network.removeEdge(username1, username2);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -391,6 +394,8 @@ public class Controller {
      */
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         messageService.addNewMessage(from, to, message);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -409,6 +414,8 @@ public class Controller {
      */
     public void removeMessage(int id) throws RepositoryException {
         messageService.removeMessage(id);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -457,6 +464,8 @@ public class Controller {
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         messageService.replyMessage(from, to, mess, message);
+        setChanged();
+        notifyObservers();
     }
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {

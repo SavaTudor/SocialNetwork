@@ -28,8 +28,9 @@ import javafx.util.Pair;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class MessageController implements Initializable {
+public class MessageController implements Initializable, Observer {
     public ScrollPane scrollPaneMessage;
     public AnchorPane anchorPaneFriends;
     public TextField messageField;
@@ -40,7 +41,6 @@ public class MessageController implements Initializable {
     private int userId;
     private int toId;
     private Map<Integer, Button> buttons;
-    private ObservableList<Message> messageList;
     private List<Label> messageLabel;
 
     @Override
@@ -49,6 +49,7 @@ public class MessageController implements Initializable {
     }
     public void setService(Controller service, int id){
         this.service = service;
+        service.addObserver(this);
         this.userId = id;
         try {
             showFriend();
@@ -58,11 +59,10 @@ public class MessageController implements Initializable {
     }
 
     public void showMessage() throws RepositoryException {
-        messageList = FXCollections.observableArrayList(service.getConversation(userId, toId));
-        ObservableList<Message> messages = FXCollections.observableArrayList(messageList);
         AnchorPane anchorPane = new AnchorPane();
         scrollPaneMessage.setContent(anchorPane);
-        if(messages.size() == 0)
+        List<Message> messageList = service.getConversation(toId, userId);
+        if(messageList.size() == 0)
         {
             Label label = new Label();
             label.setText("no message found ");
@@ -74,7 +74,7 @@ public class MessageController implements Initializable {
         }
         int y = 21;
         messageLabel = new ArrayList<>();
-        for(Message message : messages){
+        for(Message message : messageList){
             Label labelMess = new Label();
             labelMess.setText(message.getMessage());
             labelMess.setStyle("-fx-background-radius: 5; -fx-background-color:  #fad907");
@@ -125,10 +125,9 @@ public class MessageController implements Initializable {
         }
     }
     public void showFriend() throws RepositoryException {
-        List<UsersFriendsDTO> friendships = service.getFriends(userId);
-        ObservableList<UsersFriendsDTO> friendsDTOS = FXCollections.observableArrayList(friendships);
         int y = 21;
-        for(UsersFriendsDTO friend : friendsDTOS){
+        List<UsersFriendsDTO> friends = service.getFriends(userId);
+        for(UsersFriendsDTO friend : friends){
             Button friendButton = new Button();
             if(friend.getUsera().getId() != userId) {
                 friendButton.setText(friend.getUsera().getFirstName() + " " + friend.getUsera().getLastName());
@@ -152,6 +151,7 @@ public class MessageController implements Initializable {
                     public void handle(ActionEvent event) {
                         try {
                             toId = friend.getUserb().getId();
+                            System.out.println(toId);
                             showMessage();
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -169,7 +169,6 @@ public class MessageController implements Initializable {
     public void sendClicked(ActionEvent actionEvent) throws RepositoryException, ValidatorException {
         String mess = messageField.getText();
         service.addNewMessage(userId, Arrays.asList(toId), mess);
-        showMessage();
         messageField.deleteText(0, mess.length());
     }
 
@@ -179,9 +178,7 @@ public class MessageController implements Initializable {
             public void handle(ActionEvent event) {
                 try {
                     service.removeMessage(id);
-                    showMessage();
                 } catch (RepositoryException e) {
-                    e.printStackTrace();
                 }
             }
         });
@@ -194,7 +191,6 @@ public class MessageController implements Initializable {
                 try {
                     String mess = messageField.getText();
                     service.replyMessage(userId, Arrays.asList(toId), mess, id);
-                    showMessage();
                     messageField.deleteText(0, mess.length());
                 } catch (RepositoryException | ValidatorException e) {
                     e.printStackTrace();
@@ -206,8 +202,15 @@ public class MessageController implements Initializable {
     public void replyAllClicked(ActionEvent actionEvent) throws ValidatorException, RepositoryException {
         String mess = messageField.getText();
         service.replyAll(userId, mess);
-        showMessage();
-        showFriend();
         messageField.deleteText(0, mess.length());
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        try {
+            showFriend();
+            showMessage();
+        } catch (RepositoryException e) {
+        }
     }
 }
