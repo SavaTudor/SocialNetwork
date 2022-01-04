@@ -5,15 +5,12 @@ import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
 import utils.Graph;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.Observable;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Controller {
+public class Controller extends Observable {
     private UserService serviceUsers;
     private FriendshipService serviceFriendships;
     private RequestService serviceRequests;
@@ -150,10 +147,6 @@ public class Controller {
                 }
             }
         });
-        serviceUsers.remove(id);
-        network.removeVertex(id);
-
-
     }
 
 
@@ -167,6 +160,8 @@ public class Controller {
     public void addFriend(int username1, int username2) throws RepositoryException, EntityException, ValidatorException {
         serviceFriendships.add(username1, username2, LocalDateTime.now());
         network.addEdge(username1, username2);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -188,6 +183,8 @@ public class Controller {
         User newUser1 = serviceUsers.find(newUserA), newUser2 = serviceUsers.find(newUserB);
 
         network.addEdge(newUserA, newUserB);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -201,6 +198,8 @@ public class Controller {
         Friendship friendship = serviceFriendships.findByUsers(username1, username2);
         serviceFriendships.remove(friendship.getId());
         network.removeEdge(username1, username2);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -290,6 +289,8 @@ public class Controller {
      */
     public void addFriendRequest(int from, int to) throws ValidatorException, RepositoryException {
         serviceRequests.add(from, to, Status.PENDING);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -308,6 +309,8 @@ public class Controller {
         if (status == Status.APPROVED) {
             addFriend(from, to);
             serviceRequests.remove(fr.getId());
+            setChanged();
+            notifyObservers();
         } else {
 //            daca la respingerea unei cereri de prietenie vrem sa o stergem din repository,
 //            pentru a putea permite o noua cerere intre cei doi useri
@@ -391,6 +394,8 @@ public class Controller {
      */
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         messageService.addNewMessage(from, to, message);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -409,6 +414,8 @@ public class Controller {
      */
     public void removeMessage(int id) throws RepositoryException {
         messageService.removeMessage(id);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -457,6 +464,8 @@ public class Controller {
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         messageService.replyMessage(from, to, mess, message);
+        setChanged();
+        notifyObservers();
     }
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
@@ -469,7 +478,8 @@ public class Controller {
                 to.add(user.getUserb().getId());
         }
         messageService.addNewMessage(from, to, mess);
-
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -485,7 +495,7 @@ public class Controller {
         User user2 = serviceUsers.find(id2);
         List<Message> messages = messageService.all();
         return messages.stream().
-                filter(x -> ((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2) && x.getTo().contains(user1)))
+                filter(x -> ((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2)  && x.getTo().contains(user1)))
                 )
                 .sorted(Comparator.comparing(Message::getData))
                 .collect(Collectors.toList());
@@ -520,6 +530,29 @@ public class Controller {
                 return friendship;
 
         return null;
+    }
+
+    public List<User> getFriendsForAUser(int user) throws RepositoryException, ValidatorException {
+        List<Friendship> friendshipList = serviceFriendships.all();
+        List<User> users = new ArrayList<>();
+        friendshipList.stream().filter(x -> x.getUserA() == user || x.getUserB() == user).forEach(x -> {
+            try {
+                if(x.getUserA() == user)
+                {
+                    User user1 = serviceUsers.find(x.getUserB());
+                    users.add(user1);
+                }
+                else
+                {
+                    User user1 = serviceUsers.find(x.getUserA());
+                    users.add(user1);
+                }
+
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        });
+        return users;
     }
 
 }

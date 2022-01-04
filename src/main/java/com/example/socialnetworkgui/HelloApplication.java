@@ -28,7 +28,7 @@ public class HelloApplication extends Application {
         AnchorPane root = loader.load();
         LoginController loginController = loader.getController();
         loginController.setService(service);
-        stage.setScene(new Scene(root, 750, 400));
+        stage.setScene(new Scene(root, 800, 400));
         stage.getIcons().add(new Image("file:images/logo.jpg"));
         stage.setTitle("Log in");
         stage.show();

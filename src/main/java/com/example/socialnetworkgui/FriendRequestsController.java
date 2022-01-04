@@ -29,13 +29,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static com.example.build.Build.*;
 
-public class FriendRequestsController implements Initializable {
+public class FriendRequestsController implements Initializable, Observer {
 
     public TableView<RequestModel> requestsTable;
     public TableColumn<RequestModel, String> firstName;
@@ -52,10 +50,6 @@ public class FriendRequestsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        LoginController loginController = new LoginController();
-        this.userId = loginController.getId();
-
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         firstName.setCellValueFactory(new PropertyValueFactory<>("FirstName"));
         lastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
@@ -65,8 +59,10 @@ public class FriendRequestsController implements Initializable {
 
     }
 
-    public void setService(Controller service) {
+    public void setService(Controller service, int id) {
         this.service = service;
+        this.userId = id;
+        service.addObserver(this);
         requestsTable.setItems(loadTable());
 
     }
@@ -189,5 +185,10 @@ public class FriendRequestsController implements Initializable {
             }
         };
         closeButton.setOnAction(exit);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        requestsTable.setItems(loadSentRequests());
     }
 }

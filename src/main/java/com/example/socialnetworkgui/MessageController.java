@@ -1,56 +1,50 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.domain.Friendship;
 import com.example.domain.Message;
-import com.example.domain.User;
 import com.example.domain.UsersFriendsDTO;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-import javafx.util.Pair;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.*;
 
-public class MessageController implements Initializable {
+public class MessageController implements Initializable, Observer {
     public ScrollPane scrollPaneMessage;
     public AnchorPane anchorPaneFriends;
     public TextField messageField;
-    public ScrollPane scrollPaneFriends;
     public Button deleteButton;
     public Button replyButton;
+    public ImageView homeImage;
+    public Button homeButton;
     private Controller service;
     private int userId;
     private int toId;
-    private Map<Integer, Button> buttons;
-    private ObservableList<Message> messageList;
+    private List<Button> buttons;
     private List<Label> messageLabel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        LoginController loginController = new LoginController();
-        this.userId = loginController.getId();
-        buttons = new HashMap<>();
+        buttons = new ArrayList<>();
+        Image image = new Image("file:images/homeButtonImage.jpg");
+        homeImage.setImage(image);
     }
-    public void setService(Controller service){
+    public void setService(Controller service, int id){
         this.service = service;
+        service.addObserver(this);
+        this.userId = id;
         try {
             showFriend();
         } catch (RepositoryException e) {
@@ -59,11 +53,10 @@ public class MessageController implements Initializable {
     }
 
     public void showMessage() throws RepositoryException {
-        messageList = FXCollections.observableArrayList(service.getConversation(userId, toId));
-        ObservableList<Message> messages = FXCollections.observableArrayList(messageList);
         AnchorPane anchorPane = new AnchorPane();
         scrollPaneMessage.setContent(anchorPane);
-        if(messages.size() == 0)
+        List<Message> messageList = service.getConversation(toId, userId);
+        if(messageList.size() == 0)
         {
             Label label = new Label();
             label.setText("no message found ");
@@ -75,7 +68,7 @@ public class MessageController implements Initializable {
         }
         int y = 21;
         messageLabel = new ArrayList<>();
-        for(Message message : messages){
+        for(Message message : messageList){
             Label labelMess = new Label();
             labelMess.setText(message.getMessage());
             labelMess.setStyle("-fx-background-radius: 5; -fx-background-color:  #fad907");
@@ -112,24 +105,24 @@ public class MessageController implements Initializable {
                 public void handle(MouseEvent mouseEvent) {
                     if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                         if (mouseEvent.getClickCount() == 1) {
-                            try {
                                 deleteClicked(message.getId());
                                 replyClicked(message.getId());
-                            } catch (RepositoryException e) {
-                                e.printStackTrace();
-                            }
                         }
                     }
                 }
             });
-            //deleteButton.setVisible(false);
         }
     }
     public void showFriend() throws RepositoryException {
-        List<UsersFriendsDTO> friendships = service.getFriends(userId);
-        ObservableList<UsersFriendsDTO> friendsDTOS = FXCollections.observableArrayList(friendships);
+
+        for (Button button: buttons){
+            button.setVisible(false);
+        }
+
         int y = 21;
-        for(UsersFriendsDTO friend : friendsDTOS){
+        List<UsersFriendsDTO> friends = service.getFriends(userId);
+        buttons = new ArrayList<>();
+        for(UsersFriendsDTO friend : friends){
             Button friendButton = new Button();
             if(friend.getUsera().getId() != userId) {
                 friendButton.setText(friend.getUsera().getFirstName() + " " + friend.getUsera().getLastName());
@@ -153,6 +146,7 @@ public class MessageController implements Initializable {
                     public void handle(ActionEvent event) {
                         try {
                             toId = friend.getUserb().getId();
+                            System.out.println(toId);
                             showMessage();
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -160,55 +154,100 @@ public class MessageController implements Initializable {
                     }
                 });
             }
-            friendButton.setLayoutX(25);
-            friendButton.setLayoutY(y);
+            buttons.add(friendButton);
+
+        }
+        for (Button button: buttons){
+            button.setLayoutX(25);
+            button.setLayoutY(y);
             y += 40;
-            anchorPaneFriends.getChildren().add(friendButton);
+            anchorPaneFriends.getChildren().add(button);
         }
     }
 
-    public void sendClicked(ActionEvent actionEvent) throws RepositoryException, ValidatorException {
+    public void sendClicked(ActionEvent actionEvent){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
-        service.addNewMessage(userId, Arrays.asList(toId), mess);
-        showMessage();
+        try {
+            service.addNewMessage(userId, Arrays.asList(toId), mess);
+        } catch (RepositoryException | ValidatorException e) {
+            alert.setTitle("Message Here...");
+            alert.setHeaderText("Empty message");
+            alert.setContentText(e.getMessage());
+            alert.setTitle("Warning");
+            alert.show();
+        }
         messageField.deleteText(0, mess.length());
     }
 
-    public void deleteClicked(int id) throws RepositoryException {
+    public void deleteClicked(int id){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         deleteButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
                     service.removeMessage(id);
-                    showMessage();
                 } catch (RepositoryException e) {
-                    e.printStackTrace();
+                    alert.setTitle("Message Here...");
+                    alert.setHeaderText("Select a message, please!");
+                    alert.setContentText(e.getMessage());
+                    alert.setTitle("Warning");
+                    alert.show();
                 }
             }
         });
     }
 
     public void replyClicked(int id){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         replyButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
                     String mess = messageField.getText();
                     service.replyMessage(userId, Arrays.asList(toId), mess, id);
-                    showMessage();
                     messageField.deleteText(0, mess.length());
                 } catch (RepositoryException | ValidatorException e) {
-                    e.printStackTrace();
+                    alert.setTitle("Message Here...");
+                    alert.setHeaderText("Empty message");
+                    alert.setContentText(e.getMessage());
+                    alert.setTitle("Warning");
+                    alert.show();
                 }
             }
         });
     }
 
-    public void replyAllClicked(ActionEvent actionEvent) throws ValidatorException, RepositoryException {
+    public void replyAllClicked(ActionEvent actionEvent){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
-        service.replyAll(userId, mess);
-        showMessage();
-        showFriend();
+        try {
+            service.replyAll(userId, mess);
+        } catch (ValidatorException | RepositoryException e) {
+            alert.setTitle("Message Here...");
+            alert.setHeaderText("Empty message");
+            alert.setContentText(e.getMessage());
+            alert.setTitle("Warning");
+            alert.show();
+        }
         messageField.deleteText(0, mess.length());
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        try {
+            System.out.println("update");
+            showFriend();
+            System.out.println("update2");
+            showMessage();
+            System.out.println("update3");
+
+        } catch (RepositoryException e) {
+        }
+    }
+
+    public void homeClicked(ActionEvent actionEvent) {
+        Stage stage = (Stage) homeButton.getScene().getWindow();
+        stage.close();
     }
 }

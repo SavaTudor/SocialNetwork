@@ -29,7 +29,7 @@ public class LoginController {
     public void initialize() throws SQLException {
         Image image = new Image("file:images/beeLogInImage3.jpg");
         beeImage.setImage(image);
-        Image image1 = new Image("file:images/lockImage.jpg");
+        Image image1 = new Image("file:images/lockImage1.png");
         lockImage.setImage(image1);
     }
 
@@ -40,11 +40,6 @@ public class LoginController {
     @FXML
     private PasswordField passwordField;
 
-
-    public int getId(){
-        return this.id;
-    }
-
     @FXML
     public void signInClicked(ActionEvent event) throws SQLException, IOException {
         Encryption encryption = new Encryption();
@@ -52,7 +47,7 @@ public class LoginController {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         boolean find = false;
         for(User user : users)
-            if(usernameField.getText().equals(user.getUsername()) && encryption.encrypt(passwordField.getText()).equals(user.getPassword()))
+            if(usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(user.getPassword()))
             {
                 this.id = user.getId();
                 find = true;
@@ -69,7 +64,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("principalScene.fxml"));        AnchorPane root = loader.load();
             PrincipalSceneController principalSceneController = loader.getController();
-            principalSceneController.setService(service);
+            principalSceneController.setService(service, id);
             Scene scene = new Scene(root, 800, 400);
             Stage stage;
             stage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -85,7 +80,7 @@ public class LoginController {
         loader.setLocation(getClass().getResource("signUp.fxml"));        AnchorPane root = loader.load();
         SignUpController signUpController = loader.getController();
         signUpController.setService(service);
-        Scene scene = new Scene(root, 750, 400);
+        Scene scene = new Scene(root, 800, 400);
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         stage.setTitle("Sign up");

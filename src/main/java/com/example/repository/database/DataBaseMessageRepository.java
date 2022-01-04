@@ -1,6 +1,7 @@
 package com.example.repository.database;
 
 import com.example.domain.Message;
+import com.example.domain.MessageDto;
 import com.example.domain.User;
 import com.example.repository.Repository;
 import com.example.exception.RepositoryException;
@@ -47,38 +48,51 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
 
     /**
      * Add a message in database
-     * @param integer Integer representing the id of the message
      * @param message Message representing the message which we want to add in database
      * @throws RepositoryException if there is another message with the same id in the database
      */
     @Override
-    public void add(Integer integer, Message message) throws RepositoryException {
-        String sql = "INSERT INTO messages(ms_id,\"mess\",\"data\") VALUES (" + integer.toString() +
-                ",'" + message.getMessage() + "','" + message.getData() + "');";
+    public void add(Integer id, Message message) throws RepositoryException {
+        String sql = "INSERT INTO messages(mess,data) VALUES (" + "'" + message.getMessage() + "','" + message.getData() + "');";
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            throw new RepositoryException("Entity already exists!\n");
+            //throw new RepositoryException("Entity already exists!\n");
+            e.printStackTrace();
         }
+
+        String sql1 = "SELECT * FROM messages order by ms_id desc limit 1";
+        Integer id1 = null;
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql1);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            id1 = rs.getInt("ms_id");
+
+        } catch (Exception e) {
+            //throw new RepositoryException("Entity already exists!\n");
+            e.printStackTrace();
+        }
+
         for (User user : message.getTo()) {
             if(message.getReply() == null)
             try {
-                String sql1 = "INSERT INTO users_messages(from_user, to_user, mess_id)" +
+                String sql2 = "INSERT INTO users_messages(from_user, to_user, mess_id)" +
                         " VALUES (" + message.getFrom().getId().toString() +
-                        ", " + user.getId().toString() + ", " + message.getId().toString() + ")";
+                        ", " + user.getId().toString() + ", " + id1 + ")";
 
-                statement.executeUpdate(sql1);
+                statement.executeUpdate(sql2);
             } catch (SQLException e) {
                 throw new RepositoryException("Invalid data!\n");
             }
 
-            if(message.getReply() != null)
+            if(id != 0)
                 try {
-                    String sql1 = "INSERT INTO users_messages(from_user, to_user, mess_id, reply_to)" +
+                    String sql3 = "INSERT INTO users_messages(from_user, to_user, mess_id, reply_to)" +
                             " VALUES (" + message.getFrom().getId().toString() +
-                            ", " + user.getId().toString() + ", " + message.getId().toString() + ", " + message.getReply().getId().toString() + " )";
+                            ", " + user.getId().toString() + ", " + id1 + ", " + id + " )";
 
-                    statement.executeUpdate(sql1);
+                    statement.executeUpdate(sql3);
                 } catch (SQLException e) {
                     throw new RepositoryException("Invalid data!\n");
                 }
@@ -94,7 +108,6 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
      */
     @Override
     public Message remove(Integer integer) throws RepositoryException {
-        Message found = find(integer);
         String sql1 = "DELETE FROM messages WHERE ms_id=" + integer;
         String sql2 = "DELETE FROM users_messages WHERE mess_id=" + integer;
         try {
@@ -103,7 +116,7 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
         } catch (Exception e) {
             throw new RepositoryException("Entity does not exist!\n");        }
 
-        return found;
+        return null;
     }
 
     /**
@@ -138,33 +151,25 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
     public Message find(Integer integer) throws RepositoryException {
         String sql = "SELECT * FROM messages WHERE ms_id=" + integer;
         String sql1 = "SELECT * FROM users_messages WHERE mess_id=" + integer;
-        Message found = null;
+        Message found;
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             rs.next();
-            int id = rs.getInt("ms_id");
+
             String mess = rs.getString("mess");
             LocalDateTime date = rs.getTimestamp("data").toLocalDateTime();
+
             List<User> userList = new ArrayList<>();
-            User from;
+
             PreparedStatement ps1 = connection.prepareStatement(sql1);
             ResultSet rs1 = ps1.executeQuery();
-            Integer reply = 0;
-            while (rs1.next()) {
-                Integer fr = rs1.getInt("from_user");
-                String sql2 = "SELECT * FROM users WHERE id=" + fr;
-                PreparedStatement ps2 = connection.prepareStatement(sql2);
-                ResultSet rs2 = ps2.executeQuery();
-                rs2.next();
-                int idUser = rs2.getInt("id");
-                String firstName = rs2.getString("firstname");
-                String lastName = rs2.getString("lastname");
-                String username = rs2.getString("username");
-                String password = rs2.getString("password");
-                from = new User(username,firstName, lastName,password);
-                from.setId(idUser);
 
+            User from;
+            Integer reply = null;
+            Integer fr = null;
+            while (rs1.next()) {
+                fr = rs1.getInt("from_user");
                 Integer to = rs1.getInt("to_user");
                 String sql3 = "SELECT * FROM users WHERE id = " + to;
                 PreparedStatement ps3 = connection.prepareStatement(sql3);
@@ -175,24 +180,35 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
                 String lastName1 = rs3.getString("lastname");
                 String username1 = rs3.getString("username");
                 String password1 = rs3.getString("password");
-                User user = new User(username1,firstName1, lastName1,password1);
+                User user = new User(username1, firstName1, lastName1, password1);
                 user.setId(idUser1);
                 userList.add(user);
-                found = new Message(from, userList, mess);
-                found.setData(date);
-                found.setId(id);
-                String replyString = rs1.getString("reply_to");
-                if(replyString == null) {
-                    reply = 0;
-                }
-                else{
-                    reply = Integer.parseInt(replyString);}
+                reply = rs1.getInt("reply_to");
             }
-            if(reply != 0)
+            if(fr == null)
+                return null;
+            String sql2 = "SELECT * FROM users WHERE id=" + fr.toString();
+            PreparedStatement ps2 = connection.prepareStatement(sql2);
+            ResultSet rs2 = ps2.executeQuery();
+            rs2.next();
+            int idUser = rs2.getInt("id");
+            String firstName = rs2.getString("firstname");
+            String lastName = rs2.getString("lastname");
+            String username = rs2.getString("username");
+            String password = rs2.getString("password");
+            from = new User(username,firstName, lastName,password);
+            from.setId(idUser);
+            found = new Message(from, userList, mess);
+            found.setData(date);
+            found.setId(integer);
+            if(reply != 0) {
                 found.setReply(find(reply));
+            }
             return found;
         } catch (Exception e) {
-            throw new RepositoryException("Entity does not exist!\n");
+            //throw new RepositoryException("Entity does not exist!\n");
+            e.printStackTrace();
+            return null;
         }
     }
 
