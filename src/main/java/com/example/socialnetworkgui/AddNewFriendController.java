@@ -40,6 +40,7 @@ public class AddNewFriendController implements Initializable {
     public Label invalidUser;
     public TableColumn<UserModel, String> firstname;
     public TableColumn<UserModel, String> lastname;
+    public Button homeButton;
     private int userId;
 
     @Override
@@ -55,8 +56,6 @@ public class AddNewFriendController implements Initializable {
         searchImage.setImage(image);
         Image image1 = new Image("file:images/addNewFriendImage.jpg");
         addImage.setImage(image1);
-//        Image image2 = new Image("file:images/logo1.jpg");
-//        logoImage.setImage(image2);
         Image image3 = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image3);
         invalidUser.setVisible(false);
@@ -99,17 +98,8 @@ public class AddNewFriendController implements Initializable {
     }
 
     public void homeClicked(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("principalScene.fxml"));
-        AnchorPane root = loader.load();
-        PrincipalSceneController principalSceneController = loader.getController();
-        principalSceneController.setService(service, userId);
-        Scene scene = new Scene(root, 800, 400);
-        Stage stage;
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        stage.setTitle("Main scene");
-        stage.setScene(scene);
-        stage.show();
+        Stage stage = (Stage) homeButton.getScene().getWindow();
+        stage.close();
     }
 
     public void searchCliecked(ActionEvent actionEvent) {

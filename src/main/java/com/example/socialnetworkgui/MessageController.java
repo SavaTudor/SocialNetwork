@@ -1,48 +1,45 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.domain.Friendship;
 import com.example.domain.Message;
-import com.example.domain.User;
 import com.example.domain.UsersFriendsDTO;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-import javafx.util.Pair;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MessageController implements Initializable, Observer {
     public ScrollPane scrollPaneMessage;
     public AnchorPane anchorPaneFriends;
     public TextField messageField;
-    public ScrollPane scrollPaneFriends;
     public Button deleteButton;
     public Button replyButton;
+    public ImageView homeImage;
+    public Button homeButton;
     private Controller service;
     private int userId;
     private int toId;
-    private Map<Integer, Button> buttons;
+    private List<Button> buttons;
     private List<Label> messageLabel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        buttons = new HashMap<>();
+        buttons = new ArrayList<>();
+        Image image = new Image("file:images/homeButtonImage.jpg");
+        homeImage.setImage(image);
     }
     public void setService(Controller service, int id){
         this.service = service;
@@ -114,12 +111,17 @@ public class MessageController implements Initializable, Observer {
                     }
                 }
             });
-            //deleteButton.setVisible(false);
         }
     }
     public void showFriend() throws RepositoryException {
+
+        for (Button button: buttons){
+            button.setVisible(false);
+        }
+
         int y = 21;
         List<UsersFriendsDTO> friends = service.getFriends(userId);
+        buttons = new ArrayList<>();
         for(UsersFriendsDTO friend : friends){
             Button friendButton = new Button();
             if(friend.getUsera().getId() != userId) {
@@ -152,10 +154,14 @@ public class MessageController implements Initializable, Observer {
                     }
                 });
             }
-            friendButton.setLayoutX(25);
-            friendButton.setLayoutY(y);
+            buttons.add(friendButton);
+
+        }
+        for (Button button: buttons){
+            button.setLayoutX(25);
+            button.setLayoutY(y);
             y += 40;
-            anchorPaneFriends.getChildren().add(friendButton);
+            anchorPaneFriends.getChildren().add(button);
         }
     }
 
@@ -230,9 +236,18 @@ public class MessageController implements Initializable, Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
+            System.out.println("update");
             showFriend();
+            System.out.println("update2");
             showMessage();
+            System.out.println("update3");
+
         } catch (RepositoryException e) {
         }
+    }
+
+    public void homeClicked(ActionEvent actionEvent) {
+        Stage stage = (Stage) homeButton.getScene().getWindow();
+        stage.close();
     }
 }

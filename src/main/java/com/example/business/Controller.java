@@ -147,10 +147,6 @@ public class Controller extends Observable {
                 }
             }
         });
-        serviceUsers.remove(id);
-        network.removeVertex(id);
-
-
     }
 
 
