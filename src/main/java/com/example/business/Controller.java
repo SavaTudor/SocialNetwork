@@ -532,4 +532,27 @@ public class Controller extends Observable {
         return null;
     }
 
+    public List<User> getFriendsForAUser(int user) throws RepositoryException, ValidatorException {
+        List<Friendship> friendshipList = serviceFriendships.all();
+        List<User> users = new ArrayList<>();
+        friendshipList.stream().filter(x -> x.getUserA() == user || x.getUserB() == user).forEach(x -> {
+            try {
+                if(x.getUserA() == user)
+                {
+                    User user1 = serviceUsers.find(x.getUserB());
+                    users.add(user1);
+                }
+                else
+                {
+                    User user1 = serviceUsers.find(x.getUserA());
+                    users.add(user1);
+                }
+
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        });
+        return users;
+    }
+
 }

@@ -100,7 +100,7 @@ public class AddNewFriendController implements Initializable {
         AnchorPane root = loader.load();
         PrincipalSceneController principalSceneController = loader.getController();
         principalSceneController.setService(service, userId);
-        Scene scene = new Scene(root, 750, 400);
+        Scene scene = new Scene(root, 800, 400);
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         stage.setTitle("Main scene");
