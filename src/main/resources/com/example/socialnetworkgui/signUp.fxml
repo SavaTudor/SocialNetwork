@@ -61,11 +61,7 @@
        <VBox prefHeight="400.0" prefWidth="26.0" style="-fx-background-color: #fad907;" />
        <ImageView fx:id="beeImage" fitHeight="262.0" fitWidth="305.0" layoutX="33.0" layoutY="14.0">
        </ImageView>
-      <HBox layoutX="458.0" layoutY="64.0" prefHeight="78.0" prefWidth="93.0">
-         <children>
-            <ImageView fx:id="signUpImage" fitHeight="78.0" fitWidth="88.0">
-            </ImageView>
-         </children>
-      </HBox>
+      <ImageView fx:id="signUpImage" fitHeight="120.0" fitWidth="115.0" layoutX="481.0" layoutY="25.0">
+      </ImageView>
    </children>
 </AnchorPane>

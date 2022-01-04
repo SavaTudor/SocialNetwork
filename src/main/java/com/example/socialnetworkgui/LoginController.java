@@ -29,7 +29,7 @@ public class LoginController {
     public void initialize() throws SQLException {
         Image image = new Image("file:images/beeLogInImage3.jpg");
         beeImage.setImage(image);
-        Image image1 = new Image("file:images/lockImage.jpg");
+        Image image1 = new Image("file:images/lockImage1.png");
         lockImage.setImage(image1);
     }
 

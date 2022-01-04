@@ -4,12 +4,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -53,14 +51,10 @@
             <Font size="15.0" />
          </font>
       </Button>
-      <HBox layoutX="478.0" layoutY="65.0" prefHeight="65.0" prefWidth="68.0">
-         <children>
-            <ImageView fx:id="lockImage" fitHeight="65.0" fitWidth="66.0">
-            </ImageView>
-         </children>
-      </HBox>
       <VBox prefHeight="400.0" prefWidth="26.0" style="-fx-background-color: #fad907;" />
       <ImageView fx:id="beeImage" fitHeight="262.0" fitWidth="305.0" layoutX="33.0" layoutY="14.0">
       </ImageView>
+      <ImageView fx:id="lockImage" fitHeight="120.0" fitWidth="115.0" layoutX="481.0" layoutY="25.0">
+            </ImageView>
    </children>
 </AnchorPane>
