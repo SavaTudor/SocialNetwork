@@ -12,10 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -111,12 +108,8 @@ public class MessageController implements Initializable, Observer {
                 public void handle(MouseEvent mouseEvent) {
                     if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                         if (mouseEvent.getClickCount() == 1) {
-                            try {
                                 deleteClicked(message.getId());
                                 replyClicked(message.getId());
-                            } catch (RepositoryException e) {
-                                e.printStackTrace();
-                            }
                         }
                     }
                 }
@@ -166,25 +159,41 @@ public class MessageController implements Initializable, Observer {
         }
     }
 
-    public void sendClicked(ActionEvent actionEvent) throws RepositoryException, ValidatorException {
+    public void sendClicked(ActionEvent actionEvent){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
-        service.addNewMessage(userId, Arrays.asList(toId), mess);
+        try {
+            service.addNewMessage(userId, Arrays.asList(toId), mess);
+        } catch (RepositoryException | ValidatorException e) {
+            alert.setTitle("Message Here...");
+            alert.setHeaderText("Empty message");
+            alert.setContentText(e.getMessage());
+            alert.setTitle("Warning");
+            alert.show();
+        }
         messageField.deleteText(0, mess.length());
     }
 
-    public void deleteClicked(int id) throws RepositoryException {
+    public void deleteClicked(int id){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         deleteButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
                     service.removeMessage(id);
                 } catch (RepositoryException e) {
+                    alert.setTitle("Message Here...");
+                    alert.setHeaderText("Select a message, please!");
+                    alert.setContentText(e.getMessage());
+                    alert.setTitle("Warning");
+                    alert.show();
                 }
             }
         });
     }
 
     public void replyClicked(int id){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         replyButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -193,15 +202,28 @@ public class MessageController implements Initializable, Observer {
                     service.replyMessage(userId, Arrays.asList(toId), mess, id);
                     messageField.deleteText(0, mess.length());
                 } catch (RepositoryException | ValidatorException e) {
-                    e.printStackTrace();
+                    alert.setTitle("Message Here...");
+                    alert.setHeaderText("Empty message");
+                    alert.setContentText(e.getMessage());
+                    alert.setTitle("Warning");
+                    alert.show();
                 }
             }
         });
     }
 
-    public void replyAllClicked(ActionEvent actionEvent) throws ValidatorException, RepositoryException {
+    public void replyAllClicked(ActionEvent actionEvent){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
-        service.replyAll(userId, mess);
+        try {
+            service.replyAll(userId, mess);
+        } catch (ValidatorException | RepositoryException e) {
+            alert.setTitle("Message Here...");
+            alert.setHeaderText("Empty message");
+            alert.setContentText(e.getMessage());
+            alert.setTitle("Warning");
+            alert.show();
+        }
         messageField.deleteText(0, mess.length());
     }
 

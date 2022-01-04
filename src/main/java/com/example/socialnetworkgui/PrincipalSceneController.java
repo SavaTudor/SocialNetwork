@@ -21,6 +21,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -38,7 +39,6 @@ public class PrincipalSceneController implements Initializable {
     public TableColumn<UserModel, String> username;
     public ImageView homeImage;
     public ImageView addFriendImage;
-    public ImageView logoButton;
     public ImageView friendImage;
     public ImageView deleteImage;
     public Button deleteButton;
@@ -47,6 +47,7 @@ public class PrincipalSceneController implements Initializable {
     public Label userAccount;
     public AnchorPane anchorPane;
     public Button messageButton;
+    public ImageView messageImage;
     private Controller service;
     private int userId;
 
@@ -56,11 +57,8 @@ public class PrincipalSceneController implements Initializable {
         username.setCellValueFactory(new PropertyValueFactory<>("username"));
         friendshipTable.setVisible(false);
         id.setVisible(false);
-        deleteImage.setVisible(false);
+        deleteButton.setVisible(false);
 
-
-        Image image = new Image("file:images/logo1.jpg");
-        logoButton.setImage(image);
         Image image1 = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image1);
         Image image2 = new Image("file:images/friendImage.png");
@@ -71,13 +69,19 @@ public class PrincipalSceneController implements Initializable {
         deleteImage.setImage(image4);
         Image image5 = new Image("file:images/logoutButton.png");
         logOutImage.setImage(image5);
+        Image image6 = new Image("file:images/messageButton.png");
+        messageImage.setImage(image6);
 
     }
 
     public void setService(Controller service, int id){
         this.userId = id;
         this.service = service;
-
+        try {
+            userAccount.setText(service.findUser(userId).getFirstName() + " " + service.findUser(userId).getLastName());
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -131,13 +135,13 @@ public class PrincipalSceneController implements Initializable {
 
     public void homeClicked(ActionEvent actionEvent) {
         friendshipTable.setVisible(false);
-        deleteImage.setVisible(false);
+        deleteButton.setVisible(false);
 
     }
 
     public void friendClicked(ActionEvent mouseEvent) {
         friendshipTable.setVisible(true);
-        deleteImage.setVisible(true);
+        deleteButton.setVisible(true);
         id.setVisible(false);
         friendshipTable.setItems(loadTable());
     }
@@ -186,8 +190,6 @@ public class PrincipalSceneController implements Initializable {
     }
 
     public void messagesClicked(ActionEvent actionEvent) throws IOException, RepositoryException {
-        ObservableList<Message> messages = FXCollections.observableArrayList(service.allMessage());
-        ObservableList<UsersFriendsDTO> friendships = FXCollections.observableArrayList(service.getFriends(this.userId));
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("messages.fxml"));
         AnchorPane root = loader.load();

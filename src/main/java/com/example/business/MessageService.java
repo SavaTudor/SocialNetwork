@@ -16,7 +16,6 @@ public class MessageService {
     private Repository<Integer, Message> repository;
     private Repository<Integer, User> userRepository;
     private ValidatorMessage validatorMessage;
-    private int id = 1;
 
     /**
      * The constructor
@@ -32,22 +31,6 @@ public class MessageService {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        generateId();
-    }
-
-    /**
-     * generate the id of message
-     */
-    private void generateId(){
-        ArrayList<Message> messages = repository.all();
-        int max = 0;
-        if(messages.size()>0) {
-            for (Message message : messages)
-                if (message.getId() > max)
-                    max = message.getId();
-            this.id = max + 1;
-        }
-
     }
 
     /**
@@ -68,10 +51,8 @@ public class MessageService {
             toUser.add(user1);
         }
         Message message1 = new Message(fromUser, toUser, message);
-        message1.setId(id);
         validatorMessage.valideaza(message1);
-        repository.add(id,message1);
-        id++;
+        repository.add(0, message1);
 
     }
 
@@ -162,7 +143,6 @@ public class MessageService {
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         User fromUser = userRepository.find(from);
         List<User> toUser = new ArrayList<>();
-        Message message1 = repository.find(message);
         for(Integer user : to){
             if(user == from)
                 throw new RepositoryException("you can not send message to yourself!");
@@ -172,11 +152,8 @@ public class MessageService {
         if(toUser.size() != 1 )
             throw new RepositoryException("receptor invalid!");
         Message message2 = new Message(fromUser, toUser, mess);
-        message2.setId(id);
-        message2.setReply(message1);
         validatorMessage.valideaza(message2);
-        repository.add(id,message2);
-        id++;
+        repository.add(message,message2);
     }
 
     /**

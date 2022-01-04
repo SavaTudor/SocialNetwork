@@ -478,7 +478,8 @@ public class Controller extends Observable {
                 to.add(user.getUserb().getId());
         }
         messageService.addNewMessage(from, to, mess);
-
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -494,7 +495,7 @@ public class Controller extends Observable {
         User user2 = serviceUsers.find(id2);
         List<Message> messages = messageService.all();
         return messages.stream().
-                filter(x -> ((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2) && x.getTo().contains(user1)))
+                filter(x -> ((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2)  && x.getTo().contains(user1)))
                 )
                 .sorted(Comparator.comparing(Message::getData))
                 .collect(Collectors.toList());
