@@ -293,6 +293,8 @@ public class Controller extends Observable {
      */
     public void addFriendRequest(int from, int to) throws ValidatorException, RepositoryException {
         serviceRequests.add(from, to, Status.PENDING);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -311,6 +313,8 @@ public class Controller extends Observable {
         if (status == Status.APPROVED) {
             addFriend(from, to);
             serviceRequests.remove(fr.getId());
+            setChanged();
+            notifyObservers();
         } else {
 //            daca la respingerea unei cereri de prietenie vrem sa o stergem din repository,
 //            pentru a putea permite o noua cerere intre cei doi useri

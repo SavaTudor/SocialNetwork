@@ -28,19 +28,15 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 
-public class PrincipalSceneController implements Initializable {
+public class PrincipalSceneController implements Initializable, Observer {
 
     public TableView<UserModel> friendshipTable;
     public TableColumn<UserModel, String> id;
     public TableColumn<UserModel, String> username;
-    //public ImageView homeImage;
     public ImageView addFriendImage;
-    //public ImageView friendImage;
     public ImageView deleteImage;
     public Button deleteButton;
     public Button logOutButton;
@@ -63,10 +59,6 @@ public class PrincipalSceneController implements Initializable {
 
         id.setVisible(false);
 
-//        Image image1 = new Image("file:images/homeButtonImage.jpg");
-//        homeImage.setImage(image1);
-//        Image image2 = new Image("file:images/friendImage.png");
-//        friendImage.setImage(image2);
         Image image3 = new Image("file:images/addNewFriendImage.jpg");
         addFriendImage.setImage(image3);
         Image image4 = new Image("file:images/deleteButton.png");
@@ -81,6 +73,7 @@ public class PrincipalSceneController implements Initializable {
     public void setService(Controller service, int id){
         this.userId = id;
         this.service = service;
+        service.addObserver(this);
         try {
             userAccount.setText(service.findUser(userId).getFirstName() + " " + service.findUser(userId).getLastName());
         } catch (RepositoryException e) {
@@ -113,8 +106,7 @@ public class PrincipalSceneController implements Initializable {
         AddNewFriendController addNewFriendController = loader.getController();
         addNewFriendController.setService(service, userId);
         Scene scene = new Scene(root, 800, 400);
-        Stage stage;
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        Stage stage = new Stage();
         stage.setTitle("Add new friend");
         stage.setScene(scene);
         stage.show();
@@ -174,5 +166,14 @@ public class PrincipalSceneController implements Initializable {
         stage.setTitle("Messages");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        try {
+            friendshipTable.setItems(loadTable());
+        } catch (ValidatorException | RepositoryException e) {
+            e.printStackTrace();
+        }
     }
 }

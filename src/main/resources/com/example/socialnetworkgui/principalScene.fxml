@@ -54,7 +54,6 @@
       </Button>
       <HBox layoutX="166.0" layoutY="375.0">
       <Button fx:id="friendRequests" mnemonicParsing="false" onAction="#friendRequestsClicked" text="Friend Requests" />
-      <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refresh" text="Refresh" />
       </HBox>
    </children>
 </AnchorPane>
