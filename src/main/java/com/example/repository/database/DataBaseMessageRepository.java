@@ -1,8 +1,6 @@
 package com.example.repository.database;
 
-import com.example.domain.Message;
-import com.example.domain.MessageDto;
-import com.example.domain.User;
+import com.example.domain.MessageDTO;
 import com.example.repository.Repository;
 import com.example.exception.RepositoryException;
 
@@ -12,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DataBaseMessageRepository implements Repository<Integer, Message> {
+public class DataBaseMessageRepository implements Repository<Integer, MessageDTO> {
     private final Connection connection;
     private final Statement statement;
 
@@ -48,51 +46,38 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
 
     /**
      * Add a message in database
+     * @param integer Integer representing the id of the message
      * @param message Message representing the message which we want to add in database
      * @throws RepositoryException if there is another message with the same id in the database
      */
     @Override
-    public void add(Integer id, Message message) throws RepositoryException {
-        String sql = "INSERT INTO messages(mess,data) VALUES (" + "'" + message.getMessage() + "','" + message.getData() + "');";
+    public void add(Integer integer, MessageDTO message) throws RepositoryException {
+        String sql = "INSERT INTO messages(ms_id,\"mess\",\"data\") VALUES (" + integer.toString() +
+                ",'" + message.getMessage() + "','" + message.getData() + "');";
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            //throw new RepositoryException("Entity already exists!\n");
-            e.printStackTrace();
+            throw new RepositoryException("Entity already exists!\n");
         }
-
-        String sql1 = "SELECT * FROM messages order by ms_id desc limit 1";
-        Integer id1 = null;
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql1);
-            ResultSet rs = ps.executeQuery();
-            rs.next();
-            id1 = rs.getInt("ms_id");
-
-        } catch (Exception e) {
-            //throw new RepositoryException("Entity already exists!\n");
-            e.printStackTrace();
-        }
-
-        for (User user : message.getTo()) {
-            if(message.getReply() == null)
-            try {
-                String sql2 = "INSERT INTO users_messages(from_user, to_user, mess_id)" +
-                        " VALUES (" + message.getFrom().getId().toString() +
-                        ", " + user.getId().toString() + ", " + id1 + ")";
-
-                statement.executeUpdate(sql2);
-            } catch (SQLException e) {
-                throw new RepositoryException("Invalid data!\n");
-            }
-
-            if(id != 0)
+        for (Integer user : message.getTo()) {
+            if(message.getReply() == 0)
                 try {
-                    String sql3 = "INSERT INTO users_messages(from_user, to_user, mess_id, reply_to)" +
-                            " VALUES (" + message.getFrom().getId().toString() +
-                            ", " + user.getId().toString() + ", " + id1 + ", " + id + " )";
+                    String sql1 = "INSERT INTO users_messages(from_user, to_user, mess_id)" +
+                            " VALUES (" + message.getFrom() +
+                            ", " + user + ", " + message.getId().toString() + ")";
 
-                    statement.executeUpdate(sql3);
+                    statement.executeUpdate(sql1);
+                } catch (SQLException e) {
+                    throw new RepositoryException("Invalid data!\n");
+                }
+
+            if(message.getReply() != 0)
+                try {
+                    String sql1 = "INSERT INTO users_messages(from_user, to_user, mess_id, reply_to)" +
+                            " VALUES (" + message.getFrom() +
+                            ", " + user+ ", " + message.getId().toString() + ", " + message.getReply() + " )";
+
+                    statement.executeUpdate(sql1);
                 } catch (SQLException e) {
                     throw new RepositoryException("Invalid data!\n");
                 }
@@ -107,7 +92,7 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
      * @throws RepositoryException if there is no message with the id given in the database
      */
     @Override
-    public Message remove(Integer integer) throws RepositoryException {
+    public MessageDTO remove(Integer integer) throws RepositoryException {
         String sql1 = "DELETE FROM messages WHERE ms_id=" + integer;
         String sql2 = "DELETE FROM users_messages WHERE mess_id=" + integer;
         try {
@@ -124,14 +109,14 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
      * @return ArrayList of Message representing all message from database
      */
     @Override
-    public ArrayList<Message> all() {
-        ArrayList<Message> list = new ArrayList<>();
+    public ArrayList<MessageDTO> all() {
+        ArrayList<MessageDTO> list = new ArrayList<>();
         String sql = "SELECT * FROM messages";
         try {
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()) {
                 int id = rs.getInt("ms_id");
-                Message message = find(id);
+                MessageDTO message = find(id);
                 if(message != null)
                     list.add(message);
             }
@@ -148,67 +133,33 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
      * @throws RepositoryException if there is no message with the id given in the database
      */
     @Override
-    public Message find(Integer integer) throws RepositoryException {
+    public MessageDTO find(Integer integer) throws RepositoryException {
         String sql = "SELECT * FROM messages WHERE ms_id=" + integer;
         String sql1 = "SELECT * FROM users_messages WHERE mess_id=" + integer;
-        Message found;
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             rs.next();
-
+            int id = rs.getInt("ms_id");
             String mess = rs.getString("mess");
             LocalDateTime date = rs.getTimestamp("data").toLocalDateTime();
-
-            List<User> userList = new ArrayList<>();
-
+            List<Integer> userList = new ArrayList<>();
             PreparedStatement ps1 = connection.prepareStatement(sql1);
             ResultSet rs1 = ps1.executeQuery();
-
-            User from;
-            Integer reply = null;
-            Integer fr = null;
+            Integer reply = 0;
+            int from = 0;
             while (rs1.next()) {
-                fr = rs1.getInt("from_user");
+                from = rs1.getInt("from_user");
                 Integer to = rs1.getInt("to_user");
-                String sql3 = "SELECT * FROM users WHERE id = " + to;
-                PreparedStatement ps3 = connection.prepareStatement(sql3);
-                ResultSet rs3 = ps3.executeQuery();
-                rs3.next();
-                int idUser1 = rs3.getInt("id");
-                String firstName1 = rs3.getString("firstname");
-                String lastName1 = rs3.getString("lastname");
-                String username1 = rs3.getString("username");
-                String password1 = rs3.getString("password");
-                User user = new User(username1, firstName1, lastName1, password1);
-                user.setId(idUser1);
-                userList.add(user);
-                reply = rs1.getInt("reply_to");
+                userList.add(to);
+                Integer replyString = rs1.getInt("reply_to");
             }
-            if(fr == null)
-                return null;
-            String sql2 = "SELECT * FROM users WHERE id=" + fr.toString();
-            PreparedStatement ps2 = connection.prepareStatement(sql2);
-            ResultSet rs2 = ps2.executeQuery();
-            rs2.next();
-            int idUser = rs2.getInt("id");
-            String firstName = rs2.getString("firstname");
-            String lastName = rs2.getString("lastname");
-            String username = rs2.getString("username");
-            String password = rs2.getString("password");
-            from = new User(username,firstName, lastName,password);
-            from.setId(idUser);
-            found = new Message(from, userList, mess);
-            found.setData(date);
-            found.setId(integer);
-            if(reply != 0) {
-                found.setReply(find(reply));
-            }
+            MessageDTO found = new MessageDTO(from, userList, mess);
+            found.setId(id);
+            found.setReply(reply);
             return found;
         } catch (Exception e) {
-            //throw new RepositoryException("Entity does not exist!\n");
-            e.printStackTrace();
-            return null;
+            throw new RepositoryException("Entity does not exist!\n");
         }
     }
 
@@ -219,7 +170,7 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
      * @throws RepositoryException if there is no message with the id given in the database
      */
     @Override
-    public void update(Integer integer, Message message) throws RepositoryException {
+    public void update(Integer integer, MessageDTO message) throws RepositoryException {
         remove(integer);
         add(integer, message);
     }
@@ -229,14 +180,14 @@ public class DataBaseMessageRepository implements Repository<Integer, Message> {
      * @return HashMap of Integer and Message representing all message from database
      */
     @Override
-    public HashMap<Integer, Message> getElements() {
-        HashMap<Integer, Message> map = new HashMap<>();
+    public HashMap<Integer, MessageDTO> getElements() {
+        HashMap<Integer, MessageDTO> map = new HashMap<>();
         String sql = "SELECT * FROM messages";
         try {
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()) {
                 int id = rs.getInt("ms_id");
-                Message message = find(id);
+                MessageDTO message = find(id);
                 if(message != null)
                     map.put(id, message);
             }
