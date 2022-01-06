@@ -236,11 +236,8 @@ public class MessageController implements Initializable, Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            System.out.println("update");
             showFriend();
-            System.out.println("update2");
             showMessage();
-            System.out.println("update3");
 
         } catch (RepositoryException e) {
         }
