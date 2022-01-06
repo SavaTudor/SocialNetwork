@@ -362,7 +362,39 @@ public class Controller {
      * @return a list of messages representing all the sent messages
      */
     public List<Message> allMessage() {
-        return messageService.all();
+        List<MessageDTO> messageDTOS = messageService.all();
+        List<Message> messages = new ArrayList<>();
+        for(MessageDTO messageDTO : messageDTOS){
+            List<User> to = new ArrayList<>();
+            for(Integer user : messageDTO.getTo())
+            {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if(messageDTO.getReply() != 0){
+                try {
+                    Message message1 = findMessage(messageDTO.getId());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
 
@@ -382,7 +414,36 @@ public class Controller {
      * @throws RepositoryException if there is no message with the id given in the database
      */
     public Message findMessage(int id) throws RepositoryException {
-        return messageService.findMessage(id);
+        MessageDTO messageDTO = messageService.findMessage(id);
+        Message message;
+        List<User> toUser = new ArrayList<>();
+        for (Integer user : messageDTO.getTo()) {
+            try {
+                User user1 = serviceUsers.find(user);
+                toUser.add(user1);
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
+        User from = null;
+        try {
+            from = serviceUsers.find(messageDTO.getFrom());
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
+        message = new Message(from, toUser, messageDTO.getMessage());
+        message.setData(messageDTO.getData());
+        message.setId(messageDTO.getId());
+        if (messageDTO.getReply() != 0) {
+            try {
+                Message message1 = findMessage(messageDTO.getId());
+                message.setReply(message1);
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
+    return message;
+
     }
 
     /**
@@ -392,7 +453,39 @@ public class Controller {
      * @throws RepositoryException if there are no messages with for this user in database
      */
     public List<Message> findMessages(int idUser) throws RepositoryException {
-        return messageService.findMessages(idUser);
+        List<MessageDTO> messageDTOS = messageService.findMessages(idUser);
+        List<Message> messages = new ArrayList<>();
+        for(MessageDTO messageDTO : messageDTOS){
+            List<User> to = new ArrayList<>();
+            for(Integer user : messageDTO.getTo())
+            {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if(messageDTO.getReply() != 0){
+                try {
+                    Message message1 = findMessage(messageDTO.getId());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
     /**
@@ -421,11 +514,11 @@ public class Controller {
     }
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
-        List<Message> messages = messageService.all();
-        for(Message message : messages){
+        List<MessageDTO> messages = messageService.all();
+        for(MessageDTO message : messages){
             if(message.getTo().contains(from)) {
                 List<Integer> to = new ArrayList<>();
-                to.add(message.getFrom().getId());
+                to.add(message.getFrom());
                 messageService.replyMessage(from, to, mess, message.getId());
             }
         }
@@ -439,23 +532,85 @@ public class Controller {
      * @throws RepositoryException if id1 or id 2 are not valid
      */
     public List<Message> getConversation(int id1, int id2) throws RepositoryException {
-        User user1 = serviceUsers.find(id1);
-        User user2 = serviceUsers.find(id2);
-        List<Message> messages = messageService.all();
-        return messages.stream().
-                filter(x->((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2) && x.getTo().contains(user1)))
+        List<MessageDTO> messagesD = messageService.all();
+        List<MessageDTO> messageDTOS =  messagesD.stream().
+                filter(x->((x.getFrom() == id1 && x.getTo().contains(id2)) || (x.getFrom() == id2 && x.getTo().contains(id1)))
         )
-                .sorted(Comparator.comparing(Message::getData))
+                .sorted(Comparator.comparing(MessageDTO::getData))
                 .collect(Collectors.toList());
+        List<Message> messages = new ArrayList<>();
+        for(MessageDTO messageDTO : messageDTOS){
+            List<User> to = new ArrayList<>();
+            for(Integer user : messageDTO.getTo())
+            {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if(messageDTO.getReply() != 0){
+                try {
+                    Message message1 = findMessage(messageDTO.getId());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
     /**
      * Find all messages sent by a user
-     * @param user Integer representing the id of the user
+     * @param id Integer representing the id of the user
      * @return List of Message representing all messages sent by a user
      */
-    public List<Message> allMessageByUser(int user){
-        return messageService.allMessageByUser(user);
+    public List<Message> allMessageByUser(int id){
+        List <MessageDTO> messageDTOS = messageService.allMessageByUser(id);
+        List<Message> messages = new ArrayList<>();
+        for(MessageDTO messageDTO : messageDTOS){
+            List<User> to = new ArrayList<>();
+            for(Integer user : messageDTO.getTo())
+            {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if(messageDTO.getReply() != 0){
+                try {
+                    Message message1 = findMessage(messageDTO.getId());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
     public List<User> getNoFriend(int id){
