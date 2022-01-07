@@ -10,6 +10,17 @@ import java.util.Observable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+import com.example.domain.*;
+import com.example.exception.EntityException;
+import com.example.exception.RepositoryException;
+import com.example.exception.ValidatorException;
+import utils.Graph;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class Controller extends Observable {
     private UserService serviceUsers;
     private FriendshipService serviceFriendships;
@@ -147,6 +158,10 @@ public class Controller extends Observable {
                 }
             }
         });
+        serviceUsers.remove(id);
+        network.removeVertex(id);
+
+
     }
 
 
@@ -183,8 +198,6 @@ public class Controller extends Observable {
         User newUser1 = serviceUsers.find(newUserA), newUser2 = serviceUsers.find(newUserB);
 
         network.addEdge(newUserA, newUserB);
-        setChanged();
-        notifyObservers();
     }
 
     /**
@@ -227,7 +240,6 @@ public class Controller extends Observable {
 
     /**
      * Get all the friendships from the friendship service
-     *
      * @return a List of friendships with all the friendships
      */
     public List<Friendship> allFriendships() {
@@ -283,22 +295,20 @@ public class Controller extends Observable {
 
     /**
      * @param from integer representing the id of the user who is sending a friend request
-     * @param to   integer representing the id of the user who is receiving the friend request
-     * @throws ValidatorException  if the new request is not valid
+     * @param to integer representing the id of the user who is receiving the friend request
+     * @throws ValidatorException if the new request is not valid
      * @throws RepositoryException if between the two users already exists a friendship or a request
      */
     public void addFriendRequest(int from, int to) throws ValidatorException, RepositoryException {
         serviceRequests.add(from, to, Status.PENDING);
-        setChanged();
-        notifyObservers();
     }
 
     /**
      * @param from integer representing the id of the user who sent the request
-     * @param to   integer representing the id of the user who received the friend request
-     * @param st   the response to the request
+     * @param to integer representing the id of the user who received the friend request
+     * @param st the response to the request
      * @throws RepositoryException if there is not a request between the two users
-     * @throws ValidatorException  if the new status is not valid
+     * @throws ValidatorException if the new status is not valid
      * @throws EntityException
      */
     public void respondFriendRequest(int from, int to, String st) throws RepositoryException, ValidatorException, EntityException {
@@ -306,18 +316,17 @@ public class Controller extends Observable {
                 Status.REJECTED;
         FriendRequest fr = serviceRequests.findByUsers(from, to);
         serviceRequests.update(fr.getId(), from, to, status);
-        if (status == Status.APPROVED) {
+        if(status==Status.APPROVED){
             addFriend(from, to);
             serviceRequests.remove(fr.getId());
             setChanged();
             notifyObservers();
-        } else {
+        }else{
 //            daca la respingerea unei cereri de prietenie vrem sa o stergem din repository,
 //            pentru a putea permite o noua cerere intre cei doi useri
             serviceRequests.remove(fr.getId());
         }
     }
-
 
     /**
      *
@@ -333,9 +342,10 @@ public class Controller extends Observable {
     }
 
     /**
+     *
      * @param id the id of the user of which we want to see the friend requests
      * @return a list of userRequestsDto which represents the users which have sent the user with the given id
-     * a friend request
+     *          a friend request
      */
     public List<UsersRequestsDTO> getFriendRequests(int id) {
         return serviceRequests.all().stream().filter(fr -> fr.isTo(id)).map(fr -> {
@@ -368,15 +378,16 @@ public class Controller extends Observable {
                 }).collect(Collectors.toList());
     }
 
-
     /**
      * @param id integer representing the id of the user who is responding to all his requests
      * @param st string representing the response
      */
-    public void respondToAllRequests(int id, String st) {
-        getFriendRequests(id).forEach(fr -> {
+    public void respondToAllRequests(int id, String st){
+        getFriendRequests(id).forEach(fr-> {
             try {
                 respondFriendRequest(fr.getFrom().getId(), fr.getTo().getId(), st);
+                setChanged();
+                notifyObservers();
             } catch (RepositoryException | EntityException | ValidatorException e) {
                 e.printStackTrace();
             }
@@ -385,12 +396,11 @@ public class Controller extends Observable {
 
     /**
      * Add a message in database
-     *
-     * @param from    User representing the sender of the message
-     * @param to      List of User representing the receiver of the message
+     * @param from User representing the sender of the message
+     * @param to List of User representing the receiver of the message
      * @param message String representing the message of the Message
      * @throws RepositoryException if there is another message with the same id in the database or if i want so send myself a message
-     * @throws ValidatorException  if the new Message is not valid
+     * @throws ValidatorException if the new Message is not valid
      */
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         messageService.addNewMessage(from, to, message);
@@ -402,13 +412,44 @@ public class Controller extends Observable {
      * @return a list of messages representing all the sent messages
      */
     public List<Message> allMessage() {
-        return messageService.all();
+        List<MessageDTO> messageDTOS = messageService.all();
+        List<Message> messages = new ArrayList<>();
+        for(MessageDTO messageDTO : messageDTOS){
+            List<User> to = new ArrayList<>();
+            for(Integer user : messageDTO.getTo())
+            {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if(messageDTO.getReply() != 0){
+                try {
+                    Message message1 = findMessage(messageDTO.getReply());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
 
     /**
      * Remove a message from database
-     *
      * @param id Integer representing the id of message which we want to remove
      * @throws RepositoryException if there is no message with the id given in the database
      */
@@ -420,30 +461,90 @@ public class Controller extends Observable {
 
     /**
      * Find a message in database
-     *
      * @param id Integer representing the id of the message which we are looking for
      * @return Message representing the message which we are looking for
      * @throws RepositoryException if there is no message with the id given in the database
      */
     public Message findMessage(int id) throws RepositoryException {
-        return messageService.findMessage(id);
+        MessageDTO messageDTO = messageService.findMessage(id);
+        Message message;
+        List<User> toUser = new ArrayList<>();
+        for (Integer user : messageDTO.getTo()) {
+            try {
+                User user1 = serviceUsers.find(user);
+                toUser.add(user1);
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
+        User from = null;
+        try {
+            from = serviceUsers.find(messageDTO.getFrom());
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
+        message = new Message(from, toUser, messageDTO.getMessage());
+        message.setData(messageDTO.getData());
+        message.setId(messageDTO.getId());
+        if (messageDTO.getReply() != 0) {
+            try {
+                Message message1 = findMessage(messageDTO.getReply());
+                message.setReply(message1);
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
+        message.setReply(null);
+        return message;
+
     }
 
     /**
      * Find all messages for a user
-     *
      * @param idUser Integer representing the id of the user
      * @return List of Message representing all messages for a user
      * @throws RepositoryException if there are no messages with for this user in database
      */
     public List<Message> findMessages(int idUser) throws RepositoryException {
-        return messageService.findMessages(idUser);
+        List<MessageDTO> messageDTOS = messageService.findMessages(idUser);
+        List<Message> messages = new ArrayList<>();
+        for(MessageDTO messageDTO : messageDTOS){
+            List<User> to = new ArrayList<>();
+            for(Integer user : messageDTO.getTo())
+            {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if(messageDTO.getReply() != 0){
+                try {
+                    Message message1 = findMessage(messageDTO.getReply());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
     /**
-     * @param id1     integer representing the id of the message
-     * @param from    integer representing the user who sent the message
-     * @param to      list of integers representing the users who received the message
+     * @param id1 integer representing the id of the message
+     * @param from integer representing the user who sent the message
+     * @param to list of integers representing the users who received the message
      * @param message string representing the message
      * @throws RepositoryException if any of the given ids does not exist
      */
@@ -453,14 +554,13 @@ public class Controller extends Observable {
 
     /**
      * Reply message
-     *
-     * @param from    User representing the sender of the message
-     * @param to      List of User representing the receiver of the message
-     * @param mess    String representing the message of the Message
+     * @param from User representing the sender of the message
+     * @param to List of User representing the receiver of the message
+     * @param mess String representing the message of the Message
      * @param message Integer representing the id of the message which we want to reply
      * @throws RepositoryException if there is another message with the same id in the database or if i want so send myself a message or
-     *                             if the sender is invalid or if the receptor is iinvalid
-     * @throws ValidatorException  if the new Message is not valid
+     * if the sender is invalid or if the receptor is iinvalid
+     * @throws ValidatorException if the new Message is not valid
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         messageService.replyMessage(from, to, mess, message);
@@ -469,68 +569,128 @@ public class Controller extends Observable {
     }
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
-        List<UsersFriendsDTO> users = this.getFriends(from);
-        List<Integer> to = new ArrayList<>();
-        for(UsersFriendsDTO user : users) {
-            if (user.getUsera().getId() != from)
-                to.add(user.getUsera().getId());
-            else
-                to.add(user.getUserb().getId());
+        List<MessageDTO> messages = messageService.all();
+        for(MessageDTO message : messages){
+            if(message.getTo().contains(from)) {
+                List<Integer> to = new ArrayList<>();
+                to.add(message.getFrom());
+                messageService.replyMessage(from, to, mess, message.getId());
+            }
         }
-        messageService.addNewMessage(from, to, mess);
-        setChanged();
-        notifyObservers();
     }
 
     /**
      * return a list of Message sent between tho users sorted by data
-     *
      * @param id1 Integer representing the id of the first User
      * @param id2 Integer representing the id of the second User
      * @return List of Messages
      * @throws RepositoryException if id1 or id 2 are not valid
      */
-    public List<Message> getConversation(int id1, int id2) throws RepositoryException {
-        User user1 = serviceUsers.find(id1);
-        User user2 = serviceUsers.find(id2);
-        List<Message> messages = messageService.all();
-        return messages.stream().
-                filter(x -> ((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2)  && x.getTo().contains(user1)))
+    public List<MessageDTO> getConversation(int id1, int id2) throws RepositoryException {
+        List<MessageDTO> messagesD = messageService.all();
+        return messagesD.stream().
+                filter(x->((x.getFrom() == id1 && x.getTo().contains(id2)) || (x.getFrom() == id2 && x.getTo().contains(id1)))
                 )
-                .sorted(Comparator.comparing(Message::getData))
+                .sorted(Comparator.comparing(MessageDTO::getData))
                 .collect(Collectors.toList());
+//        List<Message> messages = new ArrayList<>();
+//        for(MessageDTO messageDTO : messageDTOS){
+//            List<User> to = new ArrayList<>();
+//            for(Integer user : messageDTO.getTo())
+//            {
+//                try {
+//                    User user1 = serviceUsers.find(user);
+//                    to.add(user1);
+//                } catch (RepositoryException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            System.out.println("gata to");
+//            User from = null;
+//            try {
+//                from = serviceUsers.find(messageDTO.getFrom());
+//            } catch (RepositoryException e) {
+//                e.printStackTrace();
+//            }
+//            Message message = new Message(from, to, messageDTO.getMessage());
+//            message.setData(messageDTO.getData());
+//            message.setId(messageDTO.getId());
+//            if(messageDTO.getReply() != 0){
+//                try {
+//                    Message message1 = findMessage(messageDTO.getReply());
+//                    System.out.println("pauza");
+//                    message.setReply(message1);
+//                } catch (RepositoryException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            messages.add(message);
+//        }
+//        return messages;
     }
 
     /**
      * Find all messages sent by a user
-     *
-     * @param user Integer representing the id of the user
+     * @param id Integer representing the id of the user
      * @return List of Message representing all messages sent by a user
      */
-    public List<Message> allMessageByUser(int user) {
-        return messageService.allMessageByUser(user);
+    public List<Message> allMessageByUser(int id){
+        List <MessageDTO> messageDTOS = messageService.allMessageByUser(id);
+        List<Message> messages = new ArrayList<>();
+        for(MessageDTO messageDTO : messageDTOS){
+            List<User> to = new ArrayList<>();
+            for(Integer user : messageDTO.getTo())
+            {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if(messageDTO.getReply() != 0){
+                try {
+                    Message message1 = findMessage(messageDTO.getId());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
-    public List<User> getNoFriend(int id) {
+    public List<User> getNoFriend(int id){
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
         userList.
-                forEach(x -> {
-                    if (!users1.contains(x.getId()))
+                forEach(x->{
+                    if(!users1.contains(x.getId()))
                         users.add(x);
                 });
         return users;
     }
 
-    public Friendship getFriendship(int id1, int id2) {
+    public Friendship getFriendship(int id1, int id2){
         List<Friendship> friendships = serviceFriendships.all();
-        for (Friendship friendship : friendships)
-            if ((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
+        for(Friendship friendship : friendships)
+            if((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
                 return friendship;
 
         return null;
     }
+
 
     public List<User> getFriendsForAUser(int user) throws RepositoryException, ValidatorException {
         List<Friendship> friendshipList = serviceFriendships.all();
@@ -555,4 +715,7 @@ public class Controller extends Observable {
         return users;
     }
 
+    public MessageDTO findMessageDTO(int id) throws RepositoryException {
+        return messageService.findMessage(id);
+    }
 }

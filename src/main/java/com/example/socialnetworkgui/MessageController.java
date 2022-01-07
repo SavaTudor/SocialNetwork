@@ -2,6 +2,7 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.Message;
+import com.example.domain.MessageDTO;
 import com.example.domain.UsersFriendsDTO;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
@@ -55,7 +56,8 @@ public class MessageController implements Initializable, Observer {
     public void showMessage() throws RepositoryException {
         AnchorPane anchorPane = new AnchorPane();
         scrollPaneMessage.setContent(anchorPane);
-        List<Message> messageList = service.getConversation(toId, userId);
+        List<MessageDTO> messageList = service.getConversation(toId, userId);
+        System.out.println(messageList);
         if(messageList.size() == 0)
         {
             Label label = new Label();
@@ -68,7 +70,7 @@ public class MessageController implements Initializable, Observer {
         }
         int y = 21;
         messageLabel = new ArrayList<>();
-        for(Message message : messageList){
+        for(MessageDTO message : messageList){
             Label labelMess = new Label();
             labelMess.setText(message.getMessage());
             labelMess.setStyle("-fx-background-radius: 5; -fx-background-color:  #fad907");
@@ -77,13 +79,14 @@ public class MessageController implements Initializable, Observer {
             labelMess.setFont(new Font("Arial", 18));
             labelMess.setWrapText(true);
 
-            if(message.getReply() != null)
+            if(message.getReply() != 0)
             {
                 Label replyLabel = new Label();
-                replyLabel.setText(message.getReply().getMessage());
+                MessageDTO reply = service.findMessageDTO(message.getReply());
+                replyLabel.setText(reply.getMessage());
                 replyLabel.setStyle("-fx-background-radius: 5; -fx-background-color:  #b9b1b1");
                 replyLabel.setTextAlignment(TextAlignment.JUSTIFY);
-                if(message.getFrom().getId() == userId)
+                if(message.getFrom() == userId)
                     replyLabel.setLayoutX(250);
                 else
                     replyLabel.setLayoutX(25);
@@ -92,7 +95,7 @@ public class MessageController implements Initializable, Observer {
                 y += 20;
             }
 
-            if(message.getFrom().getId() == userId)
+            if(message.getFrom() == userId)
                 labelMess.setLayoutX(250);
             else
                 labelMess.setLayoutX(25);
@@ -146,7 +149,6 @@ public class MessageController implements Initializable, Observer {
                     public void handle(ActionEvent event) {
                         try {
                             toId = friend.getUserb().getId();
-                            System.out.println(toId);
                             showMessage();
                         } catch (RepositoryException e) {
                             e.printStackTrace();
@@ -236,11 +238,8 @@ public class MessageController implements Initializable, Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            System.out.println("update");
             showFriend();
-            System.out.println("update2");
             showMessage();
-            System.out.println("update3");
 
         } catch (RepositoryException e) {
         }

@@ -2,6 +2,7 @@ package tests;
 
 import com.example.business.Controller;
 import com.example.domain.Message;
+import com.example.domain.MessageDTO;
 import com.example.domain.User;
 import com.example.domain.UsersFriendsDTO;
 import com.example.repository.database.DataBaseMessageRepository;
@@ -618,7 +619,7 @@ public class ControllerTests {
         list = service.allMessage();
         assertEquals(list.size(), 2);
 
-        List<Message> conversation = null;
+        List<MessageDTO> conversation = null;
         try {
             conversation = service.getConversation(2, 1);
         } catch (RepositoryException e) {

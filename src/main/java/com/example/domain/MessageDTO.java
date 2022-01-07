@@ -6,12 +6,13 @@ import java.util.Objects;
 
 import static com.example.build.Build.formatter;
 
-public class MessageDto extends Entity<Integer>{
+public class MessageDTO extends Entity<Integer>{
     private int from;
     private List<Integer> to;
     private String message;
     private LocalDateTime data;
     private Integer reply;
+
 
     /**
      * Constructor
@@ -19,12 +20,12 @@ public class MessageDto extends Entity<Integer>{
      * @param to List of User representing  the receiver of the message
      * @param message String representing the message
      */
-    public MessageDto(int from, List<Integer> to, String message) {
+    public MessageDTO(int from, List<Integer> to, String message) {
         this.from = from;
         this.to = to;
         this.message = message;
         this.data = LocalDateTime.now();
-        reply = null;
+        reply = 0;
     }
 
     /**
@@ -96,6 +97,7 @@ public class MessageDto extends Entity<Integer>{
      * Getter for Reply
      * @return Message representing the message being answered
      */
+
     public Integer getReply() {
         return reply;
     }
@@ -104,6 +106,7 @@ public class MessageDto extends Entity<Integer>{
      * Setter for Reply
      * @param reply representing the message being answered
      */
+
     public void setReply(Integer reply) {
         this.reply = reply;
     }
@@ -115,7 +118,7 @@ public class MessageDto extends Entity<Integer>{
      */
     @Override
     public String toString() {
-        if(reply == null)
+        if(reply == 0)
             return "Message{" +
                     "id=" + super.getId() +
                     " from=" + from +
