@@ -11,7 +11,8 @@ public class MessageDTO extends Entity<Integer>{
     private List<Integer> to;
     private String message;
     private LocalDateTime data;
-    private int reply;
+    private Integer reply;
+
 
     /**
      * Constructor
@@ -96,7 +97,8 @@ public class MessageDTO extends Entity<Integer>{
      * Getter for Reply
      * @return Message representing the message being answered
      */
-    public int getReply() {
+
+    public Integer getReply() {
         return reply;
     }
 
@@ -104,7 +106,8 @@ public class MessageDTO extends Entity<Integer>{
      * Setter for Reply
      * @param reply representing the message being answered
      */
-    public void setReply(int reply) {
+
+    public void setReply(Integer reply) {
         this.reply = reply;
     }
 

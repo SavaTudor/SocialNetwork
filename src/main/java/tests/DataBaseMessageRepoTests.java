@@ -23,8 +23,33 @@ import java.util.Map;
 
 import static com.example.build.Build.*;
 import static org.junit.jupiter.api.Assertions.*;
-
-
+//package tests;
+//
+//import com.example.domain.Message;
+//import com.example.domain.User;
+//import com.example.exception.RepositoryException;
+//import org.junit.jupiter.api.*;
+//import org.junit.jupiter.api.Assertions;
+//import org.junit.jupiter.api.BeforeAll;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Test;
+//import com.example.repository.database.DataBaseMessageRepository;
+//import com.example.repository.database.DataBaseUserRepository;
+//
+//import java.sql.Connection;
+//import java.sql.DriverManager;
+//import java.sql.SQLException;
+//import java.sql.Statement;
+//import java.util.ArrayList;
+//import java.util.Arrays;
+//import java.util.List;
+//import java.util.Map;
+//
+//
+//import static com.example.build.Build.*;
+//import static org.junit.jupiter.api.Assertions.*;
+//
+//
 //public class DataBaseMessageRepoTests {
 //    private static DataBaseMessageRepository repo;
 //    private static DataBaseUserRepository repoUser;
@@ -57,26 +82,26 @@ import static org.junit.jupiter.api.Assertions.*;
 //            e.printStackTrace();
 //        }
 //    }
-
+//
 //    @Test
 //    void  addMessageTest(){
 //        assertEquals(repo.size(), 0);
 //        assertTrue(repo.isEmpty());
-//        User user1 = new User("Andrei", "Suciu");
+//        User user1 = new User("AS","Andrei", "Suciu","Dsa");
 //        user1.setId(1);
 //        try {
 //            repoUser.add(1, user1);
 //        } catch (RepositoryException e) {
 //            assertTrue(Assertions.fail());
 //        }
-//        User user2 = new User("Tudor", "Sava");
+//        User user2 = new User("Dsa","Tudor", "Sava","FDs");
 //        user2.setId(2);
 //        try {
 //            repoUser.add(2,user2);
 //        } catch (RepositoryException e) {
 //            assertTrue(Assertions.fail());
 //        }
-//        User user3 = new User("Florin", "Bucur");
+//        User user3 = new User("Ds","Florin", "Bucur","Sdc");
 //        user3.setId(3);
 //        try {
 //            repoUser.add(3,user3);
@@ -131,21 +156,21 @@ import static org.junit.jupiter.api.Assertions.*;
 //    void removeMessageTests() {
 //        assertEquals(repo.size(), 0);
 //        assertTrue(repo.isEmpty());
-//        User user1 = new User("Andrei", "Suciu");
+//        User user1 = new User("fd","Andrei", "Suciu","Ws");
 //        user1.setId(1);
 //        try {
 //            repoUser.add(1, user1);
 //        } catch (RepositoryException e) {
 //            assertTrue(Assertions.fail());
 //        }
-//        User user2 = new User("Tudor", "Sava");
+//        User user2 = new User("Fds","Tudor", "Sava","Fds");
 //        user2.setId(2);
 //        try {
 //            repoUser.add(2, user2);
 //        } catch (RepositoryException e) {
 //            assertTrue(Assertions.fail());
 //        }
-//        User user3 = new User("Florin", "Bucur");
+//        User user3 = new User("TRFDe","Florin", "Bucur","fdew");
 //        user3.setId(3);
 //        try {
 //            repoUser.add(3, user3);
@@ -199,21 +224,22 @@ import static org.junit.jupiter.api.Assertions.*;
 //    void testUpdateMessage(){
 //        assertEquals(repo.size(), 0);
 //        assertTrue(repo.isEmpty());
-//        User user1 = new User("Andrei", "Suciu");
+
+//        User user1 = new User("ij","Andrei", "Suciu","ws");
 //        user1.setId(1);
 //        try {
 //            repoUser.add(1, user1);
 //        } catch (RepositoryException e) {
 //            assertTrue(Assertions.fail());
 //        }
-//        User user2 = new User("Tudor", "Sava");
+//        User user2 = new User("wsd","Tudor", "Sava","Ws");
 //        user2.setId(2);
 //        try {
 //            repoUser.add(2, user2);
 //        } catch (RepositoryException e) {
 //            assertTrue(Assertions.fail());
 //        }
-//        User user3 = new User("Florin", "Bucur");
+//        User user3 = new User("df","Florin", "Bucur","gfd");
 //        user3.setId(3);
 //        try {
 //            repoUser.add(3, user3);

@@ -76,9 +76,10 @@ public class UserService {
      * @throws ValidatorException  if the desired user is not valid
      * @throws RepositoryException if the user already exists in the repository
      */
-    public User add(String firstName, String lastName) throws RepositoryException, ValidatorException {
-        User user = new User(firstName, lastName);
+    public User add(String username, String firstName, String lastName, String password) throws RepositoryException, ValidatorException {
+        User user = new User(username, firstName, lastName, password);
         int id = generateId();
+        System.out.println(id);
         user.setId(id);
         validator.valideaza(user);
         repository.add(id, user);
@@ -94,8 +95,8 @@ public class UserService {
      * @throws RepositoryException if a user with the given id does not exist in the repository
      * @throws ValidatorException  if the new names are not valid
      */
-    public void update(int id, String firstName, String lastName) throws RepositoryException, ValidatorException {
-        User user = new User(firstName, lastName);
+    public void update(int id, String username, String firstName, String lastName, String password) throws RepositoryException, ValidatorException {
+        User user = new User(username, firstName, lastName, password);
         user.setId(id);
         validator.valideaza(user);
         repository.update(id, user);

@@ -20,7 +20,11 @@ public class User extends Entity<Integer> {
      * Contstructor for the user class
      * @param firstName string representing the name of the user (0&lt;name.length)
      * @param lastName  string representing the surname of the user(0&lt;surname.length)
+<<<<<<< HEAD
     //* @param username
+=======
+     //* @param username
+>>>>>>> master
      */
     public User(String username, String firstName, String lastName,String password) {
         this.firstName = firstName;

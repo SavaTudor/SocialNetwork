@@ -1,8 +1,7 @@
 package com.example.repository.database;
 
-import com.example.domain.Message;
 import com.example.domain.MessageDTO;
-import com.example.domain.User;
+
 import com.example.repository.Repository;
 import com.example.exception.RepositoryException;
 
@@ -126,8 +125,7 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
                 int reply = rs.getInt("reply_to");
                 int to_user = rs.getInt("to_user");
                 toList.add(to_user);
-                if(toPrec != id )
-                {
+                if (toPrec != id) {
                     MessageDTO messageDTO = new MessageDTO(from, toList, mess);
                     messageDTO.setId(id);
                     messageDTO.setData(date);
