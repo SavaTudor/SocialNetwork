@@ -77,12 +77,27 @@ public class RapoarteController implements Initializable {
     }
     public void raport1Clicked(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        int day1 = Integer.parseInt(firstDay.getValue().toString());
-        int month1 = Integer.parseInt(firstMonth.getValue().toString());
-        int year1 = Integer.parseInt(firstYear.getValue().toString());
-        int day2 = Integer.parseInt(lastDay.getValue().toString());
-        int month2 = Integer.parseInt(lastMonth.getValue().toString());
-        int year2 = Integer.parseInt(lastYear.getValue().toString());
+        int day1 = 0;
+        int month1 = 0;
+        int year1 = 0;
+        int day2 = 0;
+        int month2 = 0;
+        int year2 = 0;
+        try{
+            day1 = Integer.parseInt(firstDay.getValue().toString());
+            month1 = Integer.parseInt(firstMonth.getValue().toString());
+            year1 = Integer.parseInt(firstYear.getValue().toString());
+            day2 = Integer.parseInt(lastDay.getValue().toString());
+            month2 = Integer.parseInt(lastMonth.getValue().toString());
+            year2 = Integer.parseInt(lastYear.getValue().toString());
+        } catch (Exception e) {
+            alert.setTitle("Message Here...");
+            alert.setHeaderText("Incorrect date");
+            alert.setContentText(e.getMessage());
+            alert.setTitle("Warning");
+            alert.show();
+        }
+
         try {
             this.friendships = service.friendshipsBetween2Dates(userId,day1,month1, year1, day2, month2, year2);
             this.messages = service.messagesBetween2Dates(userId,day1,month1, year1, day2, month2, year2);
@@ -93,7 +108,6 @@ public class RapoarteController implements Initializable {
             alert.setContentText(e.getMessage());
             alert.setTitle("Warning");
             alert.show();
-            e.printStackTrace();
         }
     }
 

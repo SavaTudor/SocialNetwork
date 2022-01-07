@@ -569,14 +569,13 @@ public class Controller extends Observable {
     }
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
-        List<MessageDTO> messages = messageService.all();
-        for(MessageDTO message : messages){
-            if(message.getTo().contains(from)) {
-                List<Integer> to = new ArrayList<>();
-                to.add(message.getFrom());
-                messageService.replyMessage(from, to, mess, message.getId());
-            }
-        }
+        List<User> users = getFriendsForAUser(from);
+        List<Integer> to = new ArrayList<>();
+        users.forEach(x->to.add(x.getId()));
+        messageService.addNewMessage(from, to, mess);
+        setChanged();
+        notifyObservers();
+
     }
 
     /**
@@ -731,9 +730,8 @@ public class Controller extends Observable {
     public List<MessageDTO> messagesBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception{
         LocalDateTime date1 = LocalDateTime.of(year1, month1, day1,0,0);
         LocalDateTime date2 = LocalDateTime.of(year2, month2, day2,23,59);
-        User user1 = serviceUsers.find(user);
         List<MessageDTO> messages = messageService.all();
-        return messages.stream().filter(x-> (x.getTo().contains(user1) && x.getData().compareTo(date1) >=0 && x.getData().compareTo(date2) <= 0)
+        return messages.stream().filter(x-> (x.getTo().contains(user) && x.getData().compareTo(date1) >=0 && x.getData().compareTo(date2) <= 0)
         ).collect(Collectors.toList());
     }
 }

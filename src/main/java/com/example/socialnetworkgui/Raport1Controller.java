@@ -86,7 +86,7 @@ public class Raport1Controller implements Initializable {
             labelMess.setText(lineMess);
             labelMess.setStyle("-fx-background-radius: 5");
             labelMess.setTextAlignment(TextAlignment.JUSTIFY);
-            labelMess.setMaxWidth(146);
+            labelMess.setMaxWidth(300);
             labelMess.setFont(new Font("Arial", 18));
             labelMess.setWrapText(true);
             labelMess.setLayoutX(x);
