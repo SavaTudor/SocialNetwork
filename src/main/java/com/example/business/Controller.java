@@ -7,13 +7,10 @@ import com.example.exception.ValidatorException;
 import utils.Graph;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Controller {
+public class Controller extends Observable {
     private UserService serviceUsers;
     private FriendshipService serviceFriendships;
     private RequestService serviceRequests;
@@ -63,7 +60,7 @@ public class Controller {
     /**
      * Deletes the current friendship network and updates it with new data from the friendship service
      */
-    public void refreshNetwork(){
+    public void refreshNetwork() {
         network.delete();
         serviceFriendships.all().forEach(fr -> {
             network.addEdge(fr.getUserA(), fr.getUserB());
@@ -77,8 +74,8 @@ public class Controller {
      * @throws ValidatorException  if the given strings are not valid
      *                             The function adds a new user to the User repository
      */
-    public User add(String name, String surname) throws RepositoryException, ValidatorException {
-        User user = serviceUsers.add(name, surname);
+    public User add(String username, String name, String surname, String password) throws RepositoryException, ValidatorException {
+        User user = serviceUsers.add(username, name, surname, password);
         network.addVertex(user.getId());
         return user;
     }
@@ -92,8 +89,8 @@ public class Controller {
      * @throws RepositoryException if the user with the given id does not exist
      * @throws ValidatorException  if the new fields are not valid
      */
-    public void updateUser(int id, String firstName, String lastName) throws RepositoryException, ValidatorException {
-        serviceUsers.update(id, firstName, lastName);
+    public void updateUser(int id, String username, String firstName, String lastName, String password) throws RepositoryException, ValidatorException {
+        serviceUsers.update(id, username, firstName, lastName, password);
     }
 
     /**
@@ -167,6 +164,8 @@ public class Controller {
     public void addFriend(int username1, int username2) throws RepositoryException, EntityException, ValidatorException {
         serviceFriendships.add(username1, username2, LocalDateTime.now());
         network.addEdge(username1, username2);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -201,6 +200,8 @@ public class Controller {
         Friendship friendship = serviceFriendships.findByUsers(username1, username2);
         serviceFriendships.remove(friendship.getId());
         network.removeEdge(username1, username2);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -307,6 +308,8 @@ public class Controller {
         if(status==Status.APPROVED){
             addFriend(from, to);
             serviceRequests.remove(fr.getId());
+            setChanged();
+            notifyObservers();
         }else{
 //            daca la respingerea unei cereri de prietenie vrem sa o stergem din repository,
 //            pentru a putea permite o noua cerere intre cei doi useri
@@ -316,20 +319,52 @@ public class Controller {
 
     /**
      *
+     * @param from integer representing the id of the user who sent the request
+     * @param to integer representing the id of the user who received the request
+     * @throws RepositoryException if a request between the two users does not exists
+     * the function deletes the request betweent the user with the id from and the
+     *      user with the id to
+     */
+    public void deleteFriendRequest(int from, int to) throws RepositoryException {
+        FriendRequest fr = serviceRequests.findByUsers(from, to);
+        serviceRequests.remove(fr.getId());
+    }
+
+    /**
+     *
      * @param id the id of the user of which we want to see the friend requests
      * @return a list of userRequestsDto which represents the users which have sent the user with the given id
      *          a friend request
      */
-    public List<UsersRequestsDTO> getFriendRequests(int id){
-        return serviceRequests.all().stream().filter(fr->fr.isTo(id)).map(fr->{
+    public List<UsersRequestsDTO> getFriendRequests(int id) {
+        return serviceRequests.all().stream().filter(fr -> fr.isTo(id)).map(fr -> {
             UsersRequestsDTO dto = null;
             try {
-               dto =  new UsersRequestsDTO(serviceUsers.find(fr.getFrom()),serviceUsers.find(fr.getTo()),fr.getStatus());
+                dto = new UsersRequestsDTO(serviceUsers.find(fr.getFrom()), serviceUsers.find(fr.getTo()), fr.getStatus());
             } catch (RepositoryException e) {
                 e.printStackTrace();
             }
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * @param id the id of the user who sent the friend requests
+     * @return a list of userRequestsDto which represents the users to which the users with the given id
+     * has sent a friend request
+     */
+    public List<UsersRequestsDTO> sentFriendRequests(int id) {
+        return serviceRequests.all().stream().
+                filter(fr -> fr.isFrom(id)).
+                map(fr -> {
+                    UsersRequestsDTO dto = null;
+                    try {
+                        dto = new UsersRequestsDTO(serviceUsers.find(fr.getFrom()), serviceUsers.find(fr.getTo()), fr.getStatus());
+                    } catch (RepositoryException e) {
+                        e.printStackTrace();
+                    }
+                    return dto;
+                }).collect(Collectors.toList());
     }
 
     /**
@@ -340,6 +375,8 @@ public class Controller {
         getFriendRequests(id).forEach(fr-> {
             try {
                 respondFriendRequest(fr.getFrom().getId(), fr.getTo().getId(), st);
+                setChanged();
+                notifyObservers();
             } catch (RepositoryException | EntityException | ValidatorException e) {
                 e.printStackTrace();
             }
@@ -356,6 +393,8 @@ public class Controller {
      */
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         messageService.addNewMessage(from, to, message);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -386,7 +425,7 @@ public class Controller {
             message.setId(messageDTO.getId());
             if(messageDTO.getReply() != 0){
                 try {
-                    Message message1 = findMessage(messageDTO.getId());
+                    Message message1 = findMessage(messageDTO.getReply());
                     message.setReply(message1);
                 } catch (RepositoryException e) {
                     e.printStackTrace();
@@ -405,6 +444,8 @@ public class Controller {
      */
     public void removeMessage(int id) throws RepositoryException {
         messageService.removeMessage(id);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -436,13 +477,14 @@ public class Controller {
         message.setId(messageDTO.getId());
         if (messageDTO.getReply() != 0) {
             try {
-                Message message1 = findMessage(messageDTO.getId());
+                Message message1 = findMessage(messageDTO.getReply());
                 message.setReply(message1);
             } catch (RepositoryException e) {
                 e.printStackTrace();
             }
         }
-    return message;
+        message.setReply(null);
+        return message;
 
     }
 
@@ -477,7 +519,7 @@ public class Controller {
             message.setId(messageDTO.getId());
             if(messageDTO.getReply() != 0){
                 try {
-                    Message message1 = findMessage(messageDTO.getId());
+                    Message message1 = findMessage(messageDTO.getReply());
                     message.setReply(message1);
                 } catch (RepositoryException e) {
                     e.printStackTrace();
@@ -511,6 +553,8 @@ public class Controller {
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         messageService.replyMessage(from, to, mess, message);
+        setChanged();
+        notifyObservers();
     }
 
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
@@ -531,45 +575,47 @@ public class Controller {
      * @return List of Messages
      * @throws RepositoryException if id1 or id 2 are not valid
      */
-    public List<Message> getConversation(int id1, int id2) throws RepositoryException {
+    public List<MessageDTO> getConversation(int id1, int id2) throws RepositoryException {
         List<MessageDTO> messagesD = messageService.all();
-        List<MessageDTO> messageDTOS =  messagesD.stream().
+        return messagesD.stream().
                 filter(x->((x.getFrom() == id1 && x.getTo().contains(id2)) || (x.getFrom() == id2 && x.getTo().contains(id1)))
-        )
+                )
                 .sorted(Comparator.comparing(MessageDTO::getData))
                 .collect(Collectors.toList());
-        List<Message> messages = new ArrayList<>();
-        for(MessageDTO messageDTO : messageDTOS){
-            List<User> to = new ArrayList<>();
-            for(Integer user : messageDTO.getTo())
-            {
-                try {
-                    User user1 = serviceUsers.find(user);
-                    to.add(user1);
-                } catch (RepositoryException e) {
-                    e.printStackTrace();
-                }
-            }
-            User from = null;
-            try {
-                from = serviceUsers.find(messageDTO.getFrom());
-            } catch (RepositoryException e) {
-                e.printStackTrace();
-            }
-            Message message = new Message(from, to, messageDTO.getMessage());
-            message.setData(messageDTO.getData());
-            message.setId(messageDTO.getId());
-            if(messageDTO.getReply() != 0){
-                try {
-                    Message message1 = findMessage(messageDTO.getId());
-                    message.setReply(message1);
-                } catch (RepositoryException e) {
-                    e.printStackTrace();
-                }
-            }
-            messages.add(message);
-        }
-        return messages;
+//        List<Message> messages = new ArrayList<>();
+//        for(MessageDTO messageDTO : messageDTOS){
+//            List<User> to = new ArrayList<>();
+//            for(Integer user : messageDTO.getTo())
+//            {
+//                try {
+//                    User user1 = serviceUsers.find(user);
+//                    to.add(user1);
+//                } catch (RepositoryException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            System.out.println("gata to");
+//            User from = null;
+//            try {
+//                from = serviceUsers.find(messageDTO.getFrom());
+//            } catch (RepositoryException e) {
+//                e.printStackTrace();
+//            }
+//            Message message = new Message(from, to, messageDTO.getMessage());
+//            message.setData(messageDTO.getData());
+//            message.setId(messageDTO.getId());
+//            if(messageDTO.getReply() != 0){
+//                try {
+//                    Message message1 = findMessage(messageDTO.getReply());
+//                    System.out.println("pauza");
+//                    message.setReply(message1);
+//                } catch (RepositoryException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            messages.add(message);
+//        }
+//        return messages;
     }
 
     /**
@@ -632,5 +678,33 @@ public class Controller {
                 return friendship;
 
         return null;
+    }
+
+
+    public List<User> getFriendsForAUser(int user) throws RepositoryException, ValidatorException {
+        List<Friendship> friendshipList = serviceFriendships.all();
+        List<User> users = new ArrayList<>();
+        friendshipList.stream().filter(x -> x.getUserA() == user || x.getUserB() == user).forEach(x -> {
+            try {
+                if(x.getUserA() == user)
+                {
+                    User user1 = serviceUsers.find(x.getUserB());
+                    users.add(user1);
+                }
+                else
+                {
+                    User user1 = serviceUsers.find(x.getUserA());
+                    users.add(user1);
+                }
+
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        });
+        return users;
+    }
+
+    public MessageDTO findMessageDTO(int id) throws RepositoryException {
+        return messageService.findMessage(id);
     }
 }
