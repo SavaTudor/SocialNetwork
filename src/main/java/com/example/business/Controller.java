@@ -718,4 +718,22 @@ public class Controller extends Observable {
     public MessageDTO findMessageDTO(int id) throws RepositoryException {
         return messageService.findMessage(id);
     }
+
+
+    public List<Friendship> friendshipsBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception{
+        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1,0,0);
+        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2,23,59);
+        ArrayList<Friendship> friendships = serviceFriendships.all();
+        return friendships.stream().filter(x-> ((x.getUserA() == user || x.getUserB() == user) && x.getDate().compareTo(date1) >=0 && x.getDate().compareTo(date2) <= 0)
+        ).collect(Collectors.toList());
+    }
+
+    public List<MessageDTO> messagesBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception{
+        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1,0,0);
+        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2,23,59);
+        User user1 = serviceUsers.find(user);
+        List<MessageDTO> messages = messageService.all();
+        return messages.stream().filter(x-> (x.getTo().contains(user1) && x.getData().compareTo(date1) >=0 && x.getData().compareTo(date2) <= 0)
+        ).collect(Collectors.toList());
+    }
 }
