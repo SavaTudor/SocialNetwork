@@ -24,7 +24,7 @@ public class MessageDTO extends Entity<Integer>{
         this.to = to;
         this.message = message;
         this.data = LocalDateTime.now();
-        reply = null;
+        reply = 0;
     }
 
     /**

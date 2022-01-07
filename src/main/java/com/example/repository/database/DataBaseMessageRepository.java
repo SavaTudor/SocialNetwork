@@ -94,7 +94,7 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
     @Override
     public MessageDTO remove(Integer integer) throws RepositoryException {
         String sql1 = "DELETE FROM messages WHERE ms_id=" + integer;
-        String sql2 = "DELETE FROM users_messages WHERE mess_id=" + integer;
+        String sql2 = "DELETE FROM users_messages WHERE mess_id=" + integer + " or reply_to=" + integer;
         try {
             statement.executeUpdate(sql2);
             statement.executeUpdate(sql1);
@@ -111,15 +111,30 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
     @Override
     public ArrayList<MessageDTO> all() {
         ArrayList<MessageDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM messages";
+        List<Integer> toList = new ArrayList<>();
+        String sql = "select M.ms_id, M.mess, M.data, U.from_user, U.to_user, U.reply_to FROM messages M INNER JOIN users_messages U ON M.ms_id = U.mess_id";
+        int toPrec = 0;
         try {
             ResultSet rs = statement.executeQuery(sql);
-            while (rs.next()) {
+            while(rs.next()) {
                 int id = rs.getInt("ms_id");
-                MessageDTO message = find(id);
-                if(message != null)
-                    list.add(message);
-            }
+                String mess = rs.getString("mess");
+                LocalDateTime date = rs.getTimestamp("data").toLocalDateTime();
+                int from = rs.getInt("from_user");
+                int reply = rs.getInt("reply_to");
+                int to_user = rs.getInt("to_user");
+                toList.add(to_user);
+                if(toPrec != id )
+                {
+                    MessageDTO messageDTO = new MessageDTO(from, toList, mess);
+                    messageDTO.setId(id);
+                    messageDTO.setData(date);
+                    messageDTO.setReply(reply);
+                    list.add(messageDTO);
+                    toPrec = id;
+                    toList = new ArrayList<>();
+                }
+                }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,33 +149,31 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
      */
     @Override
     public MessageDTO find(Integer integer) throws RepositoryException {
-        String sql = "SELECT * FROM messages WHERE ms_id=" + integer;
-        String sql1 = "SELECT * FROM users_messages WHERE mess_id=" + integer;
+        String sql = "select M.ms_id, M.mess, M.data, U.from_user, U.to_user, U.reply_to FROM messages M INNER JOIN users_messages U ON M.ms_id = U.mess_id AND M.ms_id=" + integer;
+        MessageDTO messageDTO = null;
+        List<Integer> toList = new ArrayList<>();
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            ResultSet rs = statement.executeQuery(sql);
             rs.next();
             int id = rs.getInt("ms_id");
             String mess = rs.getString("mess");
             LocalDateTime date = rs.getTimestamp("data").toLocalDateTime();
-            List<Integer> userList = new ArrayList<>();
-            PreparedStatement ps1 = connection.prepareStatement(sql1);
-            ResultSet rs1 = ps1.executeQuery();
-            Integer reply = 0;
-            int from = 0;
-            while (rs1.next()) {
-                from = rs1.getInt("from_user");
-                Integer to = rs1.getInt("to_user");
-                userList.add(to);
-                Integer replyString = rs1.getInt("reply_to");
+            int from = rs.getInt("from_user");
+            int reply = rs.getInt("reply_to");
+            int to_user = rs.getInt("to_user");
+            toList.add(to_user);
+            while(rs.next()) {
+                to_user = rs.getInt("to_user");
+                toList.add(to_user);
             }
-            MessageDTO found = new MessageDTO(from, userList, mess);
-            found.setId(id);
-            found.setReply(reply);
-            return found;
+            messageDTO = new MessageDTO(from, toList, mess);
+            messageDTO.setId(id);
+            messageDTO.setData(date);
+            messageDTO.setReply(reply);
         } catch (Exception e) {
-            throw new RepositoryException("Entity does not exist!\n");
+            e.printStackTrace();
         }
+        return messageDTO;
     }
 
     /**

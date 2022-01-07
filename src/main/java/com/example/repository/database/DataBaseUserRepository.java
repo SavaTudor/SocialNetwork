@@ -123,8 +123,7 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 throw new RepositoryException("");
             }
         } catch (Exception e) {
-//            throw new RepositoryException("Entity does not exist!\n");
-            return null;
+            throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
     }

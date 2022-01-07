@@ -439,7 +439,7 @@ public class Controller extends Observable {
             message.setId(messageDTO.getId());
             if(messageDTO.getReply() != 0){
                 try {
-                    Message message1 = findMessage(messageDTO.getId());
+                    Message message1 = findMessage(messageDTO.getReply());
                     message.setReply(message1);
                 } catch (RepositoryException e) {
                     e.printStackTrace();
@@ -491,12 +491,13 @@ public class Controller extends Observable {
         message.setId(messageDTO.getId());
         if (messageDTO.getReply() != 0) {
             try {
-                Message message1 = findMessage(messageDTO.getId());
+                Message message1 = findMessage(messageDTO.getReply());
                 message.setReply(message1);
             } catch (RepositoryException e) {
                 e.printStackTrace();
             }
         }
+        message.setReply(null);
         return message;
 
     }
@@ -532,7 +533,7 @@ public class Controller extends Observable {
             message.setId(messageDTO.getId());
             if(messageDTO.getReply() != 0){
                 try {
-                    Message message1 = findMessage(messageDTO.getId());
+                    Message message1 = findMessage(messageDTO.getReply());
                     message.setReply(message1);
                 } catch (RepositoryException e) {
                     e.printStackTrace();
@@ -588,45 +589,47 @@ public class Controller extends Observable {
      * @return List of Messages
      * @throws RepositoryException if id1 or id 2 are not valid
      */
-    public List<Message> getConversation(int id1, int id2) throws RepositoryException {
+    public List<MessageDTO> getConversation(int id1, int id2) throws RepositoryException {
         List<MessageDTO> messagesD = messageService.all();
-        List<MessageDTO> messageDTOS =  messagesD.stream().
+        return messagesD.stream().
                 filter(x->((x.getFrom() == id1 && x.getTo().contains(id2)) || (x.getFrom() == id2 && x.getTo().contains(id1)))
                 )
                 .sorted(Comparator.comparing(MessageDTO::getData))
                 .collect(Collectors.toList());
-        List<Message> messages = new ArrayList<>();
-        for(MessageDTO messageDTO : messageDTOS){
-            List<User> to = new ArrayList<>();
-            for(Integer user : messageDTO.getTo())
-            {
-                try {
-                    User user1 = serviceUsers.find(user);
-                    to.add(user1);
-                } catch (RepositoryException e) {
-                    e.printStackTrace();
-                }
-            }
-            User from = null;
-            try {
-                from = serviceUsers.find(messageDTO.getFrom());
-            } catch (RepositoryException e) {
-                e.printStackTrace();
-            }
-            Message message = new Message(from, to, messageDTO.getMessage());
-            message.setData(messageDTO.getData());
-            message.setId(messageDTO.getId());
-            if(messageDTO.getReply() != 0){
-                try {
-                    Message message1 = findMessage(messageDTO.getId());
-                    message.setReply(message1);
-                } catch (RepositoryException e) {
-                    e.printStackTrace();
-                }
-            }
-            messages.add(message);
-        }
-        return messages;
+//        List<Message> messages = new ArrayList<>();
+//        for(MessageDTO messageDTO : messageDTOS){
+//            List<User> to = new ArrayList<>();
+//            for(Integer user : messageDTO.getTo())
+//            {
+//                try {
+//                    User user1 = serviceUsers.find(user);
+//                    to.add(user1);
+//                } catch (RepositoryException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            System.out.println("gata to");
+//            User from = null;
+//            try {
+//                from = serviceUsers.find(messageDTO.getFrom());
+//            } catch (RepositoryException e) {
+//                e.printStackTrace();
+//            }
+//            Message message = new Message(from, to, messageDTO.getMessage());
+//            message.setData(messageDTO.getData());
+//            message.setId(messageDTO.getId());
+//            if(messageDTO.getReply() != 0){
+//                try {
+//                    Message message1 = findMessage(messageDTO.getReply());
+//                    System.out.println("pauza");
+//                    message.setReply(message1);
+//                } catch (RepositoryException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            messages.add(message);
+//        }
+//        return messages;
     }
 
     /**
@@ -715,4 +718,7 @@ public class Controller extends Observable {
         return users;
     }
 
+    public MessageDTO findMessageDTO(int id) throws RepositoryException {
+        return messageService.findMessage(id);
+    }
 }
