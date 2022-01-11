@@ -28,8 +28,9 @@ public class HelloApplication extends Application {
         AnchorPane root = loader.load();
         LoginController loginController = loader.getController();
         loginController.setService(service);
-        stage.setScene(new Scene(root, 800, 400));
-        stage.getIcons().add(new Image("file:images/logo.jpg"));
+        Scene scene = new Scene(root, 800, 400);
+        stage.setScene(scene);
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
         stage.setTitle("Log in");
         stage.show();
     }

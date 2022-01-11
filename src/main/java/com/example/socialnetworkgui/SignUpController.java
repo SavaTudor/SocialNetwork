@@ -18,7 +18,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 public class SignUpController {
     public ImageView signUpImage;
@@ -26,7 +25,7 @@ public class SignUpController {
     private Controller service;
     public ImageView beeImage;
 
-    public void initialize() throws SQLException {
+    public void initialize(){
         Image image = new Image("file:images/beeLogInImage3.jpg");
         beeImage.setImage(image);
         Image image1 = new Image("file:images/signInImage.png");
