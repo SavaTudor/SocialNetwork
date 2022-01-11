@@ -2,6 +2,7 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.User;
+import com.example.exception.RepositoryException;
 import com.example.utils.Encryption;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -43,24 +44,13 @@ public class LoginController {
     @FXML
     public void signInClicked(ActionEvent event) throws SQLException, IOException {
         Encryption encryption = new Encryption();
-        ArrayList<User> users = service.allUsers();
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        boolean find = false;
-        for(User user : users)
-            if(usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(user.getPassword()))
-            {
-                this.id = user.getId();
-                find = true;
-                break;
+        try {
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+            this.id = service.getUserByUsernameAndPassword(username, password);
 
-            }
-        if(!find)
-        {
-            alert.setHeaderText("Incorrect username or password");
-            alert.setTitle("Warning");
-            alert.show();
-        }
-        else {
+
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("principalScene.fxml"));        AnchorPane root = loader.load();
             PrincipalSceneController principalSceneController = loader.getController();
@@ -71,6 +61,11 @@ public class LoginController {
             stage.setTitle("Main scene");
             stage.setScene(scene);
             stage.show();
+
+        } catch (RepositoryException e) {
+            alert.setHeaderText("Incorrect username or password");
+            alert.setTitle("Warning");
+            alert.show();
         }
     }
 

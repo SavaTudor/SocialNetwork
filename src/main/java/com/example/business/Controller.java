@@ -718,4 +718,14 @@ public class Controller extends Observable {
     public MessageDTO findMessageDTO(int id) throws RepositoryException {
         return messageService.findMessage(id);
     }
+
+    public int getUserByUsernameAndPassword(String username, String password) throws RepositoryException {
+        List<User> users = serviceUsers.all();
+        for(User user : users)
+            if(username.equals(user.getUsername()) && password.equals(user.getPassword()))
+            {
+                return user.getId();
+            }
+        throw new RepositoryException("Incorect username or password");
+    }
 }
