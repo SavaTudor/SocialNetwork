@@ -10,6 +10,7 @@ import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
 import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -44,19 +45,34 @@ public class PrincipalSceneController implements Initializable, Observer {
     public Label userAccount;
     public AnchorPane anchorPane;
     public Button messageButton;
+    public Button loadMore;
     public ImageView messageImage;
     public TableColumn<UserModel, String> firstname;
     public TableColumn<UserModel, String> lastname;
     private Controller service;
     private int userId;
+    private int pageNumber = 0;
+    private int offset = 0;
+    private int pageSize = 2;
+    List<UserModel> friends = new ArrayList<>();
 
+    /*
+    ScrollBar friendsScrollBar;
+    friendsScrollBar = (ScrollBar) friendshipTable.lookup(".scroll-bar:vertical");
+            friendsScrollBar.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if ((Double) newValue == 1.0) {
+                    System.out.println("Bottom!");
+                }
+            });
+
+            */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
         username.setCellValueFactory(new PropertyValueFactory<>("username"));
         firstname.setCellValueFactory(new PropertyValueFactory<>("firstname"));
         lastname.setCellValueFactory(new PropertyValueFactory<>("lastname"));
-
+        friendshipTable.setFixedCellSize(50.0);
         id.setVisible(false);
 
         Image image3 = new Image("file:images/addNewFriendImage.jpg");
@@ -67,10 +83,24 @@ public class PrincipalSceneController implements Initializable, Observer {
         logOutImage.setImage(image5);
         Image image6 = new Image("file:images/messageButton.png");
         messageImage.setImage(image6);
+        Platform.runLater(() -> {
+            ScrollBar tvScrollBar = (ScrollBar) friendshipTable.lookup(".scroll-bar:vertical");
+            tvScrollBar.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if ((Double) newValue == 1.0) {
+                    try {
+                        friendshipTable.setItems(loadTable());
+                    } catch (ValidatorException | RepositoryException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        });
+
 
     }
 
-    public void setService(Controller service, int id){
+    public void setService(Controller service, int id) {
         this.userId = id;
         this.service = service;
         service.addObserver(this);
@@ -86,16 +116,25 @@ public class PrincipalSceneController implements Initializable, Observer {
         }
     }
 
+//    friendsScrollBar.va.addListener((observable, oldValue, newValue) -> {
+//        if ((Double) newValue == 1.0) {
+//            System.out.println("Bottom!");
+//        }
+//    });
+
+
 
     private ObservableList<UserModel> loadTable() throws ValidatorException, RepositoryException {
-        LinkedList<UserModel> friends = new LinkedList<>();
-        List<User> users = service.getFriendsForAUser(userId);
-        users.stream().
-                forEach(x -> {
-                    UserModel userModel = new UserModel(x.getId().toString(), x.getUsername(), x.getFirstName(), x.getLastName());
-                    friends.add(userModel);
-
-                });
+//        LinkedList<UserModel> friends = new LinkedList<>();
+        service.getFriendsForAUserPag(friends, userId, pageSize, offset);
+        offset = pageSize * pageNumber + pageSize;
+        pageNumber++;
+//        users.stream().
+//                forEach(x -> {
+//                    UserModel userModel = new UserModel(x.getId().toString(), x.getUsername(), x.getFirstName(), x.getLastName());
+//                    friends.add(userModel);
+//
+//                });
         return FXCollections.observableArrayList(friends);
     }
 
@@ -127,7 +166,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         loginController.setService(service);
         Scene scene = new Scene(root, 800, 400);
         Stage stage;
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setTitle("LogIn");
         stage.setScene(scene);
         stage.show();
@@ -189,5 +228,9 @@ public class PrincipalSceneController implements Initializable, Observer {
         stage.setTitle("Reports");
         stage.setScene(scene);
         stage.show();
+    }
+
+    public void loadMoreClicked(ActionEvent actionEvent) throws ValidatorException, RepositoryException {
+        friendshipTable.setItems(loadTable());
     }
 }

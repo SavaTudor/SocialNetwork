@@ -4,7 +4,10 @@ import com.example.domain.*;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
+import com.example.socialnetworkgui.UserModel;
 import utils.Graph;
+
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.Observable;
 import java.util.*;
@@ -22,6 +25,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Controller extends Observable {
+    private Connection connection;
+    private Statement statement;
     private UserService serviceUsers;
     private FriendshipService serviceFriendships;
     private RequestService serviceRequests;
@@ -55,10 +60,26 @@ public class Controller extends Observable {
      * @param password the password of database
      */
     public Controller(String url, String dbuser, String password) {
-        serviceUsers = new UserService(url, dbuser, password);
+        /*
+        try {
+            serviceUsers = new UserService(url, dbuser, password);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         serviceFriendships = new FriendshipService(url, dbuser, password);
         serviceRequests = new RequestService(url, dbuser, password);
-        messageService = new MessageService(url, dbuser, password);
+        messageService = new MessageService(url, dbuser, password);*/
+        try {
+            connection = DriverManager.getConnection(url, dbuser, password);
+            statement = connection.createStatement();
+            serviceUsers = new UserService(connection, statement);
+            serviceFriendships = new FriendshipService(connection, statement);
+            serviceRequests = new RequestService(connection, statement);
+            messageService = new MessageService(connection, statement);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         network = new Graph<>();
         serviceUsers.all().forEach(user -> {
             network.addVertex(user.getId());
@@ -238,8 +259,10 @@ public class Controller extends Observable {
         return rez;
     }
 
+
     /**
      * Get all the friendships from the friendship service
+     *
      * @return a List of friendships with all the friendships
      */
     public List<Friendship> allFriendships() {
@@ -295,8 +318,8 @@ public class Controller extends Observable {
 
     /**
      * @param from integer representing the id of the user who is sending a friend request
-     * @param to integer representing the id of the user who is receiving the friend request
-     * @throws ValidatorException if the new request is not valid
+     * @param to   integer representing the id of the user who is receiving the friend request
+     * @throws ValidatorException  if the new request is not valid
      * @throws RepositoryException if between the two users already exists a friendship or a request
      */
     public void addFriendRequest(int from, int to) throws ValidatorException, RepositoryException {
@@ -305,10 +328,10 @@ public class Controller extends Observable {
 
     /**
      * @param from integer representing the id of the user who sent the request
-     * @param to integer representing the id of the user who received the friend request
-     * @param st the response to the request
+     * @param to   integer representing the id of the user who received the friend request
+     * @param st   the response to the request
      * @throws RepositoryException if there is not a request between the two users
-     * @throws ValidatorException if the new status is not valid
+     * @throws ValidatorException  if the new status is not valid
      * @throws EntityException
      */
     public void respondFriendRequest(int from, int to, String st) throws RepositoryException, ValidatorException, EntityException {
@@ -316,12 +339,12 @@ public class Controller extends Observable {
                 Status.REJECTED;
         FriendRequest fr = serviceRequests.findByUsers(from, to);
         serviceRequests.update(fr.getId(), from, to, status);
-        if(status==Status.APPROVED){
+        if (status == Status.APPROVED) {
             addFriend(from, to);
             serviceRequests.remove(fr.getId());
             setChanged();
             notifyObservers();
-        }else{
+        } else {
 //            daca la respingerea unei cereri de prietenie vrem sa o stergem din repository,
 //            pentru a putea permite o noua cerere intre cei doi useri
             serviceRequests.remove(fr.getId());
@@ -329,12 +352,11 @@ public class Controller extends Observable {
     }
 
     /**
-     *
      * @param from integer representing the id of the user who sent the request
-     * @param to integer representing the id of the user who received the request
+     * @param to   integer representing the id of the user who received the request
      * @throws RepositoryException if a request between the two users does not exists
-     * the function deletes the request betweent the user with the id from and the
-     *      user with the id to
+     *                             the function deletes the request betweent the user with the id from and the
+     *                             user with the id to
      */
     public void deleteFriendRequest(int from, int to) throws RepositoryException {
         FriendRequest fr = serviceRequests.findByUsers(from, to);
@@ -342,10 +364,9 @@ public class Controller extends Observable {
     }
 
     /**
-     *
      * @param id the id of the user of which we want to see the friend requests
      * @return a list of userRequestsDto which represents the users which have sent the user with the given id
-     *          a friend request
+     * a friend request
      */
     public List<UsersRequestsDTO> getFriendRequests(int id) {
         return serviceRequests.all().stream().filter(fr -> fr.isTo(id)).map(fr -> {
@@ -382,8 +403,8 @@ public class Controller extends Observable {
      * @param id integer representing the id of the user who is responding to all his requests
      * @param st string representing the response
      */
-    public void respondToAllRequests(int id, String st){
-        getFriendRequests(id).forEach(fr-> {
+    public void respondToAllRequests(int id, String st) {
+        getFriendRequests(id).forEach(fr -> {
             try {
                 respondFriendRequest(fr.getFrom().getId(), fr.getTo().getId(), st);
                 setChanged();
@@ -396,11 +417,12 @@ public class Controller extends Observable {
 
     /**
      * Add a message in database
-     * @param from User representing the sender of the message
-     * @param to List of User representing the receiver of the message
+     *
+     * @param from    User representing the sender of the message
+     * @param to      List of User representing the receiver of the message
      * @param message String representing the message of the Message
      * @throws RepositoryException if there is another message with the same id in the database or if i want so send myself a message
-     * @throws ValidatorException if the new Message is not valid
+     * @throws ValidatorException  if the new Message is not valid
      */
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         messageService.addNewMessage(from, to, message);
@@ -414,10 +436,9 @@ public class Controller extends Observable {
     public List<Message> allMessage() {
         List<MessageDTO> messageDTOS = messageService.all();
         List<Message> messages = new ArrayList<>();
-        for(MessageDTO messageDTO : messageDTOS){
+        for (MessageDTO messageDTO : messageDTOS) {
             List<User> to = new ArrayList<>();
-            for(Integer user : messageDTO.getTo())
-            {
+            for (Integer user : messageDTO.getTo()) {
                 try {
                     User user1 = serviceUsers.find(user);
                     to.add(user1);
@@ -434,7 +455,7 @@ public class Controller extends Observable {
             Message message = new Message(from, to, messageDTO.getMessage());
             message.setData(messageDTO.getData());
             message.setId(messageDTO.getId());
-            if(messageDTO.getReply() != 0){
+            if (messageDTO.getReply() != 0) {
                 try {
                     Message message1 = findMessage(messageDTO.getReply());
                     message.setReply(message1);
@@ -450,6 +471,7 @@ public class Controller extends Observable {
 
     /**
      * Remove a message from database
+     *
      * @param id Integer representing the id of message which we want to remove
      * @throws RepositoryException if there is no message with the id given in the database
      */
@@ -461,6 +483,7 @@ public class Controller extends Observable {
 
     /**
      * Find a message in database
+     *
      * @param id Integer representing the id of the message which we are looking for
      * @return Message representing the message which we are looking for
      * @throws RepositoryException if there is no message with the id given in the database
@@ -501,6 +524,7 @@ public class Controller extends Observable {
 
     /**
      * Find all messages for a user
+     *
      * @param idUser Integer representing the id of the user
      * @return List of Message representing all messages for a user
      * @throws RepositoryException if there are no messages with for this user in database
@@ -508,10 +532,9 @@ public class Controller extends Observable {
     public List<Message> findMessages(int idUser) throws RepositoryException {
         List<MessageDTO> messageDTOS = messageService.findMessages(idUser);
         List<Message> messages = new ArrayList<>();
-        for(MessageDTO messageDTO : messageDTOS){
+        for (MessageDTO messageDTO : messageDTOS) {
             List<User> to = new ArrayList<>();
-            for(Integer user : messageDTO.getTo())
-            {
+            for (Integer user : messageDTO.getTo()) {
                 try {
                     User user1 = serviceUsers.find(user);
                     to.add(user1);
@@ -528,7 +551,7 @@ public class Controller extends Observable {
             Message message = new Message(from, to, messageDTO.getMessage());
             message.setData(messageDTO.getData());
             message.setId(messageDTO.getId());
-            if(messageDTO.getReply() != 0){
+            if (messageDTO.getReply() != 0) {
                 try {
                     Message message1 = findMessage(messageDTO.getReply());
                     message.setReply(message1);
@@ -542,9 +565,9 @@ public class Controller extends Observable {
     }
 
     /**
-     * @param id1 integer representing the id of the message
-     * @param from integer representing the user who sent the message
-     * @param to list of integers representing the users who received the message
+     * @param id1     integer representing the id of the message
+     * @param from    integer representing the user who sent the message
+     * @param to      list of integers representing the users who received the message
      * @param message string representing the message
      * @throws RepositoryException if any of the given ids does not exist
      */
@@ -554,13 +577,14 @@ public class Controller extends Observable {
 
     /**
      * Reply message
-     * @param from User representing the sender of the message
-     * @param to List of User representing the receiver of the message
-     * @param mess String representing the message of the Message
+     *
+     * @param from    User representing the sender of the message
+     * @param to      List of User representing the receiver of the message
+     * @param mess    String representing the message of the Message
      * @param message Integer representing the id of the message which we want to reply
      * @throws RepositoryException if there is another message with the same id in the database or if i want so send myself a message or
-     * if the sender is invalid or if the receptor is iinvalid
-     * @throws ValidatorException if the new Message is not valid
+     *                             if the sender is invalid or if the receptor is iinvalid
+     * @throws ValidatorException  if the new Message is not valid
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
         messageService.replyMessage(from, to, mess, message);
@@ -568,10 +592,11 @@ public class Controller extends Observable {
         notifyObservers();
     }
 
+
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
         List<User> users = getFriendsForAUser(from);
         List<Integer> to = new ArrayList<>();
-        users.forEach(x->to.add(x.getId()));
+        users.forEach(x -> to.add(x.getId()));
         messageService.addNewMessage(from, to, mess);
         setChanged();
         notifyObservers();
@@ -580,6 +605,7 @@ public class Controller extends Observable {
 
     /**
      * return a list of Message sent between tho users sorted by data
+     *
      * @param id1 Integer representing the id of the first User
      * @param id2 Integer representing the id of the second User
      * @return List of Messages
@@ -588,7 +614,7 @@ public class Controller extends Observable {
     public List<MessageDTO> getConversation(int id1, int id2) throws RepositoryException {
         List<MessageDTO> messagesD = messageService.all();
         return messagesD.stream().
-                filter(x->((x.getFrom() == id1 && x.getTo().contains(id2)) || (x.getFrom() == id2 && x.getTo().contains(id1)))
+                filter(x -> ((x.getFrom() == id1 && x.getTo().contains(id2)) || (x.getFrom() == id2 && x.getTo().contains(id1)))
                 )
                 .sorted(Comparator.comparing(MessageDTO::getData))
                 .collect(Collectors.toList());
@@ -630,16 +656,16 @@ public class Controller extends Observable {
 
     /**
      * Find all messages sent by a user
+     *
      * @param id Integer representing the id of the user
      * @return List of Message representing all messages sent by a user
      */
-    public List<Message> allMessageByUser(int id){
-        List <MessageDTO> messageDTOS = messageService.allMessageByUser(id);
+    public List<Message> allMessageByUser(int id) {
+        List<MessageDTO> messageDTOS = messageService.allMessageByUser(id);
         List<Message> messages = new ArrayList<>();
-        for(MessageDTO messageDTO : messageDTOS){
+        for (MessageDTO messageDTO : messageDTOS) {
             List<User> to = new ArrayList<>();
-            for(Integer user : messageDTO.getTo())
-            {
+            for (Integer user : messageDTO.getTo()) {
                 try {
                     User user1 = serviceUsers.find(user);
                     to.add(user1);
@@ -656,7 +682,7 @@ public class Controller extends Observable {
             Message message = new Message(from, to, messageDTO.getMessage());
             message.setData(messageDTO.getData());
             message.setId(messageDTO.getId());
-            if(messageDTO.getReply() != 0){
+            if (messageDTO.getReply() != 0) {
                 try {
                     Message message1 = findMessage(messageDTO.getId());
                     message.setReply(message1);
@@ -669,40 +695,60 @@ public class Controller extends Observable {
         return messages;
     }
 
-    public List<User> getNoFriend(int id){
+    public List<User> getNoFriend(int id) {
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
         userList.
-                forEach(x->{
-                    if(!users1.contains(x.getId()))
+                forEach(x -> {
+                    if (!users1.contains(x.getId()))
                         users.add(x);
                 });
         return users;
     }
 
-    public Friendship getFriendship(int id1, int id2){
+    public Friendship getFriendship(int id1, int id2) {
         List<Friendship> friendships = serviceFriendships.all();
-        for(Friendship friendship : friendships)
-            if((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
+        for (Friendship friendship : friendships)
+            if ((friendship.getUserB() == id1 && friendship.getUserA() == id2) || (friendship.getUserB() == id2 && friendship.getUserA() == id1))
                 return friendship;
 
         return null;
     }
 
 
+    public void getFriendsForAUserPag(List<UserModel> friends, int user, int pageSize, int offset) {
+
+        String sql = "select u1.id, u1.username, u1.firstname, u1.lastname, f1.fr_data from users inner join friendships f1 on users.id = f1.usera inner join users u1 on u1.id = f1.userb WHERE users.id=" +
+                user + " UNION select u.id, u.username, u.firstname, u.lastname, f.fr_data from users inner join friendships f on users.id = f.userb inner join users u on u.id = f.usera\n" +
+                "        where users.id= " + user + "order by id LIMIT " + pageSize +" OFFSET " + offset;
+        try {
+            ResultSet set = statement.executeQuery(sql);
+            while (set.next()) {
+                int user1 = set.getInt("id");
+                String username = set.getString("username");
+                String firstname = set.getString("firstname");
+                String lastname = set.getString("lastname");
+                LocalDateTime date = set.getTimestamp("fr_data").toLocalDateTime();
+                UserModel newUser = new UserModel(String.valueOf(user1), username, firstname, lastname);
+                friends.add(newUser);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+
     public List<User> getFriendsForAUser(int user) throws RepositoryException, ValidatorException {
+
         List<Friendship> friendshipList = serviceFriendships.all();
         List<User> users = new ArrayList<>();
         friendshipList.stream().filter(x -> x.getUserA() == user || x.getUserB() == user).forEach(x -> {
             try {
-                if(x.getUserA() == user)
-                {
+                if (x.getUserA() == user) {
                     User user1 = serviceUsers.find(x.getUserB());
                     users.add(user1);
-                }
-                else
-                {
+                } else {
                     User user1 = serviceUsers.find(x.getUserA());
                     users.add(user1);
                 }
@@ -719,19 +765,19 @@ public class Controller extends Observable {
     }
 
 
-    public List<Friendship> friendshipsBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception{
-        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1,0,0);
-        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2,23,59);
+    public List<Friendship> friendshipsBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception {
+        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1, 0, 0);
+        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2, 23, 59);
         ArrayList<Friendship> friendships = serviceFriendships.all();
-        return friendships.stream().filter(x-> ((x.getUserA() == user || x.getUserB() == user) && x.getDate().compareTo(date1) >=0 && x.getDate().compareTo(date2) <= 0)
+        return friendships.stream().filter(x -> ((x.getUserA() == user || x.getUserB() == user) && x.getDate().compareTo(date1) >= 0 && x.getDate().compareTo(date2) <= 0)
         ).collect(Collectors.toList());
     }
 
-    public List<MessageDTO> messagesBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception{
-        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1,0,0);
-        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2,23,59);
+    public List<MessageDTO> messagesBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception {
+        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1, 0, 0);
+        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2, 23, 59);
         List<MessageDTO> messages = messageService.all();
-        return messages.stream().filter(x-> (x.getTo().contains(user) && x.getData().compareTo(date1) >=0 && x.getData().compareTo(date2) <= 0)
+        return messages.stream().filter(x -> (x.getTo().contains(user) && x.getData().compareTo(date1) >= 0 && x.getData().compareTo(date2) <= 0)
         ).collect(Collectors.toList());
     }
 }

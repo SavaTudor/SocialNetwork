@@ -1,6 +1,7 @@
 package com.example.repository.database;
 
 import com.example.domain.Friendship;
+import com.example.domain.User;
 import com.example.exception.RepositoryException;
 import com.example.repository.Repository;
 
@@ -14,11 +15,19 @@ import static com.example.build.Build.*;
 public class DataBaseFriendshipRepository implements Repository<Integer, Friendship> {
     private Connection connection;
     private Statement statement;
+    private int page = -1;
+    private int size = 3;
+    private int offset = 0;
 
     public DataBaseFriendshipRepository(String url, String user, String pass) throws SQLException {
         connection = DriverManager.getConnection(url, user, pass);
         statement = connection.createStatement();
 
+    }
+
+    public DataBaseFriendshipRepository(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
     }
 
     /**
@@ -78,6 +87,28 @@ public class DataBaseFriendshipRepository implements Repository<Integer, Friends
             throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
+    }
+
+    public ArrayList<Friendship> getPage() {
+        ArrayList<Friendship> pageContent = new ArrayList<>();
+        this.page++;
+        String sql = "SELECT * FROM friendships LIMIT " + this.size + " OFFSET " + this.offset + ";";
+        this.offset = (size * page + size);
+        try{
+            ResultSet rs = statement.executeQuery(sql);
+            while (rs.next()) {
+                int id = rs.getInt("fr_id");
+                int userA = rs.getInt("usera");
+                int userB = rs.getInt("userb");
+                LocalDateTime date = rs.getTimestamp("fr_data").toLocalDateTime();
+                Friendship fr = new Friendship(userA, userB, date);
+                fr.setId(id);
+                pageContent.add(fr);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pageContent;
     }
 
     @Override

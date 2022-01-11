@@ -14,6 +14,9 @@ import java.util.List;
 public class DataBaseMessageRepository implements Repository<Integer, MessageDTO> {
     private final Connection connection;
     private final Statement statement;
+    private int page = -1;
+    private int size = 5;
+    private int offset = 0;
 
     /**
      * The constructor
@@ -25,6 +28,11 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
     public DataBaseMessageRepository(String url, String user, String pass) throws SQLException {
         connection = DriverManager.getConnection(url, user, pass);
         statement = connection.createStatement();
+    }
+
+    public DataBaseMessageRepository(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
     }
 
     /**
@@ -103,6 +111,11 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
             throw new RepositoryException("Entity does not exist!\n");        }
 
         return null;
+    }
+
+    @Override
+    public List<MessageDTO> getPage() {
+        return new ArrayList<>();
     }
 
     /**

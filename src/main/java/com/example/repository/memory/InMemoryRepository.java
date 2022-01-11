@@ -6,6 +6,7 @@ import com.example.repository.Repository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 public class InMemoryRepository<ID, T> implements Repository<ID, T> {
     private HashMap<ID, T> elements;
@@ -84,6 +85,11 @@ public class InMemoryRepository<ID, T> implements Repository<ID, T> {
 
     public HashMap<ID, T> getElements() {
         return elements;
+    }
+
+    @Override
+    public List<T> getPage() {
+        return new ArrayList<>();
     }
 
     /**

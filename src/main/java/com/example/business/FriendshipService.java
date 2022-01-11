@@ -8,12 +8,16 @@ import com.example.repository.Repository;
 import com.example.repository.database.DataBaseFriendshipRepository;
 import com.example.repository.file.FileFrienshipRepository;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FriendshipService {
+    private Connection connection;
+    private Statement statement;
     Repository<Integer, Friendship> repository;
     ValidatorFriendship validatorFriendship;
 
@@ -43,6 +47,12 @@ public class FriendshipService {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    public FriendshipService(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
+        repository = new DataBaseFriendshipRepository(connection, statement);
     }
 
     /**

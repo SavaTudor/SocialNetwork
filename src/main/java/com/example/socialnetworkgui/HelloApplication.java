@@ -4,6 +4,7 @@ import com.example.business.Controller;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
+import com.example.utils.Encryption;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,7 +17,8 @@ import static com.example.build.Build.*;
 
 
 
-public class HelloApplication extends Application {
+public class HelloApplication extends Application{
+
     @Override
     public void start(Stage stage) throws IOException {
         Controller service;

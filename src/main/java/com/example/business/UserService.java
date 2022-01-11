@@ -8,11 +8,16 @@ import com.example.repository.Repository;
 import com.example.repository.database.DataBaseUserRepository;
 import com.example.repository.file.FileUserRepository;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 
 public class UserService {
+    private Connection connection;
+    private Statement statement;
     Repository<Integer, User> repository;
     ValidatorUser validator;
 
@@ -22,14 +27,23 @@ public class UserService {
      * @param  user the user of database
      * @param  password the password of database
      */
-    public UserService(String url, String user, String password) {
-        try {
+    public UserService(String url, String user, String password) throws SQLException {
+        /*try {
             this.repository = new DataBaseUserRepository(url, user, password);
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-        }
+        }*/
+        connection = DriverManager.getConnection(url, user, password);
+        statement = connection.createStatement();
+        this.repository = new DataBaseUserRepository(connection, statement);
         this.validator = new ValidatorUser();
+    }
+
+    public UserService(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
+        this.repository = new DataBaseUserRepository(connection, statement);
     }
 
     public UserService(String fileName) {
