@@ -1,7 +1,6 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.domain.Message;
 import com.example.domain.MessageDTO;
 import com.example.domain.UsersFriendsDTO;
 import com.example.exception.RepositoryException;

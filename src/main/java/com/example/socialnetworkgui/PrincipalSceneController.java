@@ -176,4 +176,18 @@ public class PrincipalSceneController implements Initializable, Observer {
             e.printStackTrace();
         }
     }
+
+    public void rapoarteClicked(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("rapoarte.fxml"));
+        AnchorPane root = loader.load();
+        RapoarteController messageController = loader.getController();
+        messageController.setService(service, userId);
+        Scene scene = new Scene(root, 800, 400);
+        Stage stage;
+        stage = new Stage();
+        stage.setTitle("Reports");
+        stage.setScene(scene);
+        stage.show();
+    }
 }
