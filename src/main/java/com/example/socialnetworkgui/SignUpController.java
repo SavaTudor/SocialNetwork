@@ -20,16 +20,19 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class SignUpController {
-    public ImageView signUpImage;
     public TextField usernameField;
+    public ImageView logoImage;
+    public ImageView leftImage;
     private Controller service;
     public ImageView beeImage;
 
     public void initialize(){
         Image image = new Image("file:images/beeLogInImage3.jpg");
         beeImage.setImage(image);
-        Image image1 = new Image("file:images/signInImage.png");
-        signUpImage.setImage(image1);
+        Image image1 = new Image("file:images/beeAppLogo.png");
+        logoImage.setImage(image1);
+        Image image2 = new Image("file:images/2colors.jpg");
+        leftImage.setImage(image2);
     }
 
     @FXML
@@ -54,7 +57,7 @@ public class SignUpController {
         Scene scene = new Scene(root, 800, 400);
         Stage stage;
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        stage.setTitle("LogIn");
+        stage.setTitle("Log in");
         stage.setScene(scene);
         stage.show();
     }
@@ -66,11 +69,16 @@ public class SignUpController {
         String lastName = lastNameField.getText();
         String username = usernameField.getText();
         String password = passwordField.getText();
-        String pass = encryption.encrypt(password);
+        System.out.println(firstName);
+        System.out.println(lastName);
+        System.out.println(username);
+        System.out.println(password);
+        //String pass = encryption.encrypt(password);
         try {
-            service.add(username,firstName, lastName,pass);
-            SceneController controller = new SceneController();
-            controller.switchScene(service, "login.fxml", "Add new friend", actionEvent);
+            System.out.println("a");
+            service.add(username,firstName, lastName,password);
+            System.out.println("b");
+            loginButtonClicked(actionEvent);
         } catch (RepositoryException | ValidatorException | IOException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect user");

@@ -51,7 +51,7 @@
             <Font size="15.0" />
          </font>
       </Button>
-       <ImageView fx:id="leftImage" fitHeight="460.0" fitWidth="225.0" pickOnBounds="true" preserveRatio="true">
+       <ImageView fx:id="leftImage" fitHeight="400.0" fitWidth="227.0" pickOnBounds="true" preserveRatio="true">
        </ImageView>
       <ImageView fx:id="logoImage" fitHeight="204.0" fitWidth="383.0" layoutX="417.0" layoutY="23.0">
       </ImageView>

@@ -19,8 +19,15 @@ import static com.example.build.Build.*;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        Controller service;
+        Controller service ;
         service = new Controller(database_url, database_user, database_password);
+        try {
+            service.add("ff","a","d","d");
+            } catch (RepositoryException e) {
+            e.printStackTrace();
+        } catch (ValidatorException e) {
+            e.printStackTrace();
+        }
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("login.fxml"));
 
