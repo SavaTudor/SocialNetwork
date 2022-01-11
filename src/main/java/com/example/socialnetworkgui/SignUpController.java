@@ -69,10 +69,6 @@ public class SignUpController {
         String lastName = lastNameField.getText();
         String username = usernameField.getText();
         String password = passwordField.getText();
-        System.out.println(firstName);
-        System.out.println(lastName);
-        System.out.println(username);
-        System.out.println(password);
         //String pass = encryption.encrypt(password);
         try {
             System.out.println("a");
@@ -81,9 +77,8 @@ public class SignUpController {
             loginButtonClicked(actionEvent);
         } catch (RepositoryException | ValidatorException | IOException e) {
             alert.setTitle("Message Here...");
-            alert.setHeaderText("Incorrect user");
+            alert.setHeaderText("Incorrect data");
             alert.setContentText(e.getMessage());
-            alert.setTitle("Warning");
             alert.show();
         }
 

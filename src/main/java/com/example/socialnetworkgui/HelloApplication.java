@@ -21,17 +21,8 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
         Controller service ;
         service = new Controller(database_url, database_user, database_password);
-        try {
-            service.add("ff","a","d","d");
-            } catch (RepositoryException e) {
-            e.printStackTrace();
-        } catch (ValidatorException e) {
-            e.printStackTrace();
-        }
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("login.fxml"));
-
-
         AnchorPane root = loader.load();
         LoginController loginController = loader.getController();
         loginController.setService(service);
