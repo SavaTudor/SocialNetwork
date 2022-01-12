@@ -23,23 +23,26 @@ import java.util.*;
 
 public class MessageController implements Initializable, Observer {
     public ScrollPane scrollPaneMessage;
-    public AnchorPane anchorPaneFriends;
     public TextField messageField;
     public Button deleteButton;
     public Button replyButton;
     public ImageView homeImage;
     public Button homeButton;
+    public AnchorPane anchorPaneFriends;
+    public AnchorPane anchorPaneMessage;
+    public ImageView leftImage;
     private Controller service;
     private int userId;
     private int toId;
     private List<Button> buttons;
-    private List<Label> messageLabel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         buttons = new ArrayList<>();
         Image image = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image);
+        Image image2 = new Image("file:images/2colors.jpg");
+        leftImage.setImage(image2);
     }
     public void setService(Controller service, int id){
         this.service = service;
@@ -56,7 +59,6 @@ public class MessageController implements Initializable, Observer {
         AnchorPane anchorPane = new AnchorPane();
         scrollPaneMessage.setContent(anchorPane);
         List<MessageDTO> messageList = service.getConversation(toId, userId);
-        System.out.println(messageList);
         if(messageList.size() == 0)
         {
             Label label = new Label();
@@ -68,7 +70,7 @@ public class MessageController implements Initializable, Observer {
             anchorPane.getChildren().add(label);
         }
         int y = 21;
-        messageLabel = new ArrayList<>();
+        List<Label> messageLabel = new ArrayList<>();
         for(MessageDTO message : messageList){
             Label labelMess = new Label();
             labelMess.setText(message.getMessage());
@@ -86,7 +88,7 @@ public class MessageController implements Initializable, Observer {
                 replyLabel.setStyle("-fx-background-radius: 5; -fx-background-color:  #b9b1b1");
                 replyLabel.setTextAlignment(TextAlignment.JUSTIFY);
                 if(message.getFrom() == userId)
-                    replyLabel.setLayoutX(250);
+                    replyLabel.setLayoutX(290);
                 else
                     replyLabel.setLayoutX(25);
                 replyLabel.setLayoutY(y);
@@ -95,21 +97,18 @@ public class MessageController implements Initializable, Observer {
             }
 
             if(message.getFrom() == userId)
-                labelMess.setLayoutX(250);
+                labelMess.setLayoutX(290);
             else
                 labelMess.setLayoutX(25);
             labelMess.setLayoutY(y);
             y += (40 + (message.getMessage().length() / 4) * 6);
             anchorPane.getChildren().add(labelMess);
             messageLabel.add(labelMess);
-            labelMess.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent mouseEvent) {
-                    if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                        if (mouseEvent.getClickCount() == 1) {
-                                deleteClicked(message.getId());
-                                replyClicked(message.getId());
-                        }
+            labelMess.setOnMouseClicked(mouseEvent -> {
+                if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 1) {
+                            deleteClicked(message.getId());
+                            replyClicked(message.getId());
                     }
                 }
             });
@@ -121,37 +120,31 @@ public class MessageController implements Initializable, Observer {
             button.setVisible(false);
         }
 
-        int y = 21;
+        int y = 44;
         List<UsersFriendsDTO> friends = service.getFriends(userId);
         buttons = new ArrayList<>();
         for(UsersFriendsDTO friend : friends){
             Button friendButton = new Button();
             if(friend.getUsera().getId() != userId) {
                 friendButton.setText(friend.getUsera().getFirstName() + " " + friend.getUsera().getLastName());
-                friendButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            toId = friend.getUsera().getId();
-                            showMessage();
-                        } catch (RepositoryException e) {
-                            e.printStackTrace();
-                        }
+                friendButton.setOnAction(event -> {
+                    try {
+                        toId = friend.getUsera().getId();
+                        showMessage();
+                    } catch (RepositoryException e) {
+                        e.printStackTrace();
                     }
                 });
             }
             else
             {
                 friendButton.setText(friend.getUserb().getFirstName() + " " + friend.getUserb().getLastName());
-                friendButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            toId = friend.getUserb().getId();
-                            showMessage();
-                        } catch (RepositoryException e) {
-                            e.printStackTrace();
-                        }
+                friendButton.setOnAction(event -> {
+                    try {
+                        toId = friend.getUserb().getId();
+                        showMessage();
+                    } catch (RepositoryException e) {
+                        e.printStackTrace();
                     }
                 });
             }
@@ -166,16 +159,14 @@ public class MessageController implements Initializable, Observer {
         }
     }
 
-    public void sendClicked(ActionEvent actionEvent){
+    public void sendClicked(){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
         try {
-            service.addNewMessage(userId, Arrays.asList(toId), mess);
+            service.addNewMessage(userId, List.of(toId), mess);
         } catch (RepositoryException | ValidatorException e) {
-            alert.setTitle("Message Here...");
-            alert.setHeaderText("Empty message");
-            alert.setContentText(e.getMessage());
-            alert.setTitle("Warning");
+            alert.setHeaderText(e.getMessage());
+            alert.setContentText("Empty message");
             alert.show();
         }
         messageField.deleteText(0, mess.length());
@@ -183,52 +174,41 @@ public class MessageController implements Initializable, Observer {
 
     public void deleteClicked(int id){
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        deleteButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    service.removeMessage(id);
-                } catch (RepositoryException e) {
-                    alert.setTitle("Message Here...");
-                    alert.setHeaderText("Select a message, please!");
-                    alert.setContentText(e.getMessage());
-                    alert.setTitle("Warning");
-                    alert.show();
-                }
+        deleteButton.setOnAction(event -> {
+            try {
+                service.removeMessage(id);
+            } catch (RepositoryException e) {
+                alert.setHeaderText("Select a message, please!");
+                alert.setContentText(e.getMessage());
+                alert.setTitle("Warning");
+                alert.show();
             }
         });
     }
 
     public void replyClicked(int id){
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        replyButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    String mess = messageField.getText();
-                    service.replyMessage(userId, Arrays.asList(toId), mess, id);
-                    messageField.deleteText(0, mess.length());
-                } catch (RepositoryException | ValidatorException e) {
-                    alert.setTitle("Message Here...");
-                    alert.setHeaderText("Empty message");
-                    alert.setContentText(e.getMessage());
-                    alert.setTitle("Warning");
-                    alert.show();
-                }
+        replyButton.setOnAction(event -> {
+            try {
+                String mess = messageField.getText();
+                service.replyMessage(userId, List.of(toId), mess, id);
+                messageField.deleteText(0, mess.length());
+            } catch (RepositoryException | ValidatorException e) {
+                alert.setHeaderText("Error");
+                alert.setContentText("Empty message");
+                alert.show();
             }
         });
     }
 
-    public void replyAllClicked(ActionEvent actionEvent){
+    public void replyAllClicked(){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
         try {
             service.replyAll(userId, mess);
         } catch (ValidatorException | RepositoryException e) {
-            alert.setTitle("Message Here...");
-            alert.setHeaderText("Empty message");
-            alert.setContentText(e.getMessage());
-            alert.setTitle("Warning");
+            alert.setHeaderText("Error");
+            alert.setContentText("Empty message");
             alert.show();
         }
         messageField.deleteText(0, mess.length());
@@ -240,11 +220,11 @@ public class MessageController implements Initializable, Observer {
             showFriend();
             showMessage();
 
-        } catch (RepositoryException e) {
+        } catch (RepositoryException ignored) {
         }
     }
 
-    public void homeClicked(ActionEvent actionEvent) {
+    public void homeClicked() {
         Stage stage = (Stage) homeButton.getScene().getWindow();
         stage.close();
     }
