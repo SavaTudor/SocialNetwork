@@ -14,7 +14,7 @@
             style="-fx-background-color: #fad907;">
 
     <children>
-        <TableView fx:id="requestsTable" layoutX="100.0" layoutY="36.0" prefHeight="200.0" prefWidth="450.0"
+        <TableView fx:id="requestsTable" layoutX="100.0" layoutY="36.0" prefHeight="100.0" prefWidth="450.0"
                    HBox.hgrow="NEVER" style="-fx-background-color: #fad907; -fx-background-radius: 10;">
             <columns>
                 <TableColumn fx:id="id" prefWidth="75.0" text="id" style="-fx-background-color: #fad907;"/>

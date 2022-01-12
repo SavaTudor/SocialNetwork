@@ -11,6 +11,7 @@ import com.example.exception.ValidatorException;
 import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseRequestsRepository;
 import com.example.repository.database.DataBaseUserRepository;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,10 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
@@ -43,6 +41,12 @@ public class FriendRequestsController implements Initializable, Observer {
     public TableColumn status;
     private Controller service;
     private int userId;
+    private int pageNumberRec = 0;
+    private int offsetRec = 0;
+    private int pageNumberSend = 0;
+    private int offsetSend = 0;
+    private int pageSize = 3;
+    List<RequestModel> requests = new ArrayList<>();
 
     @FXML
     public Button closeButton, acceptButton, declineButton, acceptAllButton, myFriendRequests;
@@ -57,6 +61,19 @@ public class FriendRequestsController implements Initializable, Observer {
         status.setCellValueFactory(new PropertyValueFactory<>("status"));
         id.setVisible(true);
 
+
+        Platform.runLater(() -> {
+            ScrollBar tvScrollBar = (ScrollBar) requestsTable.lookup(".scroll-bar:vertical");
+            tvScrollBar.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if ((Double) newValue == 1.0) {
+                    if (myFriendRequests.isDisabled()) {
+                        requestsTable.setItems(loadSentRequests());
+                    } else {
+                        requestsTable.setItems(loadTable());
+                    }
+                }
+            });
+        });
     }
 
     public void setService(Controller service, int id) {
@@ -69,6 +86,7 @@ public class FriendRequestsController implements Initializable, Observer {
 
 
     private ObservableList<RequestModel> loadTable() {
+        /*
         LinkedList<RequestModel> requests = new LinkedList<>();
         List<UsersRequestsDTO> friendRequests = service.getFriendRequests(userId);
         friendRequests.stream().
@@ -83,7 +101,10 @@ public class FriendRequestsController implements Initializable, Observer {
                                 .toString());
                         requests.add(requestModel);
                     }
-                });
+                });*/
+        service.getFriendRequestsPag(requests, userId, pageSize, offsetRec);
+        offsetRec = pageSize * pageNumberRec + pageSize;
+        pageNumberRec++;
         return FXCollections.observableArrayList(requests);
     }
 
@@ -126,6 +147,7 @@ public class FriendRequestsController implements Initializable, Observer {
     }
 
     public ObservableList<RequestModel> loadSentRequests() {
+        /*
         LinkedList<RequestModel> requests = new LinkedList<>();
         List<UsersRequestsDTO> friendRequests = service.sentFriendRequests(userId);
         friendRequests.stream().
@@ -141,11 +163,19 @@ public class FriendRequestsController implements Initializable, Observer {
                         requests.add(requestModel);
                     }
                 });
+
+         */
+        service.sentFriendRequestsPag(requests, userId, pageSize, offsetSend);
+        offsetSend = pageSize * pageNumberSend + pageSize;
+        pageNumberSend++;
         return FXCollections.observableArrayList(requests);
     }
 
 
     public void myRequests(ActionEvent actionEvent) {
+        requests.clear();
+        pageNumberSend = 0;
+        offsetSend = 0;
         requestsTable.setItems(loadSentRequests());
         acceptButton.setDisable(true);
         acceptAllButton.setDisable(true);
@@ -173,11 +203,14 @@ public class FriendRequestsController implements Initializable, Observer {
         EventHandler<ActionEvent> exit = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e) {
                 if (myFriendRequests.isDisabled()) {
+                    requests.clear();
+                    pageNumberRec = 0;
+                    offsetRec = 0;
                     requestsTable.setItems(loadTable());
                     acceptButton.setDisable(false);
                     acceptAllButton.setDisable(false);
                     myFriendRequests.setDisable(false);
-                }else{
+                } else {
                     Stage stage = (Stage) closeButton.getScene().getWindow();
                     stage.close();
                 }

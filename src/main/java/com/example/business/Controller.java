@@ -1,9 +1,11 @@
 package com.example.business;
 
+import com.example.build.Build;
 import com.example.domain.*;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
+import com.example.socialnetworkgui.RequestModel;
 import com.example.socialnetworkgui.UserModel;
 import utils.Graph;
 
@@ -380,6 +382,31 @@ public class Controller extends Observable {
         }).collect(Collectors.toList());
     }
 
+    public void getFriendRequestsPag(List<RequestModel> requestModels, int id, int pageSize, int offset) {
+        String sql = "SELECT u.id, u.firstname, u.lastname, fr.status, fr.datesend FROM friendship_invites fr INNER JOIN users u ON u.id = fr.usera\n" +
+                "WHERE fr.userb=" + id + " ORDER BY id LIMIT " + pageSize + " OFFSET " + offset;
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                String uid = String.valueOf(resultSet.getInt("id"));
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                String status = resultSet.getString("status");
+                var datesend = resultSet.getTimestamp("datesend");
+                String date;
+                if (datesend == null) {
+                    date = LocalDateTime.now().format(Build.formatter);
+                } else {
+                    date = resultSet.getTimestamp("datesend").toLocalDateTime().format(Build.formatter);
+                }
+                RequestModel requestModel = new RequestModel(uid, firstname, lastname, date, status);
+                requestModels.add(requestModel);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
     /**
      * @param id the id of the user who sent the friend requests
      * @return a list of userRequestsDto which represents the users to which the users with the given id
@@ -397,6 +424,33 @@ public class Controller extends Observable {
                     }
                     return dto;
                 }).collect(Collectors.toList());
+    }
+
+
+    public void sentFriendRequestsPag(List<RequestModel> requestModels, int id, int pageSize, int offset) {
+        String sql = "SELECT u.id, u.firstname, u.lastname, fr.status, fr.datesend FROM friendship_invites fr INNER JOIN users u ON u.id = fr.userb WHERE fr.usera="
+                + id + "ORDER BY id LIMIT " + pageSize + " OFFSET " + offset + ";";
+        try{
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                String uid = String.valueOf(resultSet.getInt("id"));
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                String status = resultSet.getString("status");
+                var datesend = resultSet.getTimestamp("datesend");
+                String date;
+                if (datesend == null) {
+                    date = LocalDateTime.now().format(Build.formatter);
+                } else {
+                    date = resultSet.getTimestamp("datesend").toLocalDateTime().format(Build.formatter);
+                }
+                RequestModel requestModel = new RequestModel(uid, firstname, lastname, date, status);
+                requestModels.add(requestModel);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     /**
@@ -721,7 +775,7 @@ public class Controller extends Observable {
 
         String sql = "select u1.id, u1.username, u1.firstname, u1.lastname, f1.fr_data from users inner join friendships f1 on users.id = f1.usera inner join users u1 on u1.id = f1.userb WHERE users.id=" +
                 user + " UNION select u.id, u.username, u.firstname, u.lastname, f.fr_data from users inner join friendships f on users.id = f.userb inner join users u on u.id = f.usera\n" +
-                "        where users.id= " + user + "order by id LIMIT " + pageSize +" OFFSET " + offset;
+                "        where users.id= " + user + "order by id LIMIT " + pageSize + " OFFSET " + offset;
         try {
             ResultSet set = statement.executeQuery(sql);
             while (set.next()) {

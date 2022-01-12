@@ -5,6 +5,7 @@ import com.example.domain.MessageDTO;
 import com.example.domain.UsersFriendsDTO;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
@@ -40,6 +41,7 @@ public class MessageController implements Initializable, Observer {
         buttons = new ArrayList<>();
         Image image = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image);
+        Platform.runLater( () -> scrollPaneMessage.setVvalue(scrollPaneMessage.getVmax()));
     }
     public void setService(Controller service, int id){
         this.service = service;

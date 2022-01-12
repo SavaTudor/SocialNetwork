@@ -66,7 +66,6 @@
                     </ImageView>
                 </graphic>
             </Button>
-            <Button fx:id="loadMore" text="Load More" onAction="#loadMoreClicked"></Button>
         </HBox>
         <Button layoutX="43.0" layoutY="315.0" mnemonicParsing="false" onAction="#rapoarteClicked" text="Reports"/>
         <HBox layoutX="166.0" layoutY="375.0">
