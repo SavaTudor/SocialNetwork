@@ -857,4 +857,36 @@ public class Controller extends Observable {
         return messages.stream().filter(x -> (x.getTo().contains(user) && x.getData().compareTo(date1) >= 0 && x.getData().compareTo(date2) <= 0)
         ).collect(Collectors.toList());
     }
+
+    public List<MessageDTO> getMessagesFromBetween(int user, String from, int day1, int month1, int year1, int day2, int month2, int year2) {
+        //from este usernameul
+        List<MessageDTO> messages = new ArrayList<>();
+        String startDate = year1 + "-" + month1 + "-" + day1;
+        String endDate = year2 + "-" + month2 + "-" + day2;
+        int fromId = Integer.parseInt(serviceUsers.findByUsername(from).getId());
+        String sql = "SELECT * " +
+                "from messages " +
+                "inner join users_messages um on messages.ms_id = um.mess_id " +
+                "where um.from_user=" + fromId + " and um.to_user=" + user + " and data between '" + startDate + "' AND '" + endDate +
+                "' order by data;";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                int fromUser = resultSet.getInt("from_user");
+                int toUser = resultSet.getInt("to_user");
+                String message = resultSet.getString("mess");
+                LocalDateTime date = resultSet.getTimestamp("data").toLocalDateTime();
+                int reply = resultSet.getInt("reply_to");
+                MessageDTO messageDTO = new MessageDTO(fromUser, new ArrayList<>(toUser), message);
+                messageDTO.setData(date);
+                messageDTO.setId(resultSet.getInt("ms_id"));
+                messageDTO.setReply(reply);
+                messages.add(messageDTO);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return messages;
+    }
 }

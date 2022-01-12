@@ -7,11 +7,9 @@ import com.example.exception.ValidatorException;
 import com.example.repository.Repository;
 import com.example.repository.database.DataBaseUserRepository;
 import com.example.repository.file.FileUserRepository;
+import com.example.socialnetworkgui.UserModel;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 
@@ -23,9 +21,10 @@ public class UserService {
 
     /**
      * constructor
-     * @param  url the url of database
-     * @param  user the user of database
-     * @param  password the password of database
+     *
+     * @param url      the url of database
+     * @param user     the user of database
+     * @param password the password of database
      */
     public UserService(String url, String user, String password) throws SQLException {
         /*try {
@@ -139,6 +138,33 @@ public class UserService {
      */
     public void remove(int id) throws RepositoryException {
         repository.remove(id);
+    }
+
+
+    /**
+     *
+     * @param username a string representing the username of the user we want to find
+     * @return a UserModel containing the id, firstname and lastname of the user with the given username
+     *      or null if such a user does not exist
+     */
+    public UserModel findByUsername(String username) {
+        String sql = "SELECT * FROM users WHERE username='" + username + "';";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            if (resultSet.next()) {
+                String id = String.valueOf(resultSet.getInt("id"));
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                UserModel user = new UserModel(id, username, firstname, lastname);
+                return user;
+            }
+            return null;
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
     }
 
 }
