@@ -2,7 +2,6 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.Friendship;
-import com.example.domain.Message;
 import com.example.domain.MessageDTO;
 import com.example.domain.User;
 import com.example.exception.RepositoryException;
@@ -13,11 +12,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
@@ -39,11 +42,37 @@ public class RapoarteController implements Initializable {
     public ComboBox lastYear;
     public Controller service;
     public int userId;
+    public ImageView pdf1;
+    public ImageView pdf2;
+    public ImageView raport2;
+    public ImageView raport1;
+    public ImageView homeImage;
+    public ImageView background;
+    public Button homeButton;
+    public Button pffButton1;
     List<Friendship> friendships;
     List<MessageDTO> messages;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Image image = new Image("file:images/reports.jpg");
+        raport1.setImage(image);
+
+        Image image2 = new Image("file:images/reports.jpg");
+        raport2.setImage(image2);
+
+        Image image3 = new Image("file:images/pdfImage.jpg");
+        pdf1.setImage(image3);
+
+        Image image4 = new Image("file:images/pdfImage.jpg");
+        pdf2.setImage(image4);
+
+        Image image5 = new Image("file:images/homeButtonImage.jpg");
+        homeImage.setImage(image5);
+
+        Image image1 = new Image("file:images/back.jpg");
+        background.setImage(image1);
+
         friendships = new ArrayList<>();
         messages = new ArrayList<>();
 
@@ -75,7 +104,19 @@ public class RapoarteController implements Initializable {
         this.service = service;
         this.userId = id;
     }
-    public void raport1Clicked(ActionEvent actionEvent) {
+    public void raport1Clicked() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        initList();
+        try {
+            showRaport1();
+        } catch (Exception e) {
+            alert.setHeaderText("Incorrect date");
+            alert.setContentText("Try another date");
+            alert.show();
+        }
+    }
+
+    private void initList(){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         int day1 = 0;
         int month1 = 0;
@@ -91,22 +132,17 @@ public class RapoarteController implements Initializable {
             month2 = Integer.parseInt(lastMonth.getValue().toString());
             year2 = Integer.parseInt(lastYear.getValue().toString());
         } catch (Exception e) {
-            alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect date");
-            alert.setContentText(e.getMessage());
-            alert.setTitle("Warning");
+            alert.setContentText("Try another date");
             alert.show();
         }
 
         try {
             this.friendships = service.friendshipsBetween2Dates(userId,day1,month1, year1, day2, month2, year2);
             this.messages = service.messagesBetween2Dates(userId,day1,month1, year1, day2, month2, year2);
-            showRaport1();
         } catch (Exception e) {
-            alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect date");
-            alert.setContentText(e.getMessage());
-            alert.setTitle("Warning");
+            alert.setContentText("Try another date");
             alert.show();
         }
     }
@@ -119,20 +155,28 @@ public class RapoarteController implements Initializable {
         raport1Controller.setLists(service, messages, friendships, userId);
         Scene scene = new Scene(root, 800, 400);
         Stage stage = new Stage();
-        stage.setTitle("Raport1");
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
+        stage.setTitle("Report1");
         stage.setScene(scene);
         stage.show();
     }
 
-    public void raport2Clicked(ActionEvent actionEvent) {
+    public void raport2Clicked() {
     }
 
-    public void generatePDF1Clicked(ActionEvent actionEvent) {
+    public void generatePDF1Clicked() {
+        initList();
         Alert alert = new Alert(Alert.AlertType.ERROR);
         try (PDDocument doc = new PDDocument()) {
 
             PDPage myPage = new PDPage();
             doc.addPage(myPage);
+            PDDocumentInformation pdd = doc.getDocumentInformation();
+            pdd.setAuthor("Suciu Andrei");
+
+            pdd.setTitle("Report1");
+
+            pdd.setSubject("The activities of a user from a calendar period, regarding the new friend created and the messages received during that period");
 
             try (PDPageContentStream cont = new PDPageContentStream(doc, myPage)) {
 
@@ -142,9 +186,8 @@ public class RapoarteController implements Initializable {
                 cont.setLeading(14.5f);
 
                 cont.newLineAtOffset(25, 700);
-                String line1 = "First report:";
-                cont.showText(line1);
-
+                String line = "Report 1";
+                cont.showText(line);
                 cont.newLine();
 
                 String line2 = "New friends:";
@@ -153,21 +196,21 @@ public class RapoarteController implements Initializable {
 
                 System.out.println(friendships);
                 for(Friendship friendship : friendships){
+                    User user1;
                     if(friendship.getUserA() != userId){
-                        User user1 = service.findUser(friendship.getUserA());
+                        user1 = service.findUser(friendship.getUserA());
                         String lineFr = user1.getFirstName() + " " + user1.getLastName();
                         cont.showText(lineFr);
-                        cont.newLine();
                     }
                     else{
-                        User user1 = service.findUser(friendship.getUserB());
+                        user1 = service.findUser(friendship.getUserB());
                         String lineFr = user1.getFirstName() + " " + user1.getLastName();
                         cont.showText(lineFr);
-                        cont.newLine();
                     }
+                    cont.newLine();
                 }
                 cont.newLine();
-
+                cont.newLine();
                 String line3 = "All messages received:";
                 cont.showText(line3);
                 cont.newLine();
@@ -185,15 +228,18 @@ public class RapoarteController implements Initializable {
             String path = this.path.getText();
             doc.save(path + "\\" + filename + ".pdf");
         } catch (IOException | RepositoryException e) {
-            alert.setTitle("Message Here...");
-            alert.setHeaderText("Incorrect date");
-            alert.setContentText(e.getMessage());
-            alert.setTitle("Warning");
+            alert.setHeaderText("Incorrect data");
+            alert.setContentText("Incorrect path or filename");
             alert.show();
-            e.printStackTrace();        }
+        }
 
     }
 
-    public void generatePDF2Clicked(ActionEvent actionEvent) {
+    public void generatePDF2Clicked() {
+    }
+
+    public void homeClicked() {
+        Stage stage = (Stage) homeButton.getScene().getWindow();
+        stage.close();
     }
 }

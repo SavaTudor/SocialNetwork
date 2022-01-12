@@ -4,24 +4,65 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.RapoarteController">
+<AnchorPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.RapoarteController">
     <children>
-        <AnchorPane prefHeight="400.0" prefWidth="87.0" />
-        <ComboBox fx:id="firstDay" layoutX="275.0" layoutY="40.0" prefHeight="26.0" prefWidth="70.0" promptText="day" />
-        <ComboBox fx:id="firstMonth" layoutX="346.0" layoutY="40.0" prefHeight="26.0" prefWidth="125.0" promptText="month" />
-        <ComboBox fx:id="firstYear" layoutX="472.0" layoutY="40.0" prefHeight="26.0" prefWidth="98.0" promptText="year" />
-        <TextField fx:id="path" layoutX="296.0" layoutY="239.0" promptText="path" />
-        <TextField fx:id="filename" layoutX="446.0" layoutY="239.0" promptText="filename" />
-        <Button layoutX="333.0" layoutY="307.0" mnemonicParsing="false" onAction="#raport1Clicked" text="Raport1" />
-        <Button layoutX="446.0" layoutY="307.0" mnemonicParsing="false" onAction="#raport2Clicked" text="Raport2" />
-        <ComboBox fx:id="lastDay" layoutX="275.0" layoutY="88.0" prefHeight="26.0" prefWidth="70.0" promptText="day" />
-        <ComboBox fx:id="lastMonth" layoutX="346.0" layoutY="88.0" prefHeight="26.0" prefWidth="125.0" promptText="month" />
-        <ComboBox fx:id="lastYear" layoutX="471.0" layoutY="88.0" prefHeight="26.0" prefWidth="98.0" promptText="year" />
-        <Label layoutX="216.0" layoutY="40.0" prefHeight="26.0" prefWidth="58.0" text="First date" />
-        <Label layoutX="216.0" layoutY="88.0" prefHeight="26.0" prefWidth="58.0" text="Last date" />
-        <Button fx:id="pffButton" layoutX="318.0" layoutY="341.0" mnemonicParsing="false" onAction="#generatePDF1Clicked" text="Generate PDF" />
-        <Button fx:id="pffButton1" layoutX="431.0" layoutY="341.0" mnemonicParsing="false" onAction="#generatePDF2Clicked" text="Generate PDF" />
+      <ImageView fx:id="background" fitHeight="451.0" fitWidth="847.0" pickOnBounds="true" preserveRatio="true">
+      </ImageView>
+      <AnchorPane layoutX="-12.0" prefHeight="400.0" prefWidth="800.0">
+         <children>
+             <Button fx:id="homeButton" layoutX="14.0" layoutY="18.0" mnemonicParsing="false" onAction="#homeClicked" prefHeight="38.0" prefWidth="118.0" style="-fx-background-color: white; -fx-background-radius: 500;" text=" Home">
+                 <graphic>
+                     <ImageView fx:id="homeImage" fitHeight="30.0" fitWidth="35.0">
+                     </ImageView>
+                 </graphic>
+             </Button>
+              <TextField fx:id="path" layoutX="580.0" layoutY="236.0" promptText="path" />
+              <TextField fx:id="filename" layoutX="580.0" layoutY="273.0" promptText="filename" />
+              <Button fx:id="pffButton2" layoutX="655.0" layoutY="314.0" mnemonicParsing="false" onAction="#generatePDF2Clicked" prefHeight="38.0" prefWidth="130.0" style="-fx-background-color: white; -fx-background-radius: 8;" text="    Generate PDF">
+               <font>
+                  <Font size="14.0" />
+               </font></Button>
+              <Button fx:id="pffButton1" layoutX="380.0" layoutY="313.0" mnemonicParsing="false" onAction="#generatePDF1Clicked" prefHeight="38.0" prefWidth="130.0" style="-fx-background-color: white; -fx-background-radius: 8;" text="      Generate PDF">
+               <font>
+                  <Font size="14.0" />
+               </font></Button>
+              <Label layoutX="270.0" layoutY="44.0" prefHeight="26.0" prefWidth="84.0" text="First date:" textFill="#faf7f7">
+               <font>
+                  <Font name="Book Antiqua" size="18.0" />
+               </font></Label>
+              <ComboBox fx:id="firstDay" layoutX="373.0" layoutY="44.0" prefHeight="26.0" prefWidth="70.0" promptText="day" style="-fx-background-color: #fad907;" />
+              <ComboBox fx:id="lastMonth" layoutX="444.0" layoutY="143.0" prefHeight="26.0" prefWidth="125.0" promptText="month" style="-fx-background-color: #fad907;" />
+              <ComboBox fx:id="lastYear" layoutX="569.0" layoutY="143.0" prefHeight="26.0" prefWidth="98.0" promptText="year" style="-fx-background-color: #fad907;" />
+             <Button layoutX="270.0" layoutY="314.0" mnemonicParsing="false" onAction="#raport1Clicked" prefHeight="38.0" prefWidth="110.0" style="-fx-background-color: white; -fx-background-radius: 8;" text="  Report 1">
+               <font>
+                  <Font size="14.0" />
+               </font></Button>
+              <Label layoutX="270.0" layoutY="142.0" prefHeight="27.0" prefWidth="84.0" text="Last date:" textFill="WHITE">
+               <font>
+                  <Font size="18.0" />
+               </font></Label>
+              <ComboBox fx:id="lastDay" layoutX="373.0" layoutY="143.0" prefHeight="26.0" prefWidth="70.0" promptText="day" style="-fx-background-color: #fad907;" />
+              <ComboBox fx:id="firstMonth" layoutX="444.0" layoutY="44.0" prefHeight="26.0" prefWidth="125.0" promptText="month" style="-fx-background-color: #fad907;" />
+              <ComboBox fx:id="firstYear" layoutX="569.0" layoutY="44.0" prefHeight="26.0" prefWidth="98.0" promptText="year" style="-fx-background-color: #fad907;" />
+            <Button layoutX="544.0" layoutY="314.0" mnemonicParsing="false" onAction="#raport2Clicked" prefHeight="38.0" prefWidth="110.0" style="-fx-background-color: white; -fx-background-radius: 8;" text="  Report 2">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <ImageView fx:id="raport1" fitHeight="26.0" fitWidth="26.0" layoutX="276.0" layoutY="320.0" pickOnBounds="true" preserveRatio="true">
+            </ImageView>
+            <ImageView fx:id="raport2" fitHeight="26.0" fitWidth="26.0" layoutX="550.0" layoutY="319.0" pickOnBounds="true" preserveRatio="true">
+            </ImageView>
+            <ImageView fx:id="pdf1" fitHeight="26.0" fitWidth="23.0" layoutX="389.0" layoutY="321.0" pickOnBounds="true" preserveRatio="true">
+            </ImageView>
+            <ImageView fx:id="pdf2" fitHeight="26.0" fitWidth="23.0" layoutX="660.0" layoutY="320.0" pickOnBounds="true" preserveRatio="true">
+            </ImageView>
+         </children>
+      </AnchorPane>
     </children>
 </AnchorPane>
