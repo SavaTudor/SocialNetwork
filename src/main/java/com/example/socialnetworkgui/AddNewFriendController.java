@@ -6,20 +6,14 @@ import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -36,11 +30,11 @@ public class AddNewFriendController implements Initializable {
     public ImageView searchImage;
     public ImageView addImage;
     public ImageView homeImage;
-    //public ImageView logoImage;
     public Label invalidUser;
     public TableColumn<UserModel, String> firstname;
     public TableColumn<UserModel, String> lastname;
     public Button homeButton;
+    public ImageView background;
     private int userId;
 
     @Override
@@ -48,26 +42,27 @@ public class AddNewFriendController implements Initializable {
         PrincipalSceneController.setCell(id, username, firstname, lastname);
         userTable.setVisible(false);
         addButton.setVisible(false);
-        Image image = new Image("file:images/searchImage.png");
+        Image image = new Image("file:images/searchButton.png");
         searchImage.setImage(image);
         Image image1 = new Image("file:images/addNewFriendImage.jpg");
         addImage.setImage(image1);
         Image image3 = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image3);
+        Image image4 = new Image("file:images/back.jpg");
+        background.setImage(image4);
         invalidUser.setVisible(false);
+        addImage.setVisible(false);
     }
 
     public void setService(Controller service, int id){
-        this.service = service;
+        AddNewFriendController.service = service;
         this.userId = id;
     }
 
     private ObservableList<UserModel> loadTable(String name){
-        LinkedList<UserModel> friends = new LinkedList<>();
-        List<User> users = service.getNoFriend(this.userId);
+        List<UserModel> friends = new ArrayList<>();
+        List<User> users = service.getNoFriend(this.userId, name);
         users.stream().
-                filter(x->(x.getFirstName().equals(name) || x.getLastName().equals(name)) &&
-                        x.getId() != this.userId).
                 forEach(x->{
                     String id1 = x.getId().toString();
                     String userName = x.getUsername();
@@ -79,26 +74,40 @@ public class AddNewFriendController implements Initializable {
         return FXCollections.observableArrayList(friends);
     }
 
-    public void addClicked(ActionEvent actionEvent){
+    public void addClicked(){
         ObservableList<UserModel> users = userTable.getSelectionModel().getSelectedItems();
+        if(users.isEmpty())
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Add new friend error");
+            alert.setContentText("Please select a column from table and press the Add new friend button");
+            alert.show();
+            return;
+        }
         int id1 = Integer.parseInt(users.get(0).getId());
         try {
             service.addFriendRequest(this.userId, id1);
         } catch (ValidatorException | RepositoryException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText(e.getMessage());
-            alert.setContentText("Try again");
-            alert.setTitle("Warning");
+            alert.setContentText(e.getMessage());
+            alert.setHeaderText("Try again");
             alert.show();
         }
     }
 
-    public void homeClicked(ActionEvent event) throws IOException {
+    public void homeClicked(){
         Stage stage = (Stage) homeButton.getScene().getWindow();
         stage.close();
     }
 
-    public void searchCliecked(ActionEvent actionEvent) {
+    public void searchClicked() {
+        if(searchField.getText().isEmpty())
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Search error");
+            alert.setContentText("Please give a name");
+            alert.show();
+        }
         String userName = searchField.getText();
         ObservableList<UserModel> userModels = loadTable(userName);
         if(userModels.size() == 0)
@@ -107,6 +116,7 @@ public class AddNewFriendController implements Initializable {
             userTable.setItems(userModels);
             userTable.setVisible(true);
             addButton.setVisible(true);
+            addImage.setVisible(true);
             invalidUser.setVisible(false);
         }
     }

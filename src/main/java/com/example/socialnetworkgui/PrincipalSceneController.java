@@ -60,7 +60,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         logOutImage.setImage(image5);
         Image image6 = new Image("file:images/messageButton.png");
         messageImage.setImage(image6);
-        Image image2 = new Image("file:images/friendRequest.jpg");
+        Image image2 = new Image("file:images/friendRequest.png");
         friendRequestImage.setImage(image2);
         Image image7 = new Image("file:images/reports.jpg");
         raportImage.setImage(image7);

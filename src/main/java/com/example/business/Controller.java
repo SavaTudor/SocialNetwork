@@ -669,7 +669,7 @@ public class Controller extends Observable {
         return messages;
     }
 
-    public List<User> getNoFriend(int id){
+    public List<User> getNoFriend(int id, String name){
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
@@ -678,7 +678,8 @@ public class Controller extends Observable {
                     if(!users1.contains(x.getId()))
                         users.add(x);
                 });
-        return users;
+        return users.stream().filter(x->(x.getFirstName().equals(name) || x.getUsername().equals(name)|| x.getLastName().equals(name)) &&
+                x.getId() != id).collect(Collectors.toList());
     }
 
     public Friendship getFriendship(int id1, int id2){
