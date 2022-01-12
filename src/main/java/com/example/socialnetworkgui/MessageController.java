@@ -35,15 +35,33 @@ public class MessageController implements Initializable, Observer {
     private int toId;
     private List<Button> buttons;
     private List<Label> messageLabel;
+    private List<MessageDTO> messageList = new ArrayList<>();
+    int pageSize = 7;
+    int pageNumber = 0;
+    int offset = 0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         buttons = new ArrayList<>();
         Image image = new Image("file:images/homeButtonImage.jpg");
         homeImage.setImage(image);
-        Platform.runLater( () -> scrollPaneMessage.setVvalue(scrollPaneMessage.getVmax()));
+        Platform.runLater(() -> {
+            ScrollBar tvScrollBar = (ScrollBar) scrollPaneMessage.lookup(".scroll-bar:vertical");
+            tvScrollBar.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if ((Double) newValue == 0) {
+                    try {
+                        showMessage();
+                    } catch (RepositoryException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        });
+
     }
-    public void setService(Controller service, int id){
+
+    public void setService(Controller service, int id) {
         this.service = service;
         service.addObserver(this);
         this.userId = id;
@@ -57,10 +75,16 @@ public class MessageController implements Initializable, Observer {
     public void showMessage() throws RepositoryException {
         AnchorPane anchorPane = new AnchorPane();
         scrollPaneMessage.setContent(anchorPane);
-        List<MessageDTO> messageList = service.getConversation(toId, userId);
-        System.out.println(messageList);
-        if(messageList.size() == 0)
-        {
+//        List<MessageDTO> messageList = service.getConversation(toId, userId);
+
+//        System.out.println("Toid " + toId + " userId " + userId + " offset " + offset);
+        service.getConversationPag(messageList, toId, userId, pageSize, offset);
+//        for (var mes : messageList) {
+//            System.out.println(mes);
+//        }
+        offset = pageSize * pageNumber + pageSize;
+        pageNumber++;
+        if (messageList.size() == 0) {
             Label label = new Label();
             label.setText("no message found ");
             label.setStyle("-fx-background-radius: 5; -fx-background-color:  white");
@@ -71,7 +95,7 @@ public class MessageController implements Initializable, Observer {
         }
         int y = 21;
         messageLabel = new ArrayList<>();
-        for(MessageDTO message : messageList){
+        for (MessageDTO message : messageList) {
             Label labelMess = new Label();
             labelMess.setText(message.getMessage());
             labelMess.setStyle("-fx-background-radius: 5; -fx-background-color:  #fad907");
@@ -80,14 +104,13 @@ public class MessageController implements Initializable, Observer {
             labelMess.setFont(new Font("Arial", 18));
             labelMess.setWrapText(true);
 
-            if(message.getReply() != 0)
-            {
+            if (message.getReply() != 0) {
                 Label replyLabel = new Label();
                 MessageDTO reply = service.findMessageDTO(message.getReply());
                 replyLabel.setText(reply.getMessage());
                 replyLabel.setStyle("-fx-background-radius: 5; -fx-background-color:  #b9b1b1");
                 replyLabel.setTextAlignment(TextAlignment.JUSTIFY);
-                if(message.getFrom() == userId)
+                if (message.getFrom() == userId)
                     replyLabel.setLayoutX(250);
                 else
                     replyLabel.setLayoutX(25);
@@ -96,7 +119,7 @@ public class MessageController implements Initializable, Observer {
                 y += 20;
             }
 
-            if(message.getFrom() == userId)
+            if (message.getFrom() == userId)
                 labelMess.setLayoutX(250);
             else
                 labelMess.setLayoutX(25);
@@ -107,50 +130,64 @@ public class MessageController implements Initializable, Observer {
             labelMess.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent mouseEvent) {
-                    if(mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                         if (mouseEvent.getClickCount() == 1) {
-                                deleteClicked(message.getId());
-                                replyClicked(message.getId());
+                            deleteClicked(message.getId());
+                            replyClicked(message.getId());
                         }
                     }
                 }
             });
         }
     }
+
     public void showFriend() throws RepositoryException {
 
-        for (Button button: buttons){
+        for (Button button : buttons) {
             button.setVisible(false);
         }
 
         int y = 21;
         List<UsersFriendsDTO> friends = service.getFriends(userId);
         buttons = new ArrayList<>();
-        for(UsersFriendsDTO friend : friends){
+        for (UsersFriendsDTO friend : friends) {
             Button friendButton = new Button();
-            if(friend.getUsera().getId() != userId) {
+            if (friend.getUsera().getId() != userId) {
                 friendButton.setText(friend.getUsera().getFirstName() + " " + friend.getUsera().getLastName());
                 friendButton.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
+                        Platform.runLater(() -> scrollPaneMessage.setVvalue(scrollPaneMessage.getVmax()));
                         try {
                             toId = friend.getUsera().getId();
+                            messageList.clear();
+                            pageNumber = 0;
+                            offset = 0;
+                            System.out.println(messageList);
                             showMessage();
+                            System.out.println(messageList);
+                            System.out.println("--");
                         } catch (RepositoryException e) {
                             e.printStackTrace();
                         }
                     }
                 });
-            }
-            else
-            {
+            } else {
                 friendButton.setText(friend.getUserb().getFirstName() + " " + friend.getUserb().getLastName());
                 friendButton.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
+                        Platform.runLater(() -> scrollPaneMessage.setVvalue(scrollPaneMessage.getVmax()));
+
                         try {
                             toId = friend.getUserb().getId();
+                            messageList.clear();
+                            pageNumber = 0;
+                            offset = 0;
+                            System.out.println(messageList);
                             showMessage();
+                            System.out.println(messageList);
+                            System.out.println("--");
                         } catch (RepositoryException e) {
                             e.printStackTrace();
                         }
@@ -160,7 +197,7 @@ public class MessageController implements Initializable, Observer {
             buttons.add(friendButton);
 
         }
-        for (Button button: buttons){
+        for (Button button : buttons) {
             button.setLayoutX(25);
             button.setLayoutY(y);
             y += 40;
@@ -168,7 +205,7 @@ public class MessageController implements Initializable, Observer {
         }
     }
 
-    public void sendClicked(ActionEvent actionEvent){
+    public void sendClicked(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
         try {
@@ -183,7 +220,7 @@ public class MessageController implements Initializable, Observer {
         messageField.deleteText(0, mess.length());
     }
 
-    public void deleteClicked(int id){
+    public void deleteClicked(int id) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         deleteButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -201,7 +238,7 @@ public class MessageController implements Initializable, Observer {
         });
     }
 
-    public void replyClicked(int id){
+    public void replyClicked(int id) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         replyButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -221,7 +258,7 @@ public class MessageController implements Initializable, Observer {
         });
     }
 
-    public void replyAllClicked(ActionEvent actionEvent){
+    public void replyAllClicked(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
         try {

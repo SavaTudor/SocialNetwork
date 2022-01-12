@@ -430,7 +430,7 @@ public class Controller extends Observable {
     public void sentFriendRequestsPag(List<RequestModel> requestModels, int id, int pageSize, int offset) {
         String sql = "SELECT u.id, u.firstname, u.lastname, fr.status, fr.datesend FROM friendship_invites fr INNER JOIN users u ON u.id = fr.userb WHERE fr.usera="
                 + id + "ORDER BY id LIMIT " + pageSize + " OFFSET " + offset + ";";
-        try{
+        try {
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
                 String uid = String.valueOf(resultSet.getInt("id"));
@@ -706,6 +706,29 @@ public class Controller extends Observable {
 //            messages.add(message);
 //        }
 //        return messages;
+    }
+
+    public void getConversationPag(List<MessageDTO> conversation, int id1, int id2, int pageSize, int offset) {
+        String sql = "SELECT * FROM messages INNER JOIN users_messages um ON messages.ms_id = um.mess_id " +
+                "WHERE um.from_user=" + id2 + " AND um.to_user=" + id1 + " OR um.from_user=" + id1 + " AND um.to_user=" + id2 +
+                " ORDER BY data DESC LIMIT " + pageSize + " OFFSET " + offset + ";";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                int from = resultSet.getInt("from_user");
+                int to = resultSet.getInt("to_user");
+                String message = resultSet.getString("mess");
+                LocalDateTime date = resultSet.getTimestamp("data").toLocalDateTime();
+                int reply = resultSet.getInt("reply_to");
+                MessageDTO newMessage = new MessageDTO(from, new ArrayList<>(to), message);
+                newMessage.setData(date);
+                newMessage.setReply(reply);
+                conversation.add(0, newMessage);
+
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     /**
