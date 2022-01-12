@@ -8,11 +8,15 @@ import com.example.exception.ValidatorException;
 import com.example.repository.Repository;
 import com.example.repository.database.DataBaseRequestsRepository;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RequestService {
+    private Connection connection;
+    private Statement statement;
     Repository<Integer, FriendRequest> repository;
     ValidatorRequest validatorRequest;
 
@@ -30,6 +34,12 @@ public class RequestService {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    public RequestService(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
+        repository = new DataBaseRequestsRepository(connection, statement);
     }
 
     /**

@@ -4,6 +4,7 @@ import com.example.exception.RepositoryException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public interface Repository<ID, T> {
 
@@ -58,4 +59,7 @@ public interface Repository<ID, T> {
      * @return HashMap<ID, T>, where the ID is T.getId()
      */
     HashMap<ID, T> getElements();
+
+    List<T> getPage();
+
 }
