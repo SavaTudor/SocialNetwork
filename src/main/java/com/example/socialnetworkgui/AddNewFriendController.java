@@ -45,11 +45,7 @@ public class AddNewFriendController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        id.setCellValueFactory(new PropertyValueFactory<>("id"));
-        username.setCellValueFactory(new PropertyValueFactory<>("username"));
-        firstname.setCellValueFactory(new PropertyValueFactory<>("firstname"));
-        lastname.setCellValueFactory(new PropertyValueFactory<>("lastname"));
-        id.setVisible(false);
+        PrincipalSceneController.setCell(id, username, firstname, lastname);
         userTable.setVisible(false);
         addButton.setVisible(false);
         Image image = new Image("file:images/searchImage.png");

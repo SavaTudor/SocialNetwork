@@ -71,13 +71,11 @@ public class SignUpController {
         String password = passwordField.getText();
         //String pass = encryption.encrypt(password);
         try {
-            System.out.println("a");
             service.add(username,firstName, lastName,password);
-            System.out.println("b");
             loginButtonClicked(actionEvent);
         } catch (RepositoryException | ValidatorException | IOException e) {
-            alert.setTitle("Message Here...");
-            alert.setHeaderText("Incorrect data");
+            alert.setTitle("Incorrect data");
+            alert.setHeaderText(e.getMessage());
             alert.setContentText(e.getMessage());
             alert.show();
         }
