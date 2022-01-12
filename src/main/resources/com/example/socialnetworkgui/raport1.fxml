@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.Raport1Controller">
+<AnchorPane prefHeight="430.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.Raport1Controller">
     <children>
-        <ScrollPane fx:id="scrollPane" layoutX="198.0" layoutY="25.0" prefHeight="350.0" prefWidth="387.0">
+      <ImageView fx:id="background" fitHeight="456.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="true">
+      </ImageView>
+      <AnchorPane layoutX="-14.0" prefHeight="400.0" prefWidth="800.0">
+         <children>
+              <ScrollPane fx:id="scrollPane" layoutX="119.0" layoutY="61.0" prefHeight="327.0" prefWidth="562.0">
         </ScrollPane>
+            <Label layoutX="45.0" layoutY="25.0" prefHeight="26.0" prefWidth="100.0" text="Report 1:" textFill="WHITE">
+               <font>
+                  <Font name="Bookman Old Style" size="19.0" />
+               </font>
+            </Label>
+            <Label layoutX="139.0" layoutY="28.0" text="The activities of a user from a calendar period, related to new " textFill="WHITE">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <Label layoutX="425.0" layoutY="38.0" prefHeight="19.0" prefWidth="347.0" text="friends created and messages received from that period" textFill="WHITE">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
     </children>
 </AnchorPane>

@@ -117,7 +117,7 @@ public class RapoarteController implements Initializable {
         AnchorPane root = loader.load();
         Raport1Controller raport1Controller = loader.getController();
         raport1Controller.setLists(service, messages, friendships, userId);
-        Scene scene = new Scene(root, 750, 400);
+        Scene scene = new Scene(root, 800, 400);
         Stage stage = new Stage();
         stage.setTitle("Raport1");
         stage.setScene(scene);
