@@ -1,9 +1,6 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.exception.EntityException;
-import com.example.exception.RepositoryException;
-import com.example.exception.ValidatorException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
