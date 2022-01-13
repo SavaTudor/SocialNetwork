@@ -725,12 +725,14 @@ public class Controller extends Observable {
         try {
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
+                int id = resultSet.getInt("mess_id");
                 int from = resultSet.getInt("from_user");
                 int to = resultSet.getInt("to_user");
                 String message = resultSet.getString("mess");
                 LocalDateTime date = resultSet.getTimestamp("data").toLocalDateTime();
                 int reply = resultSet.getInt("reply_to");
                 MessageDTO newMessage = new MessageDTO(from, new ArrayList<>(to), message);
+                newMessage.setId(id);
                 newMessage.setData(date);
                 newMessage.setReply(reply);
                 conversation.add(0, newMessage);
