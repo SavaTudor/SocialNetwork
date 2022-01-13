@@ -1,5 +1,6 @@
 package com.example.socialnetworkgui;
 
+import com.example.build.OperatingSystem;
 import com.example.business.Controller;
 import com.example.domain.Friendship;
 import com.example.domain.Message;
@@ -42,12 +43,22 @@ public class RapoarteController implements Initializable {
     public int userId;
     List<Friendship> friendships;
     List<MessageDTO> messages;
+    OperatingSystem operatingSystem;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         friendships = new ArrayList<>();
         messages = new ArrayList<>();
-
+        String osys = System.getProperty("os.name").toLowerCase();
+        if (osys.contains("win")) {
+            operatingSystem = OperatingSystem.WINDOWS;
+        } else {
+            if (osys.contains("mac")) {
+                operatingSystem = OperatingSystem.MAC;
+            } else {
+                operatingSystem = OperatingSystem.LINUX;
+            }
+        }
         LocalDateTime date = LocalDateTime.now();
         int year = date.getYear();
         ArrayList<Integer> years = new ArrayList<>();
@@ -236,7 +247,12 @@ public class RapoarteController implements Initializable {
             }
             String filename = this.filename.getText();
             String path = this.path.getText();
-            doc.save(path + "\\" + filename + ".pdf");
+            if (operatingSystem.equals(OperatingSystem.WINDOWS)) {
+                doc.save(path + "\\" + filename + ".pdf");
+            } else {
+                doc.save(path + "/" + filename + ".pdf");
+
+            }
         } catch (IOException | RepositoryException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect date");
@@ -283,7 +299,11 @@ public class RapoarteController implements Initializable {
             }
             String filename = this.filename.getText();
             String path = this.path.getText();
-            doc.save(path + "\\" + filename + ".pdf");
+            if (operatingSystem.equals(OperatingSystem.WINDOWS)) {
+                doc.save(path + "\\" + filename + ".pdf");
+            } else {
+                doc.save(path + "/" + filename + ".pdf");
+            }
         } catch (IOException | RepositoryException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect date");
