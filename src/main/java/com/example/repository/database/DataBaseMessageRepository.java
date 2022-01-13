@@ -126,7 +126,7 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
     public ArrayList<MessageDTO> all() {
         ArrayList<MessageDTO> list = new ArrayList<>();
         List<Integer> toList = new ArrayList<>();
-        String sql = "select M.ms_id, M.mess, M.data, U.from_user, U.to_user, U.reply_to FROM messages M INNER JOIN users_messages U ON M.ms_id = U.mess_id";
+        String sql = "select M.ms_id, M.mess, M.data, U.from_user, U.to_user, U.reply_to FROM messages M INNER JOIN users_messages U ON M.ms_id = U.mess_id ORDER BY M.ms_id DESC";
         int toPrec = 0;
         try {
             ResultSet rs = statement.executeQuery(sql);
