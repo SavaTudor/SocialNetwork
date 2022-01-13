@@ -153,7 +153,6 @@ public class DataBaseMessageRepository implements Repository<Integer, MessageDTO
         }
         return list;
     }
-
     /**
      * Find a message in database
      * @param integer Integer representing the id of the message which we are looking for
