@@ -210,6 +210,7 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.addNewMessage(userId, Arrays.asList(toId), mess);
+            messageList.clear();
             offset=0;
             pageNumber=0;
             showMessage();
@@ -230,6 +231,7 @@ public class MessageController implements Initializable, Observer {
             public void handle(ActionEvent event) {
                 try {
                     service.removeMessage(id);
+                    messageList.clear();
                     offset=0;
                     pageNumber=0;
                     showMessage();
@@ -252,6 +254,7 @@ public class MessageController implements Initializable, Observer {
                 try {
                     String mess = messageField.getText();
                     service.replyMessage(userId, Arrays.asList(toId), mess, id);
+                    messageList.clear();
                     offset=0;
                     pageNumber=0;
                     showMessage();
@@ -272,6 +275,7 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.replyAll(userId, mess);
+            messageList.clear();
             offset=0;
             pageNumber=0;
             showMessage();
