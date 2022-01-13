@@ -210,6 +210,9 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.addNewMessage(userId, Arrays.asList(toId), mess);
+            offset=0;
+            pageNumber=0;
+            showMessage();
         } catch (RepositoryException | ValidatorException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Empty message");
@@ -227,6 +230,9 @@ public class MessageController implements Initializable, Observer {
             public void handle(ActionEvent event) {
                 try {
                     service.removeMessage(id);
+                    offset=0;
+                    pageNumber=0;
+                    showMessage();
                 } catch (RepositoryException e) {
                     alert.setTitle("Message Here...");
                     alert.setHeaderText("Select a message, please!");
@@ -246,6 +252,9 @@ public class MessageController implements Initializable, Observer {
                 try {
                     String mess = messageField.getText();
                     service.replyMessage(userId, Arrays.asList(toId), mess, id);
+                    offset=0;
+                    pageNumber=0;
+                    showMessage();
                     messageField.deleteText(0, mess.length());
                 } catch (RepositoryException | ValidatorException e) {
                     alert.setTitle("Message Here...");
@@ -263,6 +272,9 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.replyAll(userId, mess);
+            offset=0;
+            pageNumber=0;
+            showMessage();
         } catch (ValidatorException | RepositoryException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Empty message");

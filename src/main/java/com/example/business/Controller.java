@@ -708,6 +708,16 @@ public class Controller extends Observable {
 //        return messages;
     }
 
+
+    /**
+     * @param conversation a List<MessageDTO> representing the conversation between two users
+     * @param id1          integer representing the id of the first user
+     * @param id2          integer representing the id of the second user
+     * @param pageSize     integer representing the number of new messages we want to add to the conversation
+     * @param offset       integer representing the offset from which we want to add new messages from the conversation
+     *                     The function adds a number equal to pageSize of messages between the two users to the conversation,
+     *                     starting from the given offset in the db
+     */
     public void getConversationPag(List<MessageDTO> conversation, int id1, int id2, int pageSize, int offset) {
         String sql = "SELECT * FROM messages INNER JOIN users_messages um ON messages.ms_id = um.mess_id " +
                 "WHERE um.from_user=" + id2 + " AND um.to_user=" + id1 + " OR um.from_user=" + id1 + " AND um.to_user=" + id2 +
@@ -794,6 +804,13 @@ public class Controller extends Observable {
     }
 
 
+    /**
+     * @param friends  a List<UserModel> representing the list of friends for a given user
+     * @param user     id of a given user
+     * @param pageSize how many new values we want to add in the friends list
+     * @param offset   the offset from which we want to begin adding the new friends
+     *                 The function adds a number equal to pageSize of the user's friends, starting from the given offset in the db
+     */
     public void getFriendsForAUserPag(List<UserModel> friends, int user, int pageSize, int offset) {
 
         String sql = "select u1.id, u1.username, u1.firstname, u1.lastname, f1.fr_data from users inner join friendships f1 on users.id = f1.usera inner join users u1 on u1.id = f1.userb WHERE users.id=" +
@@ -858,8 +875,20 @@ public class Controller extends Observable {
         ).collect(Collectors.toList());
     }
 
+
+    /**
+     * @param user   id of the user that has received the messages
+     * @param from   username the user which has sent the messages
+     * @param day1   the day of the start date
+     * @param month1 the month of the start date
+     * @param year1  the year of the start date
+     * @param day2   the day of the end date
+     * @param month2 the month of the end date
+     * @param year2  the year of the end date
+     * @return a List<MessageDTO> representing the messages which have been sent by the from user to user
+     * between the dates specified
+     */
     public List<MessageDTO> getMessagesFromBetween(int user, String from, int day1, int month1, int year1, int day2, int month2, int year2) {
-        //from este usernameul
         List<MessageDTO> messages = new ArrayList<>();
         String startDate = year1 + "-" + month1 + "-" + day1;
         String endDate = year2 + "-" + month2 + "-" + day2;
