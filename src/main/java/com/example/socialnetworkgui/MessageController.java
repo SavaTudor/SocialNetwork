@@ -36,7 +36,7 @@ public class MessageController implements Initializable, Observer {
     private List<Button> buttons;
     private List<Label> messageLabel;
     private List<MessageDTO> messageList = new ArrayList<>();
-    int pageSize = 7;
+    int pageSize = 10;
     int pageNumber = 0;
     int offset = 0;
 
@@ -211,8 +211,8 @@ public class MessageController implements Initializable, Observer {
         try {
             service.addNewMessage(userId, Arrays.asList(toId), mess);
             messageList.clear();
-            offset=0;
-            pageNumber=0;
+            offset = 0;
+            pageNumber = 0;
             showMessage();
         } catch (RepositoryException | ValidatorException e) {
             alert.setTitle("Message Here...");
@@ -231,10 +231,10 @@ public class MessageController implements Initializable, Observer {
             public void handle(ActionEvent event) {
                 try {
                     service.removeMessage(id);
-                    messageList.clear();
-                    offset=0;
-                    pageNumber=0;
-                    showMessage();
+//                    messageList.clear();
+//                    offset = 0;
+//                    pageNumber = 0;
+//                    showMessage();
                 } catch (RepositoryException e) {
                     alert.setTitle("Message Here...");
                     alert.setHeaderText("Select a message, please!");
@@ -254,10 +254,10 @@ public class MessageController implements Initializable, Observer {
                 try {
                     String mess = messageField.getText();
                     service.replyMessage(userId, Arrays.asList(toId), mess, id);
-                    messageList.clear();
-                    offset=0;
-                    pageNumber=0;
-                    showMessage();
+//                    messageList.clear();
+//                    offset = 0;
+//                    pageNumber = 0;
+//                    showMessage();
                     messageField.deleteText(0, mess.length());
                 } catch (RepositoryException | ValidatorException e) {
                     alert.setTitle("Message Here...");
@@ -275,10 +275,10 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.replyAll(userId, mess);
-            messageList.clear();
-            offset=0;
-            pageNumber=0;
-            showMessage();
+//            messageList.clear();
+//            offset = 0;
+//            pageNumber = 0;
+//            showMessage();
         } catch (ValidatorException | RepositoryException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Empty message");
@@ -292,6 +292,9 @@ public class MessageController implements Initializable, Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
+            messageList.clear();
+            offset = 0;
+            pageNumber = 0;
             showFriend();
             showMessage();
 
