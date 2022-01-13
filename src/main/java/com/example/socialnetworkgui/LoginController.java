@@ -1,7 +1,7 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.domain.User;
+import com.example.exception.RepositoryException;
 import com.example.utils.Encryption;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,23 +15,24 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 public class LoginController {
-    public ImageView lockImage;
+    public ImageView logoImage;
+    public ImageView leftImage;
     private Controller service;
-    private int id;
     public ImageView beeImage;
 
     @FXML
     private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
 
-    public void initialize() throws SQLException {
+    public void initialize() {
         Image image = new Image("file:images/beeLogInImage3.jpg");
         beeImage.setImage(image);
-        Image image1 = new Image("file:images/lockImage1.png");
-        lockImage.setImage(image1);
+        Image image1 = new Image("file:images/beeAppLogo.png");
+        logoImage.setImage(image1);
+        Image image2 = new Image("file:images/2colors.jpg");
+        leftImage.setImage(image2);
     }
 
     public void setService(Controller service) {
@@ -39,26 +40,14 @@ public class LoginController {
     }
 
     @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    public void signInClicked(ActionEvent event) throws SQLException, IOException {
+    public void signInClicked(ActionEvent event) throws IOException {
         Encryption encryption = new Encryption();
-        ArrayList<User> users = service.allUsers();
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        boolean find = false;
-        for (User user : users)
-            if (usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(user.getPassword())) {
-                this.id = user.getId();
-                find = true;
-                break;
+        Alert alert = new Alert(Alert.AlertType.ERROR,"Try again", ButtonType.OK);
+        try {
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+            int id = service.getUserByUsernameAndPassword(username, password);
 
-            }
-        if (!find) {
-            alert.setHeaderText("Incorrect username or password");
-            alert.setTitle("Warning");
-            alert.show();
-        } else {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("principalScene.fxml"));
             AnchorPane root = loader.load();
@@ -66,10 +55,16 @@ public class LoginController {
             principalSceneController.setService(service, id);
             Scene scene = new Scene(root, 800, 400);
             Stage stage;
-            stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+            stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
             stage.setTitle("Main scene");
             stage.setScene(scene);
             stage.show();
+
+        } catch (RepositoryException e) {
+            alert.setHeaderText("Incorrect username or password");
+            alert.setTitle("Error");
+            alert.show();
         }
     }
 
@@ -82,7 +77,8 @@ public class LoginController {
         signUpController.setService(service);
         Scene scene = new Scene(root, 800, 400);
         Stage stage;
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
         stage.setTitle("Sign up");
         stage.setScene(scene);
         stage.show();

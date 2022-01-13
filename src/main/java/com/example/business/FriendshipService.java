@@ -2,6 +2,7 @@ package com.example.business;
 
 import com.example.domain.Friendship;
 import com.example.domain.ValidatorFriendship;
+import com.example.domain.ValidatorUser;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
 import com.example.repository.Repository;
@@ -53,6 +54,8 @@ public class FriendshipService {
         this.connection = connection;
         this.statement = statement;
         repository = new DataBaseFriendshipRepository(connection, statement);
+        this.validatorFriendship = new ValidatorFriendship();
+
     }
 
     /**

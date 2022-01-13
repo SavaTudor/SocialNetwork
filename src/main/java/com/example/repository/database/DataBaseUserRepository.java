@@ -66,7 +66,7 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            throw new RepositoryException("Entity already exists!\n");
+            throw new RepositoryException("Username already exists!\n");
         }
     }
 
@@ -159,8 +159,7 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 throw new RepositoryException("");
             }
         } catch (Exception e) {
-//            throw new RepositoryException("Entity does not exist!\n");
-            return null;
+            throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
     }
@@ -173,7 +172,6 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
             find(integer);
             statement.executeUpdate(sql);
         } catch (Exception e) {
-//            e.printStackTrace();
             throw new RepositoryException("Entity does not exist!\n");
         }
 

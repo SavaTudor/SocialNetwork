@@ -58,8 +58,7 @@ public class DataBaseRequestsRepository implements Repository<Integer, FriendReq
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-//            e.printStackTrace();
-            throw new RepositoryException("Entity already exists!\n");
+            throw new RepositoryException("Friend request already exists!\n");
         }
     }
 

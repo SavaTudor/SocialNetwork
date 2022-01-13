@@ -5,41 +5,46 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="400.0" prefWidth="800.0" style="-fx-background-color: white; -fx-background-radius: 500;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.AddNewFriendController">
     <children>
-        <AnchorPane prefHeight="414.0" prefWidth="138.0" style="-fx-background-color: #fad907;">
-            <children>
-                <Button fx:id="homeButton" layoutX="40.0" layoutY="27.0" mnemonicParsing="false" onAction="#homeClicked" prefHeight="46.0" prefWidth="58.0" style="-fx-background-color: white; -fx-background-radius: 500;">
-                    <graphic>
-                        <ImageView fx:id="homeImage" fitHeight="37.0" fitWidth="42.0">
-                        </ImageView>
-                    </graphic>
+      <ImageView fx:id="background" fitHeight="454.0" fitWidth="809.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true">
+      </ImageView>
+      <AnchorPane layoutX="3.0" prefHeight="400.0" prefWidth="800.0">
+         <children>
+            <Button fx:id="homeButton" layoutX="14.0" layoutY="18.0" mnemonicParsing="false" onAction="#homeClicked" prefHeight="38.0" prefWidth="118.0" style="-fx-background-color: white; -fx-background-radius: 500;" text=" Home">
+               <graphic>
+                  <ImageView fx:id="homeImage" fitHeight="30.0" fitWidth="35.0">
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Label fx:id="invalidUser" layoutX="174.0" layoutY="171.0" prefHeight="18.0" prefWidth="200.0" style="-fx-background-color: white;" text=" Invalid user" textAlignment="CENTER" textFill="#bf2727" />
+                <Button fx:id="addButton" layoutX="595.0" layoutY="276.0" mnemonicParsing="false" onAction="#addClicked" prefHeight="37.0" prefWidth="154.0" style="-fx-background-color: white; -fx-background-radius: 500;">
+               <graphic>
+                  <Label prefHeight="17.0" prefWidth="115.0" text="        Add new friend" />
+               </graphic>
                 </Button>
-            </children>
-        </AnchorPane>
-      <TableView fx:id="userTable" layoutX="388.0" layoutY="45.0" prefHeight="290.0" prefWidth="338.0" style="-fx-background-color: #fad907; -fx-background-radius: 5;">
-        <columns>
-          <TableColumn fx:id="id" minWidth="0.0" prefWidth="0.0" text="id" />
-          <TableColumn fx:id="username" prefWidth="107.20001220703125" style="-fx-background-color: #fad907;" text="Username" />
-            <TableColumn fx:id="firstname" prefWidth="125.5999755859375" style="-fx-background-color: #fad907;" text="Firstname" />
-            <TableColumn fx:id="lastname" prefWidth="105.60003662109375" style="-fx-background-color: #fad907;" text="Lastname" />
-        </columns>
-      </TableView>
-      <Button fx:id="addButton" layoutX="480.0" layoutY="348.0" mnemonicParsing="false" onAction="#addClicked" prefHeight="24.0" prefWidth="31.0" style="-fx-background-color: white; -fx-background-radius: 500;">
-         <graphic>
-            <ImageView fx:id="addImage" fitHeight="44.0" fitWidth="56.0">
+            <TableView fx:id="userTable" layoutX="425.0" layoutY="25.0" prefHeight="211.0" prefWidth="340.0" style="-fx-background-color: #fad907; -fx-background-radius: 5;">
+              <columns>
+                <TableColumn fx:id="id" minWidth="0.0" prefWidth="0.0" text="id" />
+                <TableColumn fx:id="username" prefWidth="107.20001220703125" style="-fx-background-color: #fad907;" text="Username" />
+                  <TableColumn fx:id="firstname" prefWidth="125.5999755859375" style="-fx-background-color: #fad907;" text="Firstname" />
+                  <TableColumn fx:id="lastname" prefWidth="105.60003662109375" style="-fx-background-color: #fad907;" text="Lastname" />
+              </columns>
+            </TableView>
+            <TextField fx:id="searchField" layoutX="174.0" layoutY="145.0" prefHeight="26.0" prefWidth="200.0" promptText="Search user" />
+                  <ImageView fx:id="addImage" fitHeight="26.0" fitWidth="31.0" layoutX="604.0" layoutY="282.0">
             </ImageView>
-         </graphic></Button>
-      <Button fx:id="searchButton" layoutX="180.0" layoutY="46.0" mnemonicParsing="false" onAction="#searchCliecked" style="-fx-background-color: black; -fx-background-radius: 500;">
-         <graphic>
-            <ImageView fx:id="searchImage" fitHeight="15.0" fitWidth="15.0">
-            </ImageView>
-         </graphic>
-      </Button>
-      <TextField fx:id="searchField" layoutX="212.0" layoutY="45.0" prefHeight="26.0" prefWidth="153.0" promptText="Search friend" />
-      <Label fx:id="invalidUser" layoutX="211.0" layoutY="71.0" prefHeight="18.0" prefWidth="154.0" style="-fx-background-color: white;" text=" Invalid user" textAlignment="CENTER" textFill="#bf2727" />
+            <Button layoutX="134.0" layoutY="145.0" mnemonicParsing="false" onAction="#searchClicked" prefHeight="26.0" prefWidth="31.0" style="-fx-background-color: white; -fx-background-radius: 8;">
+               <graphic>
+                  <ImageView fx:id="searchImage" fitHeight="17.0" fitWidth="23.0">
+                  </ImageView>
+               </graphic>
+            </Button>
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>

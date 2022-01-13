@@ -4,10 +4,10 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class UserModel {
 
-    private SimpleStringProperty id;
-    private SimpleStringProperty username;
-    private SimpleStringProperty firstname;
-    private SimpleStringProperty lastname;
+    private final SimpleStringProperty id;
+    private final SimpleStringProperty username;
+    private final SimpleStringProperty firstname;
+    private final SimpleStringProperty lastname;
 
 
     public UserModel(String id, String username, String firstname, String lastname) {
@@ -29,10 +29,6 @@ public class UserModel {
         return firstname.get();
     }
 
-    public SimpleStringProperty firstnameProperty() {
-        return firstname;
-    }
-
     public void setFirstname(String firstname) {
         this.firstname.set(firstname);
     }
@@ -41,20 +37,12 @@ public class UserModel {
         return lastname.get();
     }
 
-    public SimpleStringProperty lastnameProperty() {
-        return lastname;
-    }
-
     public void setLastname(String lastname) {
         this.lastname.set(lastname);
     }
 
     public String getUsername() {
         return username.get();
-    }
-
-    public SimpleStringProperty usernameProperty() {
-        return username;
     }
 
     public void setUsername(String username) {

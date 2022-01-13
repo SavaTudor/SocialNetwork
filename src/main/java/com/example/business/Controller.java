@@ -772,7 +772,8 @@ public class Controller extends Observable {
         return messages;
     }
 
-    public List<User> getNoFriend(int id) {
+
+    public List<User> getNoFriend(int id, String name){
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
@@ -781,7 +782,8 @@ public class Controller extends Observable {
                     if (!users1.contains(x.getId()))
                         users.add(x);
                 });
-        return users;
+        return users.stream().filter(x->(x.getFirstName().equals(name) || x.getUsername().equals(name)|| x.getLastName().equals(name)) &&
+                x.getId() != id).collect(Collectors.toList());
     }
 
     public Friendship getFriendship(int id1, int id2) {
@@ -841,6 +843,14 @@ public class Controller extends Observable {
         return messageService.findMessage(id);
     }
 
+    public int getUserByUsernameAndPassword(String username, String password) throws RepositoryException {
+        List<User> users = serviceUsers.all();
+        for (User user : users)
+            if (username.equals(user.getUsername()) && password.equals(user.getPassword())) {
+                return user.getId();
+            }
+        throw new RepositoryException("Incorect username or password");
+    }
 
     public List<Friendship> friendshipsBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception {
         LocalDateTime date1 = LocalDateTime.of(year1, month1, day1, 0, 0);

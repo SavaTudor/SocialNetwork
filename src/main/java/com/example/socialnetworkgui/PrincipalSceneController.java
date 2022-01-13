@@ -1,10 +1,7 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.domain.Friendship;
-import com.example.domain.Message;
 import com.example.domain.User;
-import com.example.domain.UsersFriendsDTO;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
@@ -23,12 +20,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -49,6 +43,9 @@ public class PrincipalSceneController implements Initializable, Observer {
     public ImageView messageImage;
     public TableColumn<UserModel, String> firstname;
     public TableColumn<UserModel, String> lastname;
+    public ImageView background;
+    public ImageView friendRequestImage;
+    public ImageView raportImage;
     private Controller service;
     private int userId;
     private int pageNumber = 0;
@@ -68,13 +65,11 @@ public class PrincipalSceneController implements Initializable, Observer {
             */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        id.setCellValueFactory(new PropertyValueFactory<>("id"));
-        username.setCellValueFactory(new PropertyValueFactory<>("username"));
-        firstname.setCellValueFactory(new PropertyValueFactory<>("firstname"));
-        lastname.setCellValueFactory(new PropertyValueFactory<>("lastname"));
-        friendshipTable.setFixedCellSize(50.0);
+        setCell(id, username, firstname, lastname);
         id.setVisible(false);
 
+        Image image1 = new Image("file:images/back.jpg");
+        background.setImage(image1);
         Image image3 = new Image("file:images/addNewFriendImage.jpg");
         addFriendImage.setImage(image3);
         Image image4 = new Image("file:images/deleteButton.png");
@@ -83,6 +78,10 @@ public class PrincipalSceneController implements Initializable, Observer {
         logOutImage.setImage(image5);
         Image image6 = new Image("file:images/messageButton.png");
         messageImage.setImage(image6);
+        Image image2 = new Image("file:images/friendRequest.png");
+        friendRequestImage.setImage(image2);
+        Image image7 = new Image("file:images/reports.jpg");
+        raportImage.setImage(image7);
         Platform.runLater(() -> {
             ScrollBar tvScrollBar = (ScrollBar) friendshipTable.lookup(".scroll-bar:vertical");
             tvScrollBar.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -100,12 +99,21 @@ public class PrincipalSceneController implements Initializable, Observer {
 
     }
 
-    public void setService(Controller service, int id) {
+    static void setCell(TableColumn<UserModel, String> id, TableColumn<UserModel, String> username, TableColumn<UserModel, String> firstname, TableColumn<UserModel, String> lastname) {
+        id.setCellValueFactory(new PropertyValueFactory<>("id"));
+        username.setCellValueFactory(new PropertyValueFactory<>("username"));
+        firstname.setCellValueFactory(new PropertyValueFactory<>("firstname"));
+        lastname.setCellValueFactory(new PropertyValueFactory<>("lastname"));
+    }
+
+    public void setService(Controller service, int id){
         this.userId = id;
         this.service = service;
         service.addObserver(this);
         try {
-            userAccount.setText(service.findUser(userId).getFirstName() + " " + service.findUser(userId).getLastName());
+            User user = service.findUser(userId);
+            String user1 = "User logged:" + user.getFirstName() + " " + user.getLastName();
+            userAccount.setText(user1);
         } catch (RepositoryException e) {
             e.printStackTrace();
         }
@@ -135,10 +143,17 @@ public class PrincipalSceneController implements Initializable, Observer {
 //                    friends.add(userModel);
 //
 //                });
+        LinkedList<UserModel> friends = new LinkedList<>();
+        List<User> users = service.getFriendsForAUser(userId);
+        users.forEach(x -> {
+                    UserModel userModel = new UserModel(x.getId().toString(), x.getUsername(), x.getFirstName(), x.getLastName());
+                    friends.add(userModel);
+
+                });
         return FXCollections.observableArrayList(friends);
     }
 
-    public void addFriendClicked(ActionEvent event) throws IOException {
+    public void addFriendClicked() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("addNewFriend.fxml"));
         AnchorPane root = loader.load();
@@ -146,16 +161,23 @@ public class PrincipalSceneController implements Initializable, Observer {
         addNewFriendController.setService(service, userId);
         Scene scene = new Scene(root, 800, 400);
         Stage stage = new Stage();
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
         stage.setTitle("Add new friend");
         stage.setScene(scene);
         stage.show();
     }
 
-    public void deleteClicked(ActionEvent actionEvent) throws EntityException, RepositoryException, ValidatorException {
+    public void deleteClicked() throws EntityException, RepositoryException, ValidatorException {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         ObservableList<UserModel> users = friendshipTable.getSelectionModel().getSelectedItems();
+        if(users.isEmpty())
+        {
+            alert.setTitle("Delete error");
+            alert.setContentText("Please select a column from table and press the delete button");
+            alert.show();
+        }
         int id = Integer.parseInt(users.get(0).getId());
         service.removeFriends(this.userId, id);
-        friendshipTable.setItems(loadTable());
     }
 
     public void logOutClicked(ActionEvent event) throws IOException {
@@ -166,13 +188,13 @@ public class PrincipalSceneController implements Initializable, Observer {
         loginController.setService(service);
         Scene scene = new Scene(root, 800, 400);
         Stage stage;
-        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setTitle("LogIn");
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage.setTitle("Log in");
         stage.setScene(scene);
         stage.show();
     }
 
-    public void friendRequestsClicked(ActionEvent actionEvent) throws IOException {
+    public void friendRequestsClicked() throws IOException {
 
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -181,7 +203,8 @@ public class PrincipalSceneController implements Initializable, Observer {
             Scene scene = new Scene(fxmlLoader.load(), 800, 400);
             FriendRequestsController friendRequestsController = fxmlLoader.getController();
             friendRequestsController.setService(service, userId);
-            stage.setTitle("Friend Requests");
+            stage.setTitle("Friend requests");
+            stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
             stage.setScene(scene);
             stage.show();
             friendshipTable.setItems(loadTable());
@@ -190,11 +213,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         }
     }
 
-    public void refresh(ActionEvent actionEvent) throws ValidatorException, RepositoryException {
-        friendshipTable.setItems(loadTable());
-    }
-
-    public void messagesClicked(ActionEvent actionEvent) throws IOException, RepositoryException {
+    public void messagesClicked() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("messages.fxml"));
         AnchorPane root = loader.load();
@@ -203,6 +222,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         Scene scene = new Scene(root, 800, 400);
         Stage stage = new Stage();
         stage.setTitle("Messages");
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
         stage.setScene(scene);
         stage.show();
     }
@@ -216,7 +236,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         }
     }
 
-    public void rapoarteClicked(ActionEvent actionEvent) throws IOException {
+    public void rapoarteClicked() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("rapoarte.fxml"));
         AnchorPane root = loader.load();
@@ -226,6 +246,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         Stage stage;
         stage = new Stage();
         stage.setTitle("Reports");
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
         stage.setScene(scene);
         stage.show();
     }

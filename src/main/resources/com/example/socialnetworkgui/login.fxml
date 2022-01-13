@@ -4,17 +4,17 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="676.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.LoginController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="800" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.LoginController">
    <children>
-      <GridPane gridLinesVisible="true" layoutX="354.0" layoutY="171.0" prefHeight="103.0" prefWidth="286.0" style="-fx-background-color: black; -fx-background-radius: 3; -fx-grid-lines-visible: false;">
+      <GridPane gridLinesVisible="true" layoutX="453.0" layoutY="191.0" prefHeight="103.0" prefWidth="286.0" style="-fx-background-color: black; -fx-background-radius: 3; -fx-grid-lines-visible: false;">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="137.4000244140625" minWidth="10.0" prefWidth="88.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="203.19996337890623" minWidth="10.0" prefWidth="199.2" />
@@ -41,20 +41,21 @@
             <TextField fx:id="usernameField" prefHeight="30.0" prefWidth="199.0" promptText="User Name" style="-fx-background-radius: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
-      <Button fx:id="signInButton" layoutX="529.0" layoutY="317.0" mnemonicParsing="false" onAction="#signInClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8; -fx-background-color: #fad907;" text="Sing In" textFill="#080808">
+      <Button fx:id="signInButton" layoutX="636.0" layoutY="324.0" mnemonicParsing="false" onAction="#signInClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8; -fx-background-color: #fad907;" text="Sing In" textFill="#080808">
          <font>
             <Font size="15.0" />
          </font>
       </Button>
-      <Button fx:id="signUpButton" contentDisplay="BOTTOM" layoutX="408.0" layoutY="316.0" mnemonicParsing="false" onAction="#signUpClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8; -fx-background-color: #fad907;" text="Sign Up" textAlignment="CENTER" textFill="#0d0d0d" textOverrun="CENTER_WORD_ELLIPSIS" wrapText="true">
+      <Button fx:id="signUpButton" contentDisplay="BOTTOM" layoutX="486.0" layoutY="324.0" mnemonicParsing="false" onAction="#signUpClicked" prefHeight="30.0" prefWidth="86.0" style="-fx-background-radius: 8; -fx-background-color: #fad907;" text="Sign Up" textAlignment="CENTER" textFill="#0d0d0d" textOverrun="CENTER_WORD_ELLIPSIS" wrapText="true">
          <font>
             <Font size="15.0" />
          </font>
       </Button>
-      <VBox prefHeight="400.0" prefWidth="26.0" style="-fx-background-color: #fad907;" />
-      <ImageView fx:id="beeImage" fitHeight="262.0" fitWidth="305.0" layoutX="33.0" layoutY="14.0">
+       <ImageView fx:id="leftImage" fitHeight="400.0" fitWidth="227.0" pickOnBounds="true" preserveRatio="true">
+       </ImageView>
+      <ImageView fx:id="logoImage" fitHeight="204.0" fitWidth="383.0" layoutX="417.0" layoutY="23.0">
       </ImageView>
-      <ImageView fx:id="lockImage" fitHeight="120.0" fitWidth="115.0" layoutX="481.0" layoutY="25.0">
-            </ImageView>
+      <ImageView fx:id="beeImage" fitHeight="225.0" fitWidth="212.0" layoutX="125.0" layoutY="0">
+      </ImageView>
    </children>
 </AnchorPane>

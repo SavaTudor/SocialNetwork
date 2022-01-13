@@ -75,7 +75,6 @@ public class MessageService {
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         MessageDTO messageDTO= new MessageDTO(from, to, message);
         messageDTO.setId(id);
-        //validatorMessage.valideaza(message1);
         repository.add(id,messageDTO);
         id++;
 

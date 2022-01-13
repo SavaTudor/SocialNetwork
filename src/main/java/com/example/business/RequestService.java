@@ -40,6 +40,7 @@ public class RequestService {
         this.connection = connection;
         this.statement = statement;
         repository = new DataBaseRequestsRepository(connection, statement);
+        validatorRequest = new ValidatorRequest();
     }
 
     /**
