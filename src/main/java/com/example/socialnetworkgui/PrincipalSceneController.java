@@ -131,7 +131,6 @@ public class PrincipalSceneController implements Initializable, Observer {
 //    });
 
 
-
     private ObservableList<UserModel> loadTable() throws ValidatorException, RepositoryException {
 //        LinkedList<UserModel> friends = new LinkedList<>();
         service.getFriendsForAUserPag(friends, userId, pageSize, offset);
@@ -230,6 +229,9 @@ public class PrincipalSceneController implements Initializable, Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
+            friends.clear();
+            offset = 0;
+            pageNumber = 0;
             friendshipTable.setItems(loadTable());
         } catch (ValidatorException | RepositoryException e) {
             e.printStackTrace();

@@ -8,6 +8,7 @@ import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -53,14 +54,23 @@ public class MessageService {
      * generate the id of message
      */
     private void generateId(){
-        ArrayList<MessageDTO> messages = repository.all();
-        int max = 0;
-        if(messages.size()>0) {
-            for (MessageDTO message : messages)
-                if (message.getId() > max)
-                    max = message.getId();
-            this.id = max + 1;
+        String sql = "SELECT * FROM messages ORDER BY ms_id DESC";
+        ArrayList<MessageDTO> messages = new ArrayList<>();
+        try{
+            ResultSet resultSet = statement.executeQuery(sql);
+            if(resultSet.next()){
+                this.id = resultSet.getInt("ms_id")+1;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
+//        int max = messages.get(0).getId()+1;
+//        if(messages.size()>0) {
+//            for (MessageDTO message : messages)
+//                if (message.getId() > max)
+//                    max = message.getId();
+//            this.id = max + 1;
+//        }
 
     }
 

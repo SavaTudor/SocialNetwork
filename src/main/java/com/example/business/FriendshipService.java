@@ -54,8 +54,7 @@ public class FriendshipService {
         this.connection = connection;
         this.statement = statement;
         repository = new DataBaseFriendshipRepository(connection, statement);
-        this.validatorFriendship = new ValidatorFriendship();
-
+        validatorFriendship = new ValidatorFriendship();
     }
 
     /**

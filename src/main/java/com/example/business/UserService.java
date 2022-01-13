@@ -44,7 +44,6 @@ public class UserService {
         this.statement = statement;
         this.repository = new DataBaseUserRepository(connection, statement);
         this.validator = new ValidatorUser();
-
     }
 
     public UserService(String fileName) {
