@@ -55,13 +55,16 @@ public class MessageService {
     private void generateId(){
         ArrayList<MessageDTO> messages = repository.all();
         int max = 0;
+        System.out.println(messages);
+
         if(messages.size()>0) {
             for (MessageDTO message : messages)
-                if (message.getId() > max)
+                if (message.getId() >= max)
                     max = message.getId();
+            System.out.println(max);
             this.id = max + 1;
         }
-
+        System.out.println(id);
     }
 
     /**

@@ -200,7 +200,10 @@ public class MessageController implements Initializable, Observer {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         String mess = messageField.getText();
         try {
-            service.addNewMessage(userId, List.of(toId), mess);
+            service.addNewMessage(userId, Arrays.asList(toId), mess);
+            offset=0;
+            pageNumber=0;
+            showMessage();
         } catch (RepositoryException | ValidatorException e) {
             alert.setHeaderText(e.getMessage());
             alert.setContentText("Empty message");
@@ -211,29 +214,44 @@ public class MessageController implements Initializable, Observer {
 
     public void deleteClicked(int id) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        deleteButton.setOnAction(event -> {
-            try {
-                service.removeMessage(id);
-            } catch (RepositoryException e) {
-                alert.setHeaderText("Select a message, please!");
-                alert.setContentText(e.getMessage());
-                alert.setTitle("Warning");
-                alert.show();
+        deleteButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    service.removeMessage(id);
+                    offset=0;
+                    pageNumber=0;
+                    showMessage();
+                } catch (RepositoryException e) {
+                    alert.setTitle("Message Here...");
+                    alert.setHeaderText("Select a message, please!");
+                    alert.setContentText(e.getMessage());
+                    alert.setTitle("Warning");
+                    alert.show();
+                }
             }
         });
     }
 
     public void replyClicked(int id) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        replyButton.setOnAction(event -> {
-            try {
-                String mess = messageField.getText();
-                service.replyMessage(userId, List.of(toId), mess, id);
-                messageField.deleteText(0, mess.length());
-            } catch (RepositoryException | ValidatorException e) {
-                alert.setHeaderText("Error");
-                alert.setContentText("Empty message");
-                alert.show();
+        replyButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    String mess = messageField.getText();
+                    service.replyMessage(userId, Arrays.asList(toId), mess, id);
+                    offset=0;
+                    pageNumber=0;
+                    showMessage();
+                    messageField.deleteText(0, mess.length());
+                } catch (RepositoryException | ValidatorException e) {
+                    alert.setTitle("Message Here...");
+                    alert.setHeaderText("Empty message");
+                    alert.setContentText(e.getMessage());
+                    alert.setTitle("Warning");
+                    alert.show();
+                }
             }
         });
     }
@@ -243,6 +261,9 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.replyAll(userId, mess);
+            offset=0;
+            pageNumber=0;
+            showMessage();
         } catch (ValidatorException | RepositoryException e) {
             alert.setHeaderText("Error");
             alert.setContentText("Empty message");
