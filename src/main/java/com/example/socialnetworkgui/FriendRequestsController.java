@@ -118,6 +118,9 @@ public class FriendRequestsController implements Initializable, Observer {
         } else {
             int from = Integer.parseInt(requestModels.get(0).getId());
             service.respondFriendRequest(from, userId, "APPROVE");
+            requests.clear();
+            offsetRec=0;
+            pageNumberRec=0;
             requestsTable.setItems(loadTable());
         }
     }
@@ -132,6 +135,9 @@ public class FriendRequestsController implements Initializable, Observer {
         } else {
             int from = Integer.parseInt(requestModels.get(0).getId());
             service.respondFriendRequest(from, userId, "DECLINE");
+            requests.clear();
+            offsetRec=0;
+            pageNumberRec=0;
             requestsTable.setItems(loadTable());
         }
     }
@@ -143,6 +149,9 @@ public class FriendRequestsController implements Initializable, Observer {
 
     public void acceptAll(ActionEvent actionEvent) {
         service.respondToAllRequests(userId, "APPROVE");
+        requests.clear();
+        offsetRec=0;
+        pageNumberRec=0;
         requestsTable.setItems(loadTable());
     }
 
@@ -192,10 +201,14 @@ public class FriendRequestsController implements Initializable, Observer {
                     int to = Integer.parseInt(requestModels.get(0).getId());
                     try {
                         service.deleteFriendRequest(userId, to);
+                        requests.clear();
+                        offsetSend=0;
+                        pageNumberSend=0;
+                        requestsTable.setItems(loadSentRequests());
                     } catch (RepositoryException repositoryException) {
                         repositoryException.printStackTrace();
                     }
-                    requestsTable.setItems(loadSentRequests());
+
                 }
             }
         };
@@ -222,6 +235,9 @@ public class FriendRequestsController implements Initializable, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        requests.clear();
+        offsetSend=0;
+        pageNumberSend=0;
         requestsTable.setItems(loadSentRequests());
     }
 }
