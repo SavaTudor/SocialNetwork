@@ -10,21 +10,14 @@ import com.example.socialnetworkgui.UserModel;
 import utils.Graph;
 
 import java.sql.*;
-import java.time.LocalDateTime;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.Observable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-import com.example.domain.*;
-import com.example.exception.EntityException;
-import com.example.exception.RepositoryException;
-import com.example.exception.ValidatorException;
-import utils.Graph;
-
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class Controller extends Observable {
     private Connection connection;
@@ -33,6 +26,7 @@ public class Controller extends Observable {
     private FriendshipService serviceFriendships;
     private RequestService serviceRequests;
     private MessageService messageService;
+    private EventService eventService;
     private Graph<Integer> network;
 
 
@@ -79,6 +73,7 @@ public class Controller extends Observable {
             serviceFriendships = new FriendshipService(connection, statement);
             serviceRequests = new RequestService(connection, statement);
             messageService = new MessageService(connection, statement);
+            eventService = new EventService(connection, statement);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -326,6 +321,8 @@ public class Controller extends Observable {
      */
     public void addFriendRequest(int from, int to) throws ValidatorException, RepositoryException {
         serviceRequests.add(from, to, Status.PENDING);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -363,6 +360,8 @@ public class Controller extends Observable {
     public void deleteFriendRequest(int from, int to) throws RepositoryException {
         FriendRequest fr = serviceRequests.findByUsers(from, to);
         serviceRequests.remove(fr.getId());
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -467,6 +466,15 @@ public class Controller extends Observable {
                 e.printStackTrace();
             }
         });
+    }
+
+    public boolean existsFriendRequest(int id1, int id2){
+        List<FriendRequest> friendRequests = serviceRequests.all();
+        for(FriendRequest friendRequest : friendRequests)
+            if((friendRequest.getFrom() == id1 && friendRequest.getTo() == id2) || (friendRequest.getFrom() == id2 && friendRequest.getTo() == id1)) {
+                return true;
+            }
+        return false;
     }
 
     /**
@@ -785,7 +793,7 @@ public class Controller extends Observable {
     }
 
 
-    public List<User> getNoFriend(int id, String name){
+    public List<User> getNoFriend(int id, String name) {
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
@@ -794,7 +802,7 @@ public class Controller extends Observable {
                     if (!users1.contains(x.getId()))
                         users.add(x);
                 });
-        return users.stream().filter(x->(x.getFirstName().equals(name) || x.getUsername().equals(name)|| x.getLastName().equals(name)) &&
+        return users.stream().filter(x -> (x.getFirstName().equals(name) || x.getUsername().equals(name) || x.getLastName().equals(name)) &&
                 x.getId() != id).collect(Collectors.toList());
     }
 
@@ -930,4 +938,97 @@ public class Controller extends Observable {
         }
         return messages;
     }
+
+    public void addNewEvent(String name, String description, LocalDate date) throws ValidatorException, RepositoryException {
+        eventService.addNewEvent(name, description, date);
+    }
+
+
+    public void removeSubscription(Integer userId, Integer eventId) {
+        String sql = "DELETE FROM users_events WHERE user_id=" + userId.toString() + " AND ev_id=" + eventId.toString() + ";";
+        try {
+            statement.executeUpdate(sql);
+            setChanged();
+            notifyObservers();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void addAttendance(Integer userId, Integer eventId) {
+        String sql = "INSERT INTO users_events(user_id, ev_id) VALUES (" +
+                userId.toString() + "," + eventId.toString() + ");";
+        try {
+            statement.executeUpdate(sql);
+            setChanged();
+            notifyObservers();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    /**
+     * @param id integer representing the id of a user
+     * @return a list of events representing the events which the user is subscribed to
+     */
+    public List<Event> eventsForAUser(Integer id) {
+        List<Event> eventList = new ArrayList<>();
+        String sql = "SELECT e.ev_id, e.name, e.description, e.date FROM users_events " +
+                "INNER JOIN events e ON e.ev_id = users_events.ev_id WHERE user_id=" + id.toString() + ";";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                int evId = resultSet.getInt("ev_id");
+                String name = resultSet.getString("name");
+                String description = resultSet.getString("description");
+                LocalDate date = resultSet.getDate("date").toLocalDate();
+                Event event = new Event(name, description, date);
+                event.setId(evId);
+                eventList.add(event);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return eventList;
+    }
+
+    public List<Event> eventsNotAttendedByUser(Integer id) {
+        List<Event> eventList = new ArrayList<>();
+        List<Event> all = eventService.all();
+        List<Event> subscribed = eventsForAUser(id);
+        String sql;
+        for (Event event : all) {
+            if (!subscribed.contains(event)) {
+                eventList.add(event);
+            }
+        }
+        return eventList;
+    }
+
+    public Event nextEventForUser(Integer id) {
+        String sql = "SELECT e.ev_id, e.name, e.description, e.date FROM users_events " +
+                "INNER JOIN events e ON e.ev_id = users_events.ev_id WHERE user_id=" + id.toString() + " ORDER BY e.date ASC LIMIT 1;";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            if (resultSet.next()) {
+                int evId = resultSet.getInt("ev_id");
+                String name = resultSet.getString("name");
+                String description = resultSet.getString("description");
+                LocalDate date = resultSet.getDate("date").toLocalDate();
+                Event event = new Event(name, description, date);
+                event.setId(evId);
+                return event;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
+    public long daysUntilNextEvent(Integer id) {
+        Event ev = nextEventForUser(id);
+        return ChronoUnit.DAYS.between(LocalDate.now(), ev.getDate());
+    }
+
+
 }

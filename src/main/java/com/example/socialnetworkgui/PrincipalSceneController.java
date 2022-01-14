@@ -1,6 +1,7 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
+import com.example.domain.Event;
 import com.example.domain.User;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
@@ -21,6 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -39,7 +41,7 @@ public class PrincipalSceneController implements Initializable, Observer {
     public Label userAccount;
     public AnchorPane anchorPane;
     public Button messageButton;
-    public Button loadMore;
+    public Button eventsButton;
     public ImageView messageImage;
     public TableColumn<UserModel, String> firstname;
     public TableColumn<UserModel, String> lastname;
@@ -52,6 +54,8 @@ public class PrincipalSceneController implements Initializable, Observer {
     private int offset = 0;
     private int pageSize = 2;
     List<UserModel> friends = new ArrayList<>();
+    public Label nextEvent;
+    public Label noOfDays;
 
     /*
     ScrollBar friendsScrollBar;
@@ -106,7 +110,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         lastname.setCellValueFactory(new PropertyValueFactory<>("lastname"));
     }
 
-    public void setService(Controller service, int id){
+    public void setService(Controller service, int id) {
         this.userId = id;
         this.service = service;
         service.addObserver(this);
@@ -119,6 +123,14 @@ public class PrincipalSceneController implements Initializable, Observer {
         }
         try {
             friendshipTable.setItems(loadTable());
+            Event event = service.nextEventForUser(userId);
+            if (event != null) {
+                nextEvent.setText(event.getName());
+                noOfDays.setText(String.valueOf(service.daysUntilNextEvent(userId)) + " days");
+            } else {
+                nextEvent.setText("-");
+                noOfDays.setText("-");
+            }
         } catch (ValidatorException | RepositoryException e) {
             e.printStackTrace();
         }
@@ -142,13 +154,13 @@ public class PrincipalSceneController implements Initializable, Observer {
 //                    friends.add(userModel);
 //
 //                });
-        LinkedList<UserModel> friends = new LinkedList<>();
-        List<User> users = service.getFriendsForAUser(userId);
-        users.forEach(x -> {
-                    UserModel userModel = new UserModel(x.getId().toString(), x.getUsername(), x.getFirstName(), x.getLastName());
-                    friends.add(userModel);
-
-                });
+//        LinkedList<UserModel> friends = new LinkedList<>();
+//        List<User> users = service.getFriendsForAUser(userId);
+//        users.forEach(x -> {
+//                    UserModel userModel = new UserModel(x.getId().toString(), x.getUsername(), x.getFirstName(), x.getLastName());
+//                    friends.add(userModel);
+//
+//                });
         return FXCollections.observableArrayList(friends);
     }
 
@@ -169,8 +181,7 @@ public class PrincipalSceneController implements Initializable, Observer {
     public void deleteClicked() throws EntityException, RepositoryException, ValidatorException {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         ObservableList<UserModel> users = friendshipTable.getSelectionModel().getSelectedItems();
-        if(users.isEmpty())
-        {
+        if (users.isEmpty()) {
             alert.setTitle("Delete error");
             alert.setContentText("Please select a column from table and press the delete button");
             alert.show();
@@ -187,7 +198,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         loginController.setService(service);
         Scene scene = new Scene(root, 800, 400);
         Stage stage;
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setTitle("Log in");
         stage.setScene(scene);
         stage.show();
@@ -233,6 +244,15 @@ public class PrincipalSceneController implements Initializable, Observer {
             offset = 0;
             pageNumber = 0;
             friendshipTable.setItems(loadTable());
+            Event event = service.nextEventForUser(userId);
+            if (event != null) {
+                nextEvent.setText(event.getName());
+                noOfDays.setText(String.valueOf(service.daysUntilNextEvent(userId)) + " days");
+
+            } else {
+                nextEvent.setText("-");
+                noOfDays.setText("-");
+            }
         } catch (ValidatorException | RepositoryException e) {
             e.printStackTrace();
         }
@@ -253,7 +273,19 @@ public class PrincipalSceneController implements Initializable, Observer {
         stage.show();
     }
 
-    public void loadMoreClicked(ActionEvent actionEvent) throws ValidatorException, RepositoryException {
-        friendshipTable.setItems(loadTable());
+    public void eventsClicked() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("myEvents.fxml"));
+        AnchorPane root = loader.load();
+        EventsController eventsController = loader.getController();
+        eventsController.setService(service, userId);
+        Scene scene = new Scene(root, 800, 400);
+        Stage stage;
+        stage = new Stage();
+        stage.setTitle("Events");
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
+        stage.setScene(scene);
+        stage.show();
+
     }
 }

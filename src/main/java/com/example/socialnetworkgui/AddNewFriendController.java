@@ -6,19 +6,21 @@ import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 
-public class AddNewFriendController implements Initializable {
+public class AddNewFriendController implements Initializable, Observer {
     public Button find;
     public TableView<UserModel> userTable;
     public TableColumn<UserModel, String> username;
@@ -34,6 +36,7 @@ public class AddNewFriendController implements Initializable {
     public TableColumn<UserModel, String> lastname;
     public Button homeButton;
     public ImageView background;
+    public AnchorPane anchorPane;
     private int userId;
 
     @Override
@@ -51,25 +54,67 @@ public class AddNewFriendController implements Initializable {
         background.setImage(image4);
         invalidUser.setVisible(false);
         addImage.setVisible(false);
+
     }
 
     public void setService(Controller service, int id){
         AddNewFriendController.service = service;
         this.userId = id;
+        service.addObserver(this);
     }
 
     private ObservableList<UserModel> loadTable(String name){
         List<UserModel> friends = new ArrayList<>();
         List<User> users = service.getNoFriend(this.userId, name);
-        users.stream().
-                forEach(x->{
-                    String id1 = x.getId().toString();
-                    String userName = x.getUsername();
-                    String firstname = x.getFirstName();
-                    String lastname = x.getLastName();
+        int pozx =689;
+        int pozy = 56;
+        for(User user:users){
+                    String id1 = user.getId().toString();
+                    String userName = user.getUsername();
+                    String firstname = user.getFirstName();
+                    String lastname = user.getLastName();
                     UserModel userModel = new UserModel(id1, userName, firstname, lastname);
                     friends.add(userModel);
-                });
+                    Button button = new Button();
+                    button.setLayoutX(pozx);
+                    button.setLayoutY(pozy);
+                    if(service.existsFriendRequest(userId, Integer.parseInt(id1)))
+                    {
+                        button.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent mouseEvent) {
+                                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                                    if (mouseEvent.getClickCount() == 1) {
+                                        try {
+                                            service.deleteFriendRequest(userId, Integer.parseInt(id1));
+                                        } catch (RepositoryException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    else{
+                        button.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent mouseEvent) {
+                                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                                    if (mouseEvent.getClickCount() == 1) {
+                                        try {
+                                            service.addFriendRequest(userId, Integer.parseInt(id1));
+                                        } catch (RepositoryException | ValidatorException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    pozy += 26;
+                    anchorPane.getChildren().add(button);
+
+                }
         return FXCollections.observableArrayList(friends);
     }
 
@@ -87,10 +132,23 @@ public class AddNewFriendController implements Initializable {
         try {
             service.addFriendRequest(this.userId, id1);
         } catch (ValidatorException | RepositoryException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText(e.getMessage());
-            alert.setHeaderText("Try again");
-            alert.show();
+            ButtonType yes = new ButtonType("yes", ButtonBar.ButtonData.OK_DONE);
+            ButtonType no = new ButtonType("no", ButtonBar.ButtonData.CANCEL_CLOSE);
+            Alert alert = new Alert(Alert.AlertType.WARNING,
+                    "This friendship already exists, do you want to delete it?" ,
+                    yes,
+                    no);
+
+
+            Optional<ButtonType> result = alert.showAndWait();
+
+            alert.setHeaderText("Warning");
+            if (result.orElse(no) == yes) {
+                try {
+                    service.deleteFriendRequest(userId, id1);
+                } catch (RepositoryException ignored) {
+                }
+            }
         }
     }
 
@@ -118,5 +176,10 @@ public class AddNewFriendController implements Initializable {
             addImage.setVisible(true);
             invalidUser.setVisible(false);
         }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        searchClicked();
     }
 }
