@@ -626,6 +626,11 @@ public class Controller extends Observable {
         return messages;
     }
 
+    public List<MessageDTO> allMessages(int id) throws RepositoryException {
+        return  messageService.findMessages(id);
+
+    }
+
     /**
      * @param id1     integer representing the id of the message
      * @param from    integer representing the user who sent the message

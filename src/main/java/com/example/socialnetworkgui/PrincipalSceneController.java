@@ -2,6 +2,7 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.Event;
+import com.example.domain.Page;
 import com.example.domain.User;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
@@ -56,6 +57,7 @@ public class PrincipalSceneController implements Initializable, Observer {
     List<UserModel> friends = new ArrayList<>();
     public Label nextEvent;
     public Label noOfDays;
+    private Page page;
 
     /*
     ScrollBar friendsScrollBar;
@@ -110,7 +112,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         lastname.setCellValueFactory(new PropertyValueFactory<>("lastname"));
     }
 
-    public void setService(Controller service, int id) {
+    public void setService(Controller service, int id, Page page) {
         this.userId = id;
         this.service = service;
         service.addObserver(this);
@@ -134,6 +136,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         } catch (ValidatorException | RepositoryException e) {
             e.printStackTrace();
         }
+        this.page = page;
     }
 
 //    friendsScrollBar.va.addListener((observable, oldValue, newValue) -> {
@@ -188,6 +191,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         }
         int id = Integer.parseInt(users.get(0).getId());
         service.removeFriends(this.userId, id);
+        page.setListOfFriends(service.getFriends(userId));
     }
 
     public void logOutClicked(ActionEvent event) throws IOException {

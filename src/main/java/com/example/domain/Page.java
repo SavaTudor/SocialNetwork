@@ -6,9 +6,9 @@ public class Page {
     String lastName;
     List<UsersFriendsDTO> listOfFriends;
     List<MessageDTO> receivedMessages;
-    List<FriendRequest> receivedRequest;
+    List<UsersRequestsDTO> receivedRequest;
 
-    public Page(String firstName, String lastName, List<UsersFriendsDTO> listOfFriends, List<MessageDTO> receivedMessages, List<FriendRequest> receivedRequest) {
+    public Page(String firstName, String lastName, List<UsersFriendsDTO> listOfFriends, List<MessageDTO> receivedMessages, List<UsersRequestsDTO> receivedRequest) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.listOfFriends = listOfFriends;
@@ -48,11 +48,11 @@ public class Page {
         this.receivedMessages = receivedMessages;
     }
 
-    public List<FriendRequest> getReceivedRequest() {
+    public List<UsersRequestsDTO> getReceivedRequest() {
         return receivedRequest;
     }
 
-    public void setReceivedRequest(List<FriendRequest> receivedRequest) {
+    public void setReceivedRequest(List<UsersRequestsDTO> receivedRequest) {
         this.receivedRequest = receivedRequest;
     }
 }
