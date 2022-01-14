@@ -72,6 +72,7 @@ public class LoginController {
             stage.show();
 
         } catch (RepositoryException e) {
+            e.printStackTrace();
             alert.setHeaderText("Incorrect username or password");
             alert.setTitle("Error");
             alert.show();

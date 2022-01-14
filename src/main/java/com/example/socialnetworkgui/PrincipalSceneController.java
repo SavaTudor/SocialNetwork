@@ -22,7 +22,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
 
 import java.io.IOException;
 import java.net.URL;
@@ -102,7 +106,6 @@ public class PrincipalSceneController implements Initializable, Observer {
 
         });
 
-
     }
 
     static void setCell(TableColumn<UserModel, String> id, TableColumn<UserModel, String> username, TableColumn<UserModel, String> firstname, TableColumn<UserModel, String> lastname) {
@@ -129,6 +132,13 @@ public class PrincipalSceneController implements Initializable, Observer {
             if (event != null) {
                 nextEvent.setText(event.getName());
                 noOfDays.setText(String.valueOf(service.daysUntilNextEvent(userId)) + " days");
+                Notifications.create()
+                        .darkStyle()
+                        .title("Next event")
+                        .text(event.getName() + " in " + String.valueOf(service.daysUntilNextEvent(userId)) + " days")
+                        .graphic(new Rectangle(20, 20, Color.RED)) // sets node to display
+                        .hideAfter(Duration.seconds(10))
+                        .show();
             } else {
                 nextEvent.setText("-");
                 noOfDays.setText("-");
