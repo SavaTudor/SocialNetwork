@@ -21,11 +21,6 @@
                </graphic>
             </Button>
             <Label fx:id="invalidUser" layoutX="131.0" layoutY="171.0" prefHeight="18.0" prefWidth="200.0" style="-fx-background-color: white;" text=" Invalid user" textAlignment="CENTER" textFill="#bf2727" />
-                <Button fx:id="addButton" layoutX="595.0" layoutY="276.0" mnemonicParsing="false" onAction="#addClicked" prefHeight="37.0" prefWidth="154.0" style="-fx-background-color: white; -fx-background-radius: 500;">
-               <graphic>
-                  <Label prefHeight="17.0" prefWidth="115.0" text="        Add new friend" />
-               </graphic>
-                </Button>
             <TableView fx:id="userTable" layoutX="349.0" layoutY="26.0" prefHeight="211.0" prefWidth="340.0" style="-fx-background-color: #fad907; -fx-background-radius: 5;">
               <columns>
                 <TableColumn fx:id="id" minWidth="0.0" prefWidth="0.0" text="id" />
@@ -35,8 +30,6 @@
               </columns>
             </TableView>
             <TextField fx:id="searchField" layoutX="131.0" layoutY="145.0" prefHeight="26.0" prefWidth="200.0" promptText="Search user" />
-                  <ImageView fx:id="addImage" fitHeight="26.0" fitWidth="31.0" layoutX="604.0" layoutY="282.0">
-            </ImageView>
             <Button layoutX="92.0" layoutY="145.0" mnemonicParsing="false" onAction="#searchClicked" prefHeight="26.0" prefWidth="31.0" style="-fx-background-color: white; -fx-background-radius: 8;">
                <graphic>
                   <ImageView fx:id="searchImage" fitHeight="17.0" fitWidth="23.0">

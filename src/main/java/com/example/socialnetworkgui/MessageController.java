@@ -149,7 +149,7 @@ public class MessageController implements Initializable, Observer {
     public void showFriend() throws RepositoryException {
 
         for (Button button : buttons) {
-            button.setVisible(false);
+            anchorPaneFriends.getChildren().remove(button);
         }
 
         int y = 44;
