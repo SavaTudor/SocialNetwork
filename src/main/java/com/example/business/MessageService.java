@@ -54,6 +54,7 @@ public class MessageService {
      * generate the id of message
      */
     private void generateId(){
+
         String sql = "SELECT * FROM messages ORDER BY ms_id DESC";
         ArrayList<MessageDTO> messages = new ArrayList<>();
         try{
@@ -64,13 +65,7 @@ public class MessageService {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-//        int max = messages.get(0).getId()+1;
-//        if(messages.size()>0) {
-//            for (MessageDTO message : messages)
-//                if (message.getId() > max)
-//                    max = message.getId();
-//            this.id = max + 1;
-//        }
+
 
     }
 
@@ -85,7 +80,6 @@ public class MessageService {
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
         MessageDTO messageDTO= new MessageDTO(from, to, message);
         messageDTO.setId(id);
-        //validatorMessage.valideaza(message1);
         repository.add(id,messageDTO);
         id++;
 

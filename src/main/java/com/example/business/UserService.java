@@ -48,7 +48,6 @@ public class UserService {
 
     public UserService(String fileName) {
         this.repository = new FileUserRepository(fileName);
-
         this.validator = new ValidatorUser();
     }
 
@@ -91,9 +90,11 @@ public class UserService {
      * @throws RepositoryException if the user already exists in the repository
      */
     public User add(String username, String firstName, String lastName, String password) throws RepositoryException, ValidatorException {
+        System.out.println("d");
         User user = new User(username, firstName, lastName, password);
+        System.out.println("e");
         int id = generateId();
-        System.out.println(id);
+        System.out.println(id + "a");
         user.setId(id);
         validator.valideaza(user);
         repository.add(id, user);
