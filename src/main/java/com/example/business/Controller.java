@@ -781,7 +781,13 @@ public class Controller extends Observable {
      *                 The function adds a number equal to pageSize of the user's friends, starting from the given offset in the db
      */
     public void getFriendsForAUserPag(List<UserModel> friends, int user, int pageSize, int offset) {
-
+        if(serviceUsers.size()<pageSize){
+            friends = serviceUsers.all().stream().map(x->{
+                UserModel um = new UserModel(x.getId().toString(), x.getUsername(), x.getFirstName(), x.getLastName());
+                return um;
+            }).collect(Collectors.toList());
+            return;
+        }
         String sql = "select u1.id, u1.username, u1.firstname, u1.lastname, f1.fr_data from users inner join friendships f1 on users.id = f1.usera inner join users u1 on u1.id = f1.userb WHERE users.id=" +
                 user + " UNION select u.id, u.username, u.firstname, u.lastname, f.fr_data from users inner join friendships f on users.id = f.userb inner join users u on u.id = f.usera\n" +
                 "        where users.id= " + user + "order by id LIMIT " + pageSize + " OFFSET " + offset;

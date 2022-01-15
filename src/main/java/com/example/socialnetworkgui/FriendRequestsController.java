@@ -45,7 +45,7 @@ public class FriendRequestsController implements Initializable, Observer {
     private int offsetRec = 0;
     private int pageNumberSend = 0;
     private int offsetSend = 0;
-    private int pageSize = 3;
+    private int pageSize = 10;
     List<RequestModel> requests = new ArrayList<>();
 
     @FXML
