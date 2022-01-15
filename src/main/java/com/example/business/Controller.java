@@ -780,7 +780,8 @@ public class Controller extends Observable {
     }
 
 
-    public List<User> getNoFriend(int id, String name) {
+    public List<User> getNoFriend(int id, String n) {
+        String name = n.toUpperCase();
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
@@ -789,8 +790,10 @@ public class Controller extends Observable {
                     if (!users1.contains(x.getId()))
                         users.add(x);
                 });
-        return users.stream().filter(x -> (x.getFirstName().equals(name) || x.getUsername().equals(name) || x.getLastName().equals(name)) &&
-                x.getId() != id).collect(Collectors.toList());
+        List<User> sentRequests = this.sentFriendRequests(id).stream().map(UsersRequestsDTO::getTo).collect(Collectors.toList());
+        List<User> receivedRequests = this.getFriendRequests(id).stream().map(UsersRequestsDTO::getFrom).collect(Collectors.toList());
+        return users.stream().filter(x -> ((x.getFirstName().toUpperCase().equals(name) || x.getUsername().toUpperCase().equals(name) || x.getLastName().toUpperCase().equals(name)) &&
+                x.getId() != id) && (!sentRequests.contains(x) && !receivedRequests.contains(x))).collect(Collectors.toList());
     }
 
     public Friendship getFriendship(int id1, int id2) {

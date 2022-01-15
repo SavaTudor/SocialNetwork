@@ -53,16 +53,16 @@ public class AddNewFriendController implements Initializable {
         addImage.setVisible(false);
     }
 
-    public void setService(Controller service, int id){
+    public void setService(Controller service, int id) {
         AddNewFriendController.service = service;
         this.userId = id;
     }
 
-    private ObservableList<UserModel> loadTable(String name){
+    private ObservableList<UserModel> loadTable(String name) {
         List<UserModel> friends = new ArrayList<>();
         List<User> users = service.getNoFriend(this.userId, name);
         users.stream().
-                forEach(x->{
+                forEach(x -> {
                     String id1 = x.getId().toString();
                     String userName = x.getUsername();
                     String firstname = x.getFirstName();
@@ -73,19 +73,20 @@ public class AddNewFriendController implements Initializable {
         return FXCollections.observableArrayList(friends);
     }
 
-    public void addClicked(){
+    public void addClicked() {
         ObservableList<UserModel> users = userTable.getSelectionModel().getSelectedItems();
-        if(users.isEmpty())
-        {
+        if (users.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Add new friend error");
             alert.setContentText("Please select a column from table and press the Add new friend button");
             alert.show();
             return;
         }
-        int id1 = Integer.parseInt(users.get(0).getId());
+        String str = users.get(0).getId();
+        int id1 = Integer.parseInt(str);
         try {
             service.addFriendRequest(this.userId, id1);
+            searchClicked();
         } catch (ValidatorException | RepositoryException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText(e.getMessage());
@@ -94,14 +95,13 @@ public class AddNewFriendController implements Initializable {
         }
     }
 
-    public void homeClicked(){
+    public void homeClicked() {
         Stage stage = (Stage) homeButton.getScene().getWindow();
         stage.close();
     }
 
     public void searchClicked() {
-        if(searchField.getText().isEmpty())
-        {
+        if (searchField.getText().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("Search error");
             alert.setContentText("Please give a name");
@@ -109,7 +109,7 @@ public class AddNewFriendController implements Initializable {
         }
         String userName = searchField.getText();
         ObservableList<UserModel> userModels = loadTable(userName);
-        if(userModels.size() == 0)
+        if (userModels.size() == 0)
             invalidUser.setVisible(true);
         else {
             userTable.setItems(userModels);
