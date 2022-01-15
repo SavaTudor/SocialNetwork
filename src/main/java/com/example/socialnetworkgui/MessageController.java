@@ -15,6 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -32,6 +33,7 @@ public class MessageController implements Initializable, Observer {
     public AnchorPane anchorPaneFriends;
     public AnchorPane anchorPaneMessage;
     public ImageView leftImage;
+    public ImageView sendImage;
     private Controller service;
     private int userId;
     private int toId;
@@ -49,6 +51,8 @@ public class MessageController implements Initializable, Observer {
         homeImage.setImage(image);
         Image image2 = new Image("file:images/2colors.jpg");
         leftImage.setImage(image2);
+        Image image3 = new Image("file:images/sendMessIcon.png");
+        sendImage.setImage(image3);
         showPage();
     }
 
@@ -113,7 +117,7 @@ public class MessageController implements Initializable, Observer {
             if (message.getReply() != 0) {
                 Label replyLabel = new Label();
                 MessageDTO reply = service.findMessageDTO(message.getReply());
-                replyLabel.setText(reply.getMessage());
+                replyLabel.setText("Replied to:" + reply.getMessage());
                 replyLabel.setStyle("-fx-background-radius: 5; -fx-background-color:  #b9b1b1");
                 replyLabel.setTextAlignment(TextAlignment.JUSTIFY);
                 if (message.getFrom() == userId)
@@ -149,7 +153,7 @@ public class MessageController implements Initializable, Observer {
     public void showFriend() throws RepositoryException {
 
         for (Button button : buttons) {
-            button.setVisible(false);
+            anchorPaneFriends.getChildren().remove(button);
         }
 
         int y = 44;
@@ -192,6 +196,8 @@ public class MessageController implements Initializable, Observer {
         for (Button button : buttons) {
             button.setLayoutX(25);
             button.setLayoutY(y);
+            button.setStyle("-fx-background-color:  black");
+            button.setTextFill(Color.WHITE);
             y += 40;
             anchorPaneFriends.getChildren().add(button);
         }

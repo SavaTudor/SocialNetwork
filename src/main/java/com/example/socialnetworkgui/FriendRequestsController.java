@@ -21,6 +21,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -39,6 +41,9 @@ public class FriendRequestsController implements Initializable, Observer {
     public TableColumn<RequestModel, String> id;
     public TableColumn data;
     public TableColumn status;
+    public ImageView backImage;
+    public Button homeButton;
+    public ImageView homeImage;
     private Controller service;
     private int userId;
     private int pageNumberRec = 0;
@@ -59,7 +64,13 @@ public class FriendRequestsController implements Initializable, Observer {
         lastName.setCellValueFactory(new PropertyValueFactory<>("LastName"));
         data.setCellValueFactory(new PropertyValueFactory<>("data"));
         status.setCellValueFactory(new PropertyValueFactory<>("status"));
-        id.setVisible(true);
+        id.setVisible(false);
+        Image image1 = new Image("file:images/back.jpg");
+        backImage.setImage(image1);
+        Image image = new Image("file:images/homeButtonImage.jpg");
+        homeImage.setImage(image);
+
+        requestsTable.setPlaceholder(new Label("No friend requests yet"));
 
 
         Platform.runLater(() -> {
@@ -239,5 +250,10 @@ public class FriendRequestsController implements Initializable, Observer {
         offsetSend=0;
         pageNumberSend=0;
         requestsTable.setItems(loadSentRequests());
+    }
+
+    public void homeClicked() {
+        Stage stage = (Stage) homeButton.getScene().getWindow();
+        stage.close();
     }
 }

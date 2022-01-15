@@ -2,6 +2,7 @@ package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
 import com.example.domain.Event;
+import com.example.domain.Page;
 import com.example.domain.User;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
@@ -18,10 +19,17 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
 
 import java.io.IOException;
 import java.net.URL;
@@ -48,6 +56,9 @@ public class PrincipalSceneController implements Initializable, Observer {
     public ImageView background;
     public ImageView friendRequestImage;
     public ImageView raportImage;
+    public ImageView userImage;
+    public Circle circle;
+    public ImageView eventIcon;
     private Controller service;
     private int userId;
     private int pageNumber = 0;
@@ -56,6 +67,7 @@ public class PrincipalSceneController implements Initializable, Observer {
     List<UserModel> friends = new ArrayList<>();
     public Label nextEvent;
     public Label noOfDays;
+    private Page page;
 
     /*
     ScrollBar friendsScrollBar;
@@ -86,6 +98,13 @@ public class PrincipalSceneController implements Initializable, Observer {
         friendRequestImage.setImage(image2);
         Image image7 = new Image("file:images/reports.jpg");
         raportImage.setImage(image7);
+        Image image8 = new Image("file:images/userIcon.png");
+        userImage.setImage(image8);
+        Image image9 = new Image("file:images/eventIcon.jpg");
+        eventIcon.setImage(image9);
+
+        friendshipTable.setPlaceholder(new Label("No friends yet"));
+
         Platform.runLater(() -> {
             ScrollBar tvScrollBar = (ScrollBar) friendshipTable.lookup(".scroll-bar:vertical");
             tvScrollBar.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -100,7 +119,6 @@ public class PrincipalSceneController implements Initializable, Observer {
 
         });
 
-
     }
 
     static void setCell(TableColumn<UserModel, String> id, TableColumn<UserModel, String> username, TableColumn<UserModel, String> firstname, TableColumn<UserModel, String> lastname) {
@@ -110,13 +128,13 @@ public class PrincipalSceneController implements Initializable, Observer {
         lastname.setCellValueFactory(new PropertyValueFactory<>("lastname"));
     }
 
-    public void setService(Controller service, int id) {
+    public void setService(Controller service, int id, Page page) {
         this.userId = id;
         this.service = service;
         service.addObserver(this);
         try {
             User user = service.findUser(userId);
-            String user1 = "User logged:" + user.getFirstName() + " " + user.getLastName();
+            String user1 = "Welcome " + user.getUsername();
             userAccount.setText(user1);
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -124,16 +142,19 @@ public class PrincipalSceneController implements Initializable, Observer {
         try {
             friendshipTable.setItems(loadTable());
             Event event = service.nextEventForUser(userId);
-            if (event != null) {
-                nextEvent.setText(event.getName());
-                noOfDays.setText(String.valueOf(service.daysUntilNextEvent(userId)) + " days");
-            } else {
-                nextEvent.setText("-");
-                noOfDays.setText("-");
+            if(event != null) {
+                Notifications.create()
+                        .darkStyle()
+                        .title("Next event")
+                        .text(event.getName() + " in " + String.valueOf(service.daysUntilNextEvent(userId)) + " days")
+                        .graphic(new Rectangle(20, 20, Color.RED)) // sets node to display
+                        .show();
             }
+
         } catch (ValidatorException | RepositoryException e) {
             e.printStackTrace();
         }
+        this.page = page;
     }
 
 //    friendsScrollBar.va.addListener((observable, oldValue, newValue) -> {
@@ -188,6 +209,7 @@ public class PrincipalSceneController implements Initializable, Observer {
         }
         int id = Integer.parseInt(users.get(0).getId());
         service.removeFriends(this.userId, id);
+        page.setListOfFriends(service.getFriends(userId));
     }
 
     public void logOutClicked(ActionEvent event) throws IOException {
@@ -245,14 +267,6 @@ public class PrincipalSceneController implements Initializable, Observer {
             pageNumber = 0;
             friendshipTable.setItems(loadTable());
             Event event = service.nextEventForUser(userId);
-            if (event != null) {
-                nextEvent.setText(event.getName());
-                noOfDays.setText(String.valueOf(service.daysUntilNextEvent(userId)) + " days");
-
-            } else {
-                nextEvent.setText("-");
-                noOfDays.setText("-");
-            }
         } catch (ValidatorException | RepositoryException e) {
             e.printStackTrace();
         }

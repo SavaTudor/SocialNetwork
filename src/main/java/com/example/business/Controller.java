@@ -293,6 +293,8 @@ public class Controller extends Observable {
      */
     public void addFriendRequest(int from, int to) throws ValidatorException, RepositoryException {
         serviceRequests.add(from, to, Status.PENDING);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -328,6 +330,8 @@ public class Controller extends Observable {
     public void deleteFriendRequest(int from, int to) throws RepositoryException {
         FriendRequest fr = serviceRequests.findByUsers(from, to);
         serviceRequests.remove(fr.getId());
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -447,6 +451,15 @@ public class Controller extends Observable {
                 e.printStackTrace();
             }
         });
+    }
+
+    public boolean existsFriendRequest(int id1, int id2){
+        List<FriendRequest> friendRequests = serviceRequests.all();
+        for(FriendRequest friendRequest : friendRequests)
+            if((friendRequest.getFrom() == id1 && friendRequest.getTo() == id2) || (friendRequest.getFrom() == id2 && friendRequest.getTo() == id1)) {
+                return true;
+            }
+        return false;
     }
 
     /**
@@ -596,6 +609,11 @@ public class Controller extends Observable {
             messages.add(message);
         }
         return messages;
+    }
+
+    public List<MessageDTO> allMessages(int id) throws RepositoryException {
+        return  messageService.findMessages(id);
+
     }
 
     /**
@@ -754,8 +772,7 @@ public class Controller extends Observable {
                 });
         List<User> sentRequests = this.sentFriendRequests(id).stream().map(UsersRequestsDTO::getTo).collect(Collectors.toList());
         List<User> receivedRequests = this.getFriendRequests(id).stream().map(UsersRequestsDTO::getFrom).collect(Collectors.toList());
-        return users.stream().filter(x -> ((x.getFirstName().toUpperCase().equals(name) || x.getUsername().toUpperCase().equals(name) || x.getLastName().toUpperCase().equals(name)) &&
-                x.getId() != id) && (!sentRequests.contains(x) && !receivedRequests.contains(x))).collect(Collectors.toList());
+        return users.stream().filter(x -> (x.getUsername().toUpperCase().equals(name)  && x.getId() != id)).collect(Collectors.toList());
     }
 
     /**
