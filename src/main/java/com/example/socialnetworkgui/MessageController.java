@@ -285,9 +285,7 @@ public class MessageController implements Initializable, Observer {
     @Override
     public void update(Observable o, Object arg) {
         try {
-            String mess = messageField.getText();
             messageList.clear();
-            messageField.deleteText(0, mess.length());
             offset = 0;
             pageNumber = 0;
             showFriend();

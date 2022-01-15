@@ -54,91 +54,110 @@ public class AddNewFriendController implements Initializable, Observer {
 
     }
 
-    public void setService(Controller service, int id){
+    public void setService(Controller service, int id) {
         AddNewFriendController.service = service;
         this.userId = id;
         service.addObserver(this);
     }
 
-    private ObservableList<UserModel> loadTable(String name){
+    private ObservableList<UserModel> loadTable(String name) {
         for (Button button : buttons) {
             anchorPane.getChildren().remove(button);
         }
         buttons = new ArrayList<>();
         List<UserModel> friends = new ArrayList<>();
         List<User> users = service.getNoFriend(this.userId, name);
-        int pozx =689;
+        int pozx = 689;
         int pozy = 50;
-        for(User user:users){
-                    String id1 = user.getId().toString();
-                    String userName = user.getUsername();
-                    String firstname = user.getFirstName();
-                    String lastname = user.getLastName();
-                    UserModel userModel = new UserModel(id1, userName, firstname, lastname);
-                    friends.add(userModel);
-                    Button button = new Button();
-                    button.setLayoutX(pozx);
-                    button.setLayoutY(pozy);
-                    button.setPrefHeight(15);
-                    button.setPrefWidth(15);
-                    if(service.existsFriendRequest(userId, Integer.parseInt(id1)))
-                    {
-                        ImageView iv1=new ImageView("file:images/deleteFriend.jpg");
-                        iv1.setFitHeight(19);
-                        iv1.setFitWidth(19);
-                        button.setGraphic(iv1);
-                        button.setStyle("-fx-background-radius: 10; -fx-background-color:  white");
-                        button.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                            @Override
-                            public void handle(MouseEvent mouseEvent) {
-                                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                                    if (mouseEvent.getClickCount() == 1) {
-                                        try {
-                                            service.deleteFriendRequest(userId, Integer.parseInt(id1));;
-                                        } catch (RepositoryException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
+        for (User user : users) {
+            String id1 = user.getId().toString();
+            String userName = user.getUsername();
+            String firstname = user.getFirstName();
+            String lastname = user.getLastName();
+            UserModel userModel = new UserModel(id1, userName, firstname, lastname);
+            friends.add(userModel);
+            Button button = new Button();
+            button.setLayoutX(pozx);
+            button.setLayoutY(pozy);
+            button.setPrefHeight(15);
+            button.setPrefWidth(15);
+            if (service.existsFriendRequest(userId, Integer.parseInt(id1))) {
+                ImageView iv1 = new ImageView("file:images/deleteFriend.jpg");
+                iv1.setFitHeight(19);
+                iv1.setFitWidth(19);
+                button.setGraphic(iv1);
+                button.setStyle("-fx-background-radius: 10; -fx-background-color:  white");
+                button.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                            if (mouseEvent.getClickCount() == 1) {
+                                try {
+                                    service.deleteFriendRequest(userId, Integer.parseInt(id1));
+                                    ;
+                                } catch (RepositoryException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                        });
+                        }
                     }
-                    else{
-                        ImageView iv1=new ImageView("file:images/addNewFriendImage.jpg");
-                        iv1.setFitHeight(19);
-                        iv1.setFitWidth(19);
-                        button.setGraphic(iv1);
-                        button.setStyle("-fx-background-radius: 10; -fx-background-color:  white");
-                        button.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                            @Override
-                            public void handle(MouseEvent mouseEvent) {
-                                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                                    if (mouseEvent.getClickCount() == 1) {
-                                        try {
-                                            service.addFriendRequest(userId, Integer.parseInt(id1));
-                                        } catch (ValidatorException | RepositoryException ignored) {
-                                        }
-                                    }
+                });
+            } else {
+                ImageView iv1 = new ImageView("file:images/addNewFriendImage.jpg");
+                iv1.setFitHeight(19);
+                iv1.setFitWidth(19);
+                button.setGraphic(iv1);
+                button.setStyle("-fx-background-radius: 10; -fx-background-color:  white");
+                button.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+                        if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                            if (mouseEvent.getClickCount() == 1) {
+                                try {
+                                    service.addFriendRequest(userId, Integer.parseInt(id1));
+                                } catch (ValidatorException | RepositoryException ignored) {
                                 }
                             }
-                        });
+                        }
                     }
-                    pozy += 21;
-                    buttons.add(button);
-                    anchorPane.getChildren().add(button);
+                });
+            }
+            pozy += 21;
+            buttons.add(button);
+            anchorPane.getChildren().add(button);
 
-                }
+        }
         return FXCollections.observableArrayList(friends);
     }
+    public void addClicked() {
+        ObservableList<UserModel> users = userTable.getSelectionModel().getSelectedItems();
+        if (users.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Add new friend error");
+            alert.setContentText("Please select a column from table and press the Add new friend button");
+            alert.show();
+            return;
+        }
+        String str = users.get(0).getId();
+        int id1 = Integer.parseInt(str);
+        try {
+            service.addFriendRequest(this.userId, id1);
+            searchClicked();
+        } catch (ValidatorException | RepositoryException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText(e.getMessage());
+            alert.setHeaderText("Try again");
+            alert.show();
+        }
+    }
 
-    public void homeClicked(){
+    public void homeClicked() {
         Stage stage = (Stage) homeButton.getScene().getWindow();
         stage.close();
     }
 
     public void searchClicked() {
-        if(searchField.getText().isEmpty())
-        {
+        if (searchField.getText().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("Search error");
             alert.setContentText("Please give a name");
@@ -146,7 +165,7 @@ public class AddNewFriendController implements Initializable, Observer {
         }
         String userName = searchField.getText();
         ObservableList<UserModel> userModels = loadTable(userName);
-        if(userModels.size() == 0)
+        if (userModels.size() == 0)
             invalidUser.setVisible(true);
         else {
             userTable.setItems(userModels);

@@ -17,13 +17,15 @@ import javafx.stage.Stage;
 import java.util.List;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
 public class LoginController {
     public ImageView logoImage;
     public ImageView leftImage;
     public javafx.scene.control.CheckBox CheckBox;
     private Controller service;
     public ImageView beeImage;
-
+    public int id;
     @FXML
     private TextField usernameField;
     @FXML
@@ -45,12 +47,22 @@ public class LoginController {
     @FXML
     public void signInClicked(ActionEvent event) throws IOException {
         Encryption encryption = new Encryption();
-        Alert alert = new Alert(Alert.AlertType.ERROR,"Try again", ButtonType.OK);
+        ArrayList<User> users = service.allUsers();
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        boolean find = false;
+        for (User user : users) {
+            if (usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(encryption.decrypt(user.getPassword()))) {
+                this.id = user.getId();
+                find = true;
+                break;
+            }
+        }
+
+
         try {
             String username = usernameField.getText();
             String password = passwordField.getText();
             int id = service.getUserByUsernameAndPassword(username, encryption.encrypt(password));
-
             User user = service.findUser(id);
             String firstName = user.getFirstName();
             String lastName = user.getLastName();
@@ -58,7 +70,6 @@ public class LoginController {
             List<MessageDTO> messages = service.allMessages(id);
             List<UsersRequestsDTO> requests = service.getFriendRequests(id);
             Page page = new Page(firstName, lastName, listFriendships, messages, requests);
-
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("principalScene.fxml"));
             AnchorPane root = loader.load();
