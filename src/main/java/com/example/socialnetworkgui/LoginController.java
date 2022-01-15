@@ -48,7 +48,7 @@ public class LoginController {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         boolean find = false;
         for (User user : users)
-            if (usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(user.getPassword())) {
+            if (usernameField.getText().equals(user.getUsername()) && encryption.encrypt(passwordField.getText()).equals(user.getPassword())) {
                 this.id = user.getId();
                 find = true;
                 break;

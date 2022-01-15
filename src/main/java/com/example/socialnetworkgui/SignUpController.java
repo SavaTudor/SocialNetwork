@@ -67,10 +67,6 @@ public class SignUpController {
         String lastName = lastNameField.getText();
         String username = usernameField.getText();
         String password = passwordField.getText();
-        System.out.println(firstName);
-        System.out.println(lastName);
-        System.out.println(username);
-        System.out.println(password);
         try {
             System.out.println(service.findUser(1).getUsername());
         } catch (RepositoryException e) {
@@ -79,8 +75,10 @@ public class SignUpController {
         String pass = encryption.encrypt(password);
         try {
             service.add(username,firstName, lastName,pass);
+            System.out.println("aici");
             SceneController controller = new SceneController();
             controller.switchScene(service, "login.fxml", "Add new friend", actionEvent);
+            System.out.println("aici2");
         } catch (RepositoryException | ValidatorException | IOException e) {
             alert.setTitle("Message Here...");
             alert.setHeaderText("Incorrect user");
