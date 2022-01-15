@@ -202,11 +202,14 @@ public class PrincipalSceneController implements Initializable, Observer {
     public void deleteClicked() throws EntityException, RepositoryException, ValidatorException {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         ObservableList<UserModel> users = friendshipTable.getSelectionModel().getSelectedItems();
-        if (users.isEmpty()) {
+        if (users.isEmpty() || users == null) {
             alert.setTitle("Delete error");
             alert.setContentText("Please select a column from table and press the delete button");
             alert.show();
+            return;
         }
+        if(users.get(0).getId() == null)
+            return;
         int id = Integer.parseInt(users.get(0).getId());
         service.removeFriends(this.userId, id);
         page.setListOfFriends(service.getFriends(userId));
