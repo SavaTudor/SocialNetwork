@@ -73,12 +73,15 @@ public class UserService {
      */
     private int generateId() throws RepositoryException {
         int id = repository.size();
-        while (true) {
-            User user = repository.find(id);
-            if (user == null) {
-                break;
+        try {
+            while (true) {
+                User user = repository.find(id);
+                if (user == null) {
+                    break;
+                }
+                id++;
             }
-            id++;
+        } catch (Exception ignored) {
         }
         return id;
     }

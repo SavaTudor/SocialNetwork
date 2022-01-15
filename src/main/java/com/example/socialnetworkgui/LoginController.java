@@ -49,7 +49,7 @@ public class LoginController {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         boolean find = false;
         for (User user : users) {
-            if (usernameField.getText().equals(user.getUsername()) && encryption.encrypt(passwordField.getText()).equals(user.getPassword())) {
+            if (usernameField.getText().equals(user.getUsername()) && passwordField.getText().equals(encryption.decrypt(user.getPassword()))) {
                 this.id = user.getId();
                 find = true;
                 break;
@@ -59,7 +59,7 @@ public class LoginController {
 
         try {
             String username = usernameField.getText();
-            String password = passwordField.getText();
+            String password = encryption.encrypt(passwordField.getText());
             int id = service.getUserByUsernameAndPassword(username, password);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("principalScene.fxml"));
