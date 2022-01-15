@@ -207,10 +207,6 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.addNewMessage(userId, Arrays.asList(toId), mess);
-            messageList.clear();
-            offset = 0;
-            pageNumber = 0;
-            showMessage();
         } catch (RepositoryException | ValidatorException e) {
             alert.setHeaderText(e.getMessage());
             alert.setContentText("Empty message");
@@ -249,10 +245,6 @@ public class MessageController implements Initializable, Observer {
                 try {
                     String mess = messageField.getText();
                     service.replyMessage(userId, Arrays.asList(toId), mess, id);
-//                    messageList.clear();
-//                    offset = 0;
-//                    pageNumber = 0;
-//                    showMessage();
                     messageField.deleteText(0, mess.length());
                 } catch (RepositoryException | ValidatorException e) {
                     alert.setTitle("Message Here...");
@@ -270,10 +262,6 @@ public class MessageController implements Initializable, Observer {
         String mess = messageField.getText();
         try {
             service.replyAll(userId, mess);
-//            messageList.clear();
-//            offset = 0;
-//            pageNumber = 0;
-//            showMessage();
         } catch (ValidatorException | RepositoryException e) {
             alert.setHeaderText("Error");
             alert.setContentText("Empty message");

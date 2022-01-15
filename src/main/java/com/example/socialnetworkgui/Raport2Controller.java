@@ -37,18 +37,18 @@ public class Raport2Controller implements Initializable {
         AnchorPane anchorPaneRaport = new AnchorPane();
         scrollPane.setContent(anchorPaneRaport);
         int x = 14;
-        int y = 23;
+        int y = 40;
         Label label = new Label();
         Label label1 = new Label();
         label1.setText("All messages received from " + from + " between " + start + " and " + end + ":");
         label1.setStyle("-fx-background-radius: 5");
         label1.setTextAlignment(TextAlignment.JUSTIFY);
-        label1.setMaxWidth(300);
+        label1.setMaxWidth(600);
         label1.setFont(new Font("Arial", 18));
         label1.setWrapText(true);
         label1.setLayoutX(x);
         label1.setLayoutY(y);
-        y += 40;
+        y += 60;
         anchorPaneRaport.getChildren().add(label1);
         for (MessageDTO message : messageList) {
             Label labelMess = new Label();
