@@ -20,6 +20,7 @@ import java.io.IOException;
 public class LoginController {
     public ImageView logoImage;
     public ImageView leftImage;
+    public javafx.scene.control.CheckBox CheckBox;
     private Controller service;
     public ImageView beeImage;
 
@@ -48,7 +49,7 @@ public class LoginController {
         try {
             String username = usernameField.getText();
             String password = passwordField.getText();
-            int id = service.getUserByUsernameAndPassword(username, password);
+            int id = service.getUserByUsernameAndPassword(username, encryption.encrypt(password));
 
             User user = service.findUser(id);
             String firstName = user.getFirstName();
@@ -72,7 +73,6 @@ public class LoginController {
             stage.show();
 
         } catch (RepositoryException e) {
-            e.printStackTrace();
             alert.setHeaderText("Incorrect username or password");
             alert.setTitle("Error");
             alert.show();
@@ -95,4 +95,5 @@ public class LoginController {
         stage.show();
 
     }
+
 }

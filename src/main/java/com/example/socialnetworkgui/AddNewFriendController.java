@@ -50,7 +50,7 @@ public class AddNewFriendController implements Initializable, Observer {
         background.setImage(image4);
         invalidUser.setVisible(false);
         buttons = new ArrayList<>();
-
+        userTable.setPlaceholder(new Label(""));
 
     }
 
