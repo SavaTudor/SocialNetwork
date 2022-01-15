@@ -55,7 +55,18 @@ public class UserService {
      * @return an integer representing the size of the repository
      */
     public int size() {
-        return repository.size();
+        int si=0;
+        String sql = "select count(*) from users";
+        try{
+            ResultSet rs = statement.executeQuery(sql);
+            if(rs.next()){
+                si = rs.getInt("count");
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+//        return repository.size();
+        return si;
     }
 
     /**
