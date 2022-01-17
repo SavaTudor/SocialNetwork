@@ -11,10 +11,15 @@ import java.util.HashMap;
 public class DataBaseUserRepository implements Repository<Integer, User> {
     private Connection connection;
     private Statement statement;
+    private int page = -1;
+    private int size = 5;
+    private int offset = 0;
+
 
     /**
      * Constructor
      * creates the connection to the database and creates the statement
+     *
      * @throws SQLException if it failed to connect to the database
      */
     public DataBaseUserRepository(String url, String user, String pass) throws SQLException {
@@ -22,8 +27,15 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
         statement = connection.createStatement();
     }
 
+
+    public DataBaseUserRepository(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
+    }
+
     /**
      * Finds out the number of elements from the database
+     *
      * @return an integer representing the number of records
      */
     @Override
@@ -50,11 +62,11 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
     @Override
     public void add(Integer integer, User user) throws RepositoryException {
         String sql = "INSERT INTO users(id,\"firstname\",\"lastname\",\"username\",\"password\") VALUES (" + integer.toString() +
-                ",'" + user.getFirstName() + "','" + user.getLastName()+ "','" + user.getUsername() + "','" + user.getPassword() + "');";
+                ",'" + user.getFirstName() + "','" + user.getLastName() + "','" + user.getUsername() + "','" + user.getPassword() + "');";
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            throw new RepositoryException("Entity already exists!\n");
+            throw new RepositoryException("Username already exists!\n");
         }
     }
 
@@ -70,17 +82,41 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 String lastName = rs.getString("lastName");
                 String username = rs.getString("username");
                 String password = rs.getString("password");
-                found = new User(username, firstName, lastName,password);
+                found = new User(username, firstName, lastName, password);
                 found.setId(integer);
             }
             statement.executeUpdate(sql2);
         } catch (Exception ignored) {
         }
-        if(found==null){
+        if (found == null) {
             throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
     }
+
+    public ArrayList<User> getPage() {
+        ArrayList<User> pageContent = new ArrayList<>();
+        this.page++;
+        String sql = "SELECT * FROM users LIMIT " + this.size + " OFFSET " + this.offset + ";";
+        this.offset = (size * page + size);
+        try{
+            ResultSet rs = statement.executeQuery(sql);
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String firstName = rs.getString("firstName");
+                String lastName = rs.getString("lastName");
+                String username = rs.getString("username");
+                String password = rs.getString("password");
+                User user = new User(username, firstName, lastName, password);
+                user.setId(id);
+                pageContent.add(user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pageContent;
+    }
+
 
     @Override
     public ArrayList<User> all() {
@@ -116,15 +152,14 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 String lastName = rs.getString("lastName");
                 String username = rs.getString("username");
                 String password = rs.getString("password");
-                found = new User(username, firstName, lastName,password);
+                found = new User(username, firstName, lastName, password);
                 found.setId(id);
             }
             if (found == null) {
                 throw new RepositoryException("");
             }
         } catch (Exception e) {
-//            throw new RepositoryException("Entity does not exist!\n");
-            return null;
+            throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
     }
@@ -137,7 +172,6 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
             find(integer);
             statement.executeUpdate(sql);
         } catch (Exception e) {
-//            e.printStackTrace();
             throw new RepositoryException("Entity does not exist!\n");
         }
 
@@ -155,7 +189,7 @@ public class DataBaseUserRepository implements Repository<Integer, User> {
                 String lastName = rs.getString("lastname");
                 String username = rs.getString("username");
                 String password = rs.getString("password");
-                User user = new User(username,firstName, lastName,password);
+                User user = new User(username, firstName, lastName, password);
                 user.setId(id);
                 map.put(id, user);
             }

@@ -9,15 +9,24 @@ import com.example.repository.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class DataBaseRequestsRepository implements Repository<Integer, FriendRequest> {
     private Connection connection;
     private Statement statement;
+    private int page = -1;
+    private int size = 3;
+    private int offset = 0;
 
 
     public DataBaseRequestsRepository(String url, String user, String pass) throws SQLException {
         connection = DriverManager.getConnection(url, user, pass);
         statement = connection.createStatement();
+    }
+
+    public DataBaseRequestsRepository(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
     }
 
     @Override
@@ -49,8 +58,7 @@ public class DataBaseRequestsRepository implements Repository<Integer, FriendReq
         try {
             statement.executeUpdate(sql);
         } catch (Exception e) {
-//            e.printStackTrace();
-            throw new RepositoryException("Entity already exists!\n");
+            throw new RepositoryException("Friend request already exists!\n");
         }
     }
 
@@ -77,6 +85,11 @@ public class DataBaseRequestsRepository implements Repository<Integer, FriendReq
             throw new RepositoryException("Entity does not exist!\n");
         }
         return found;
+    }
+
+    @Override
+    public List<FriendRequest> getPage() {
+       return new ArrayList<FriendRequest>();
     }
 
     @Override

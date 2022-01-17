@@ -7,15 +7,22 @@ import com.example.repository.Repository;
 import com.example.repository.database.DataBaseMessageRepository;
 import com.example.repository.database.DataBaseUserRepository;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class MessageService {
-    private Repository<Integer, Message> repository;
+    private Connection connection;
+    private Statement statement;
+    private Repository<Integer, MessageDTO> repository;
     private Repository<Integer, User> userRepository;
     private ValidatorMessage validatorMessage;
+    private int id = 1;
 
     /**
      * The constructor
@@ -31,6 +38,35 @@ public class MessageService {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+        generateId();
+    }
+
+    public MessageService(Connection connection, Statement statement) {
+        this.connection = connection;
+        this.statement = statement;
+        repository = new DataBaseMessageRepository(connection, statement);
+        userRepository = new DataBaseUserRepository(connection, statement);
+        validatorMessage = new ValidatorMessage();
+        generateId();
+    }
+
+    /**
+     * generate the id of message
+     */
+    private void generateId(){
+
+        String sql = "SELECT * FROM messages ORDER BY ms_id DESC";
+        ArrayList<MessageDTO> messages = new ArrayList<>();
+        try{
+            ResultSet resultSet = statement.executeQuery(sql);
+            if(resultSet.next()){
+                this.id = resultSet.getInt("ms_id")+1;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+
     }
 
     /**
@@ -42,17 +78,10 @@ public class MessageService {
      * @throws ValidatorException if the new Message is not valid
      */
     public void addNewMessage(int from, List<Integer> to, String message) throws RepositoryException, ValidatorException {
-        User fromUser = userRepository.find(from);
-        List<User> toUser = new ArrayList<>();
-        for(Integer user : to){
-            if(user == from)
-                throw new RepositoryException("you can not send message to yourself");
-            User user1 = userRepository.find(user);
-            toUser.add(user1);
-        }
-        Message message1 = new Message(fromUser, toUser, message);
-        validatorMessage.valideaza(message1);
-        repository.add(0, message1);
+        MessageDTO messageDTO= new MessageDTO(from, to, message);
+        messageDTO.setId(id);
+        repository.add(id,messageDTO);
+        id++;
 
     }
 
@@ -60,8 +89,8 @@ public class MessageService {
      * Return all message from database
      * @return List of Message representing all message from database
      */
-    public List<Message> all(){
-        return repository.all();
+    public List<MessageDTO> all(){
+        return  repository.all();
     }
 
     /**
@@ -79,7 +108,7 @@ public class MessageService {
      * @return Message representing the message which we are looking for
      * @throws RepositoryException if there is no message with the id given in the database
      */
-    public Message findMessage(int id) throws RepositoryException {
+    public MessageDTO findMessage(int id) throws RepositoryException {
         return repository.find(id);
     }
 
@@ -89,16 +118,14 @@ public class MessageService {
      * @return List of Message representing all messages for a user
      * @throws RepositoryException if there are no messages with for this user in database
      */
-    public List<Message> findMessages(int idUser) throws RepositoryException {
+    public List<MessageDTO> findMessages(int idUser) throws RepositoryException {
         User user = userRepository.find(idUser);
-        List<Message> list = repository.all();
-        List<Message> listMessages = new ArrayList<>();
+        List<MessageDTO> list = repository.all();
+        List<MessageDTO> listMessages = new ArrayList<>();
         list.forEach(x->{
             if(x.getTo().contains(user))
                 listMessages.add(x);
         });
-        if (listMessages.size() == 0)
-            throw new RepositoryException("no messages for this user");
         return listMessages;
     }
 
@@ -112,22 +139,10 @@ public class MessageService {
      * @throws ValidatorException if the new Message is not valid
      */
     public void updateMessage(int id1, int from, List<Integer> to, String message, Integer reply_to) throws RepositoryException, ValidatorException {
-        User fromUser = userRepository.find(from);
-        List<User> toUser = new ArrayList<>();
-        for(Integer user : to){
-            if(user == from)
-                throw new RepositoryException("you can not send message to yourself");
-            User user1 = userRepository.find(user);
-            toUser.add(user1);
-        }
-        Message message1 = new Message(fromUser, toUser, message);
-        Message reply = null;
-        if(reply_to != null)
-            reply = repository.find(reply_to);
-        message1.setId(id1);
-        message1.setReply(reply);
-        validatorMessage.valideaza(message1);
-        repository.update(id1, message1);
+        MessageDTO messageDTO = new MessageDTO(from, to, message);
+        messageDTO.setId(id1);
+        messageDTO.setReply(reply_to);
+        repository.update(id1, messageDTO);
     }
 
     /**
@@ -141,19 +156,11 @@ public class MessageService {
      * @throws ValidatorException if the new Message is not valid
      */
     public void replyMessage(int from, List<Integer> to, String mess, int message) throws RepositoryException, ValidatorException {
-        User fromUser = userRepository.find(from);
-        List<User> toUser = new ArrayList<>();
-        for(Integer user : to){
-            if(user == from)
-                throw new RepositoryException("you can not send message to yourself!");
-            User user1 = userRepository.find(user);
-            toUser.add(user1);
-        }
-        if(toUser.size() != 1 )
-            throw new RepositoryException("receptor invalid!");
-        Message message2 = new Message(fromUser, toUser, mess);
-        validatorMessage.valideaza(message2);
-        repository.add(message,message2);
+        MessageDTO messageDTO = new MessageDTO(from,to,mess);
+        messageDTO.setId(id);
+        messageDTO.setReply(message);
+        repository.add(id,messageDTO);
+        id++;
     }
 
     /**
@@ -161,24 +168,11 @@ public class MessageService {
      * @param user Integer representing the id of the user
      * @return List of Message representing all messages sent by a user
      */
-    public List<Message> allMessageByUser(int user){
-        List<Message> messages = repository.all();
-        return messages.stream().filter(x->x.getFrom().getId() == user)
+    public List<MessageDTO> allMessageByUser(int user){
+        List<MessageDTO> messages = repository.all();
+        return messages.stream().filter(x->x.getFrom() == user)
                 .collect(Collectors.toList());
     }
 
-    public List<Message> allMessageBetween2Users(int id1, int id2) throws RepositoryException {
-        User user1 = userRepository.find(id1);
-        User user2 = userRepository.find(id2);
-        List<Message> list = repository.all();
-        List<Message> listMessages = new ArrayList<>();
-        list.forEach(x->{
-            if(x.getTo().contains(user1) && x.getFrom().equals(user2))
-                listMessages.add(x);
-            if(x.getTo().contains(user2) && x.getFrom().equals(user1))
-                listMessages.add(x);
-        });
-        return listMessages;
-    }
 
 }

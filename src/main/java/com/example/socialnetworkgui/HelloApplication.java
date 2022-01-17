@@ -1,9 +1,8 @@
 package com.example.socialnetworkgui;
 
 import com.example.business.Controller;
-import com.example.exception.EntityException;
-import com.example.exception.RepositoryException;
-import com.example.exception.ValidatorException;
+import com.example.utils.Encryption;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,20 +15,20 @@ import static com.example.build.Build.*;
 
 
 
-public class HelloApplication extends Application {
+public class HelloApplication extends Application{
+
     @Override
     public void start(Stage stage) throws IOException {
-        Controller service;
+        Controller service ;
         service = new Controller(database_url, database_user, database_password);
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("login.fxml"));
-
-
         AnchorPane root = loader.load();
         LoginController loginController = loader.getController();
         loginController.setService(service);
-        stage.setScene(new Scene(root, 800, 400));
-        stage.getIcons().add(new Image("file:images/logo.jpg"));
+        Scene scene = new Scene(root, 800, 400);
+        stage.setScene(scene);
+        stage.getIcons().add(new Image("file:images/beeLogInImage3.jpg"));
         stage.setTitle("Log in");
         stage.show();
     }

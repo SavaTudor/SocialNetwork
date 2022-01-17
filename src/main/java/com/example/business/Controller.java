@@ -1,40 +1,34 @@
 package com.example.business;
 
+import com.example.build.Build;
 import com.example.domain.*;
 import com.example.exception.EntityException;
 import com.example.exception.RepositoryException;
 import com.example.exception.ValidatorException;
+import com.example.socialnetworkgui.RequestModel;
+import com.example.socialnetworkgui.UserModel;
 import utils.Graph;
-import java.time.LocalDateTime;
+
+import java.sql.*;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.Observable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+import java.time.LocalDateTime;
+
 public class Controller extends Observable {
+    private Connection connection;
+    private Statement statement;
     private UserService serviceUsers;
     private FriendshipService serviceFriendships;
     private RequestService serviceRequests;
     private MessageService messageService;
+    private EventService eventService;
     private Graph<Integer> network;
 
-
-    /**
-     * @param filename1 a string representing the filename where the users are stored
-     * @param filename2 a string representing the filename where the friendships are stored
-     *                  This is the constructor for when we store the data in files
-     */
-    /*
-    public Controller(String filename1, String filename2) {
-        serviceUsers = new UserService(filename1);
-        serviceFriendships = new FriendshipService(filename2);
-        network = new Graph<>();
-        serviceUsers.all().forEach(user -> {
-            network.addVertex(user.getId());
-        });
-        serviceFriendships.all().forEach(fr -> {
-            network.addEdge(fr.getUserA(), fr.getUserB());
-        });
-    }*/
 
     /**
      * constructor
@@ -44,10 +38,17 @@ public class Controller extends Observable {
      * @param password the password of database
      */
     public Controller(String url, String dbuser, String password) {
-        serviceUsers = new UserService(url, dbuser, password);
-        serviceFriendships = new FriendshipService(url, dbuser, password);
-        serviceRequests = new RequestService(url, dbuser, password);
-        messageService = new MessageService(url, dbuser, password);
+        try {
+            connection = DriverManager.getConnection(url, dbuser, password);
+            statement = connection.createStatement();
+            serviceUsers = new UserService(connection, statement);
+            serviceFriendships = new FriendshipService(connection, statement);
+            serviceRequests = new RequestService(connection, statement);
+            messageService = new MessageService(connection, statement);
+            eventService = new EventService(connection, statement);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         network = new Graph<>();
         serviceUsers.all().forEach(user -> {
             network.addVertex(user.getId());
@@ -147,6 +148,10 @@ public class Controller extends Observable {
                 }
             }
         });
+        serviceUsers.remove(id);
+        network.removeVertex(id);
+
+
     }
 
 
@@ -183,8 +188,6 @@ public class Controller extends Observable {
         User newUser1 = serviceUsers.find(newUserA), newUser2 = serviceUsers.find(newUserB);
 
         network.addEdge(newUserA, newUserB);
-        setChanged();
-        notifyObservers();
     }
 
     /**
@@ -224,6 +227,7 @@ public class Controller extends Observable {
         }
         return rez;
     }
+
 
     /**
      * Get all the friendships from the friendship service
@@ -312,24 +316,22 @@ public class Controller extends Observable {
             setChanged();
             notifyObservers();
         } else {
-//            daca la respingerea unei cereri de prietenie vrem sa o stergem din repository,
-//            pentru a putea permite o noua cerere intre cei doi useri
             serviceRequests.remove(fr.getId());
         }
     }
 
-
     /**
-     *
      * @param from integer representing the id of the user who sent the request
-     * @param to integer representing the id of the user who received the request
+     * @param to   integer representing the id of the user who received the request
      * @throws RepositoryException if a request between the two users does not exists
-     * the function deletes the request betweent the user with the id from and the
-     *      user with the id to
+     *                             the function deletes the request betweent the user with the id from and the
+     *                             user with the id to
      */
     public void deleteFriendRequest(int from, int to) throws RepositoryException {
         FriendRequest fr = serviceRequests.findByUsers(from, to);
         serviceRequests.remove(fr.getId());
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -347,6 +349,39 @@ public class Controller extends Observable {
             }
             return dto;
         }).collect(Collectors.toList());
+    }
+
+
+    /**
+     * @param requestModels the list of requests
+     * @param id            the id of the user which we want to see the friend requests
+     * @param pageSize      the amount of new records to the list
+     * @param offset        the index from which we want the requests in the db
+     *                      the function adds pageSize new values to requestModels from the given offset
+     */
+    public void getFriendRequestsPag(List<RequestModel> requestModels, int id, int pageSize, int offset) {
+        String sql = "SELECT u.id, u.firstname, u.lastname, fr.status, fr.datesend FROM friendship_invites fr INNER JOIN users u ON u.id = fr.usera\n" +
+                "WHERE fr.userb=" + id + " ORDER BY id LIMIT " + pageSize + " OFFSET " + offset;
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                String uid = String.valueOf(resultSet.getInt("id"));
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                String status = resultSet.getString("status");
+                var datesend = resultSet.getTimestamp("datesend");
+                String date;
+                if (datesend == null) {
+                    date = LocalDateTime.now().format(Build.formatter);
+                } else {
+                    date = resultSet.getTimestamp("datesend").toLocalDateTime().format(Build.formatter);
+                }
+                RequestModel requestModel = new RequestModel(uid, firstname, lastname, date, status);
+                requestModels.add(requestModel);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     /**
@@ -370,6 +405,39 @@ public class Controller extends Observable {
 
 
     /**
+     * @param requestModels the list of requests
+     * @param id            the id of the user who sent the friend requests
+     * @param pageSize      the amount of new records we want added to the list
+     * @param offset        the index from which we want the requests in the db
+     *                      the function adds pageSize new values to requestModels from the given offset
+     */
+    public void sentFriendRequestsPag(List<RequestModel> requestModels, int id, int pageSize, int offset) {
+        String sql = "SELECT u.id, u.firstname, u.lastname, fr.status, fr.datesend FROM friendship_invites fr INNER JOIN users u ON u.id = fr.userb WHERE fr.usera="
+                + id + "ORDER BY id LIMIT " + pageSize + " OFFSET " + offset + ";";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                String uid = String.valueOf(resultSet.getInt("id"));
+                String firstname = resultSet.getString("firstname");
+                String lastname = resultSet.getString("lastname");
+                String status = resultSet.getString("status");
+                var datesend = resultSet.getTimestamp("datesend");
+                String date;
+                if (datesend == null) {
+                    date = LocalDateTime.now().format(Build.formatter);
+                } else {
+                    date = resultSet.getTimestamp("datesend").toLocalDateTime().format(Build.formatter);
+                }
+                RequestModel requestModel = new RequestModel(uid, firstname, lastname, date, status);
+                requestModels.add(requestModel);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    /**
      * @param id integer representing the id of the user who is responding to all his requests
      * @param st string representing the response
      */
@@ -377,10 +445,21 @@ public class Controller extends Observable {
         getFriendRequests(id).forEach(fr -> {
             try {
                 respondFriendRequest(fr.getFrom().getId(), fr.getTo().getId(), st);
+                setChanged();
+                notifyObservers();
             } catch (RepositoryException | EntityException | ValidatorException e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    public boolean existsFriendRequest(int id1, int id2){
+        List<FriendRequest> friendRequests = serviceRequests.all();
+        for(FriendRequest friendRequest : friendRequests)
+            if((friendRequest.getFrom() == id1 && friendRequest.getTo() == id2) || (friendRequest.getFrom() == id2 && friendRequest.getTo() == id1)) {
+                return true;
+            }
+        return false;
     }
 
     /**
@@ -402,7 +481,38 @@ public class Controller extends Observable {
      * @return a list of messages representing all the sent messages
      */
     public List<Message> allMessage() {
-        return messageService.all();
+        List<MessageDTO> messageDTOS = messageService.all();
+        List<Message> messages = new ArrayList<>();
+        for (MessageDTO messageDTO : messageDTOS) {
+            List<User> to = new ArrayList<>();
+            for (Integer user : messageDTO.getTo()) {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if (messageDTO.getReply() != 0) {
+                try {
+                    Message message1 = findMessage(messageDTO.getReply());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
 
@@ -426,7 +536,37 @@ public class Controller extends Observable {
      * @throws RepositoryException if there is no message with the id given in the database
      */
     public Message findMessage(int id) throws RepositoryException {
-        return messageService.findMessage(id);
+        MessageDTO messageDTO = messageService.findMessage(id);
+        Message message;
+        List<User> toUser = new ArrayList<>();
+        for (Integer user : messageDTO.getTo()) {
+            try {
+                User user1 = serviceUsers.find(user);
+                toUser.add(user1);
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
+        User from = null;
+        try {
+            from = serviceUsers.find(messageDTO.getFrom());
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+        }
+        message = new Message(from, toUser, messageDTO.getMessage());
+        message.setData(messageDTO.getData());
+        message.setId(messageDTO.getId());
+        if (messageDTO.getReply() != 0) {
+            try {
+                Message message1 = findMessage(messageDTO.getReply());
+                message.setReply(message1);
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+        }
+        message.setReply(null);
+        return message;
+
     }
 
     /**
@@ -437,7 +577,43 @@ public class Controller extends Observable {
      * @throws RepositoryException if there are no messages with for this user in database
      */
     public List<Message> findMessages(int idUser) throws RepositoryException {
-        return messageService.findMessages(idUser);
+        List<MessageDTO> messageDTOS = messageService.findMessages(idUser);
+        List<Message> messages = new ArrayList<>();
+        for (MessageDTO messageDTO : messageDTOS) {
+            List<User> to = new ArrayList<>();
+            for (Integer user : messageDTO.getTo()) {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if (messageDTO.getReply() != 0) {
+                try {
+                    Message message1 = findMessage(messageDTO.getReply());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
+    }
+
+    public List<MessageDTO> allMessages(int id) throws RepositoryException {
+        return  messageService.findMessages(id);
+
     }
 
     /**
@@ -468,18 +644,21 @@ public class Controller extends Observable {
         notifyObservers();
     }
 
+
+    /**
+     * @param from integer representing the id of the user which is sending the message
+     * @param mess string representing the content of the message
+     * @throws ValidatorException  if the message is not valid
+     * @throws RepositoryException if the message is sent to himself
+     */
     public void replyAll(int from, String mess) throws ValidatorException, RepositoryException {
-        List<UsersFriendsDTO> users = this.getFriends(from);
+        List<User> users = getFriendsForAUser(from);
         List<Integer> to = new ArrayList<>();
-        for(UsersFriendsDTO user : users) {
-            if (user.getUsera().getId() != from)
-                to.add(user.getUsera().getId());
-            else
-                to.add(user.getUserb().getId());
-        }
+        users.forEach(x -> to.add(x.getId()));
         messageService.addNewMessage(from, to, mess);
         setChanged();
         notifyObservers();
+
     }
 
     /**
@@ -490,28 +669,99 @@ public class Controller extends Observable {
      * @return List of Messages
      * @throws RepositoryException if id1 or id 2 are not valid
      */
-    public List<Message> getConversation(int id1, int id2) throws RepositoryException {
-        User user1 = serviceUsers.find(id1);
-        User user2 = serviceUsers.find(id2);
-        List<Message> messages = messageService.all();
-        return messages.stream().
-                filter(x -> ((x.getFrom().equals(user1) && x.getTo().contains(user2)) || (x.getFrom().equals(user2)  && x.getTo().contains(user1)))
+    public List<MessageDTO> getConversation(int id1, int id2) throws RepositoryException {
+        List<MessageDTO> messagesD = messageService.all();
+        return messagesD.stream().
+                filter(x -> ((x.getFrom() == id1 && x.getTo().contains(id2)) || (x.getFrom() == id2 && x.getTo().contains(id1)))
                 )
-                .sorted(Comparator.comparing(Message::getData))
+                .sorted(Comparator.comparing(MessageDTO::getData))
                 .collect(Collectors.toList());
+    }
+
+
+    /**
+     * @param conversation a List<MessageDTO> representing the conversation between two users
+     * @param id1          integer representing the id of the first user
+     * @param id2          integer representing the id of the second user
+     * @param pageSize     integer representing the number of new messages we want to add to the conversation
+     * @param offset       integer representing the offset from which we want to add new messages from the conversation
+     *                     The function adds a number equal to pageSize of messages between the two users to the conversation,
+     *                     starting from the given offset in the db
+     */
+    public void getConversationPag(List<MessageDTO> conversation, int id1, int id2, int pageSize, int offset) {
+        String sql = "SELECT * FROM messages INNER JOIN users_messages um ON messages.ms_id = um.mess_id " +
+                "WHERE um.from_user=" + id2 + " AND um.to_user=" + id1 + " OR um.from_user=" + id1 + " AND um.to_user=" + id2 +
+                " ORDER BY data DESC LIMIT " + pageSize + " OFFSET " + offset + ";";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                int id = resultSet.getInt("mess_id");
+                int from = resultSet.getInt("from_user");
+                int to = resultSet.getInt("to_user");
+                String message = resultSet.getString("mess");
+                LocalDateTime date = resultSet.getTimestamp("data").toLocalDateTime();
+                int reply = resultSet.getInt("reply_to");
+                MessageDTO newMessage = new MessageDTO(from, new ArrayList<>(to), message);
+                newMessage.setId(id);
+                newMessage.setData(date);
+                newMessage.setReply(reply);
+                conversation.add(0, newMessage);
+
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     /**
      * Find all messages sent by a user
      *
-     * @param user Integer representing the id of the user
+     * @param id Integer representing the id of the user
      * @return List of Message representing all messages sent by a user
      */
-    public List<Message> allMessageByUser(int user) {
-        return messageService.allMessageByUser(user);
+    public List<Message> allMessageByUser(int id) {
+        List<MessageDTO> messageDTOS = messageService.allMessageByUser(id);
+        List<Message> messages = new ArrayList<>();
+        for (MessageDTO messageDTO : messageDTOS) {
+            List<User> to = new ArrayList<>();
+            for (Integer user : messageDTO.getTo()) {
+                try {
+                    User user1 = serviceUsers.find(user);
+                    to.add(user1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            User from = null;
+            try {
+                from = serviceUsers.find(messageDTO.getFrom());
+            } catch (RepositoryException e) {
+                e.printStackTrace();
+            }
+            Message message = new Message(from, to, messageDTO.getMessage());
+            message.setData(messageDTO.getData());
+            message.setId(messageDTO.getId());
+            if (messageDTO.getReply() != 0) {
+                try {
+                    Message message1 = findMessage(messageDTO.getId());
+                    message.setReply(message1);
+                } catch (RepositoryException e) {
+                    e.printStackTrace();
+                }
+            }
+            messages.add(message);
+        }
+        return messages;
     }
 
-    public List<User> getNoFriend(int id) {
+
+    /**
+     * @param id integer representing the id of the user
+     * @param n  a string
+     * @return a list of users whose username, firstname or lastname contains n and are not friends with the given user
+     */
+    public List<User> getNoFriend(int id, String n) {
+        String name = n.toUpperCase();
         List<User> users = new ArrayList<>();
         List<User> userList = serviceUsers.all();
         List<Integer> users1 = network.getEdges(id);
@@ -520,9 +770,16 @@ public class Controller extends Observable {
                     if (!users1.contains(x.getId()))
                         users.add(x);
                 });
-        return users;
+        List<User> sentRequests = this.sentFriendRequests(id).stream().map(UsersRequestsDTO::getTo).collect(Collectors.toList());
+        List<User> receivedRequests = this.getFriendRequests(id).stream().map(UsersRequestsDTO::getFrom).collect(Collectors.toList());
+        return users.stream().filter(x -> (x.getUsername().toUpperCase().equals(name)  && x.getId() != id)).collect(Collectors.toList());
     }
 
+    /**
+     * @param id1 integer representing the id of a user
+     * @param id2 integer representing the id of another user
+     * @return a Friendship if the two are friends, null otherwise
+     */
     public Friendship getFriendship(int id1, int id2) {
         List<Friendship> friendships = serviceFriendships.all();
         for (Friendship friendship : friendships)
@@ -532,18 +789,58 @@ public class Controller extends Observable {
         return null;
     }
 
+
+    /**
+     * @param friends  a List<UserModel> representing the list of friends for a given user
+     * @param user     id of a given user
+     * @param pageSize how many new values we want to add in the friends list
+     * @param offset   the offset from which we want to begin adding the new friends
+     *                 The function adds a number equal to pageSize of the user's friends, starting from the given offset in the db
+     */
+    public void getFriendsForAUserPag(List<UserModel> friends, int user, int pageSize, int offset) {
+        if(serviceUsers.size()<pageSize){
+            friends = serviceUsers.all().stream().map(x->{
+                UserModel um = new UserModel(x.getId().toString(), x.getUsername(), x.getFirstName(), x.getLastName());
+                return um;
+            }).collect(Collectors.toList());
+            return;
+        }
+        String sql = "select u1.id, u1.username, u1.firstname, u1.lastname, f1.fr_data from users inner join friendships f1 on users.id = f1.usera inner join users u1 on u1.id = f1.userb WHERE users.id=" +
+                user + " UNION select u.id, u.username, u.firstname, u.lastname, f.fr_data from users inner join friendships f on users.id = f.userb inner join users u on u.id = f.usera\n" +
+                "        where users.id= " + user + "order by id LIMIT " + pageSize + " OFFSET " + offset;
+        try {
+            ResultSet set = statement.executeQuery(sql);
+            while (set.next()) {
+                int user1 = set.getInt("id");
+                String username = set.getString("username");
+                String firstname = set.getString("firstname");
+                String lastname = set.getString("lastname");
+                LocalDateTime date = set.getTimestamp("fr_data").toLocalDateTime();
+                UserModel newUser = new UserModel(String.valueOf(user1), username, firstname, lastname);
+                friends.add(newUser);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+
+    /**
+     * @param user integer representing the id of a given user
+     * @return a list of all the user's friends
+     * @throws RepositoryException
+     * @throws ValidatorException
+     */
     public List<User> getFriendsForAUser(int user) throws RepositoryException, ValidatorException {
+
         List<Friendship> friendshipList = serviceFriendships.all();
         List<User> users = new ArrayList<>();
         friendshipList.stream().filter(x -> x.getUserA() == user || x.getUserB() == user).forEach(x -> {
             try {
-                if(x.getUserA() == user)
-                {
+                if (x.getUserA() == user) {
                     User user1 = serviceUsers.find(x.getUserB());
                     users.add(user1);
-                }
-                else
-                {
+                } else {
                     User user1 = serviceUsers.find(x.getUserA());
                     users.add(user1);
                 }
@@ -554,5 +851,235 @@ public class Controller extends Observable {
         });
         return users;
     }
+
+    /**
+     * @param id integer representing the id of the message
+     * @return the message with the given id from the repository
+     * @throws RepositoryException
+     */
+    public MessageDTO findMessageDTO(int id) throws RepositoryException {
+        return messageService.findMessage(id);
+    }
+
+    /**
+     * @param username a string representing a user's username
+     * @param password a string representing a user's password
+     * @return an integer representing the user's id
+     * @throws RepositoryException if such a user does no exists
+     */
+    public int getUserByUsernameAndPassword(String username, String password) throws RepositoryException {
+        List<User> users = serviceUsers.all();
+        for (User user : users)
+            if (username.equals(user.getUsername()) && password.equals(user.getPassword())) {
+                return user.getId();
+            }
+        throw new RepositoryException("Incorect username or password");
+    }
+
+    /**
+     * @param user   id of the user
+     * @param day1   integer
+     * @param month1 integer
+     * @param year1  integer representing the start date
+     * @param day2   integer
+     * @param month2 integer
+     * @param year2  integer representing the end date
+     * @return a list of Friendships which have been made by the user between the given dates
+     * @throws Exception
+     */
+    public List<Friendship> friendshipsBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception {
+        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1, 0, 0);
+        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2, 23, 59);
+        ArrayList<Friendship> friendships = serviceFriendships.all();
+        return friendships.stream().filter(x -> ((x.getUserA() == user || x.getUserB() == user) && x.getDate().compareTo(date1) >= 0 && x.getDate().compareTo(date2) <= 0)
+        ).collect(Collectors.toList());
+    }
+
+    /**
+     * @param user   id of the user
+     * @param day1   integer
+     * @param month1 integer
+     * @param year1  integer representing the start date
+     * @param day2   integer
+     * @param month2 integer
+     * @param year2  integer representing the end date
+     * @return a list of messages which have been received by the user between the given dates
+     * @throws Exception
+     */
+    public List<MessageDTO> messagesBetween2Dates(int user, int day1, int month1, int year1, int day2, int month2, int year2) throws Exception {
+        LocalDateTime date1 = LocalDateTime.of(year1, month1, day1, 0, 0);
+        LocalDateTime date2 = LocalDateTime.of(year2, month2, day2, 23, 59);
+        List<MessageDTO> messages = messageService.all();
+        return messages.stream().filter(x -> (x.getTo().contains(user) && x.getData().compareTo(date1) >= 0 && x.getData().compareTo(date2) <= 0)
+        ).collect(Collectors.toList());
+    }
+
+
+    /**
+     * @param user   id of the user that has received the messages
+     * @param from   username the user which has sent the messages
+     * @param day1   the day of the start date
+     * @param month1 the month of the start date
+     * @param year1  the year of the start date
+     * @param day2   the day of the end date
+     * @param month2 the month of the end date
+     * @param year2  the year of the end date
+     * @return a List<MessageDTO> representing the messages which have been sent by the from user to user
+     * between the dates specified
+     */
+    public List<MessageDTO> getMessagesFromBetween(int user, String from, int day1, int month1, int year1, int day2, int month2, int year2) {
+        List<MessageDTO> messages = new ArrayList<>();
+        String startDate = year1 + "-" + month1 + "-" + day1;
+        String endDate = year2 + "-" + month2 + "-" + day2;
+        int fromId = Integer.parseInt(serviceUsers.findByUsername(from).getId());
+        String sql = "SELECT * " +
+                "from messages " +
+                "inner join users_messages um on messages.ms_id = um.mess_id " +
+                "where um.from_user=" + fromId + " and um.to_user=" + user + " and data between '" + startDate + "' AND '" + endDate +
+                "' order by data;";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                int fromUser = resultSet.getInt("from_user");
+                int toUser = resultSet.getInt("to_user");
+                String message = resultSet.getString("mess");
+                LocalDateTime date = resultSet.getTimestamp("data").toLocalDateTime();
+                int reply = resultSet.getInt("reply_to");
+                MessageDTO messageDTO = new MessageDTO(fromUser, new ArrayList<>(toUser), message);
+                messageDTO.setData(date);
+                messageDTO.setId(resultSet.getInt("ms_id"));
+                messageDTO.setReply(reply);
+                messages.add(messageDTO);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return messages;
+    }
+
+    /**
+     * @param name        string representing the event's name
+     * @param description string representing the event's description
+     * @param date        LocalDate representing the date of the event
+     * @throws ValidatorException  if the event is not valid
+     * @throws RepositoryException if an equal event already exists
+     */
+    public void addNewEvent(String name, String description, LocalDate date) throws ValidatorException, RepositoryException {
+        eventService.addNewEvent(name, description, date);
+    }
+
+
+    /**
+     * @param userId  integer representing a user's id
+     * @param eventId integer representing an event's id
+     *                removes the subscription of the given user to the given event
+     */
+    public void removeSubscription(Integer userId, Integer eventId) {
+        String sql = "DELETE FROM users_events WHERE user_id=" + userId.toString() + " AND ev_id=" + eventId.toString() + ";";
+        try {
+            statement.executeUpdate(sql);
+            setChanged();
+            notifyObservers();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    /**
+     * @param userId  integer representing a user's id
+     * @param eventId integer representing an event's id
+     *                adds attendance of the given user to the given event
+     */
+    public void addAttendance(Integer userId, Integer eventId) {
+        String sql = "INSERT INTO users_events(user_id, ev_id) VALUES (" +
+                userId.toString() + "," + eventId.toString() + ");";
+        try {
+            statement.executeUpdate(sql);
+            setChanged();
+            notifyObservers();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    /**
+     * @param id integer representing the id of a user
+     * @return a list of events representing the events which the user is subscribed to
+     */
+    public List<Event> eventsForAUser(Integer id) {
+        List<Event> eventList = new ArrayList<>();
+        String sql = "SELECT e.ev_id, e.name, e.description, e.date FROM users_events " +
+                "INNER JOIN events e ON e.ev_id = users_events.ev_id WHERE user_id=" + id.toString() + ";";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                int evId = resultSet.getInt("ev_id");
+                String name = resultSet.getString("name");
+                String description = resultSet.getString("description");
+                LocalDate date = resultSet.getDate("date").toLocalDate();
+                Event event = new Event(name, description, date);
+                event.setId(evId);
+                eventList.add(event);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return eventList;
+    }
+
+
+    /**
+     * @param id integer representing the id of the user
+     * @return a list of events to which the given user is not subscribed
+     */
+    public List<Event> eventsNotAttendedByUser(Integer id) {
+        List<Event> eventList = new ArrayList<>();
+        List<Event> all = eventService.all();
+        List<Event> subscribed = eventsForAUser(id);
+        String sql;
+        for (Event event : all) {
+            if (!subscribed.contains(event)) {
+                eventList.add(event);
+            }
+        }
+        return eventList;
+    }
+
+
+    /**
+     * @param id integer representing the id of a user
+     * @return an event representing the next event which will happen for the given user
+     */
+    public Event nextEventForUser(Integer id) {
+        String sql = "SELECT e.ev_id, e.name, e.description, e.date FROM users_events " +
+                "INNER JOIN events e ON e.ev_id = users_events.ev_id WHERE user_id=" + id.toString() + " ORDER BY e.date ASC LIMIT 1;";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            if (resultSet.next()) {
+                int evId = resultSet.getInt("ev_id");
+                String name = resultSet.getString("name");
+                String description = resultSet.getString("description");
+                LocalDate date = resultSet.getDate("date").toLocalDate();
+                Event event = new Event(name, description, date);
+                event.setId(evId);
+                return event;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * @param id integer representing the id of a user
+     * @return the number of days untill the next event
+     */
+    public long daysUntilNextEvent(Integer id) {
+        Event ev = nextEventForUser(id);
+        return ChronoUnit.DAYS.between(LocalDate.now(), ev.getDate());
+    }
+
 
 }
